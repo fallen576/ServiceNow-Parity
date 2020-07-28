@@ -1,2 +1,2 @@
 # ServiceNow-Parity
-Extremely basic replication of how ServiceNow generates table data to the front end.
+Extremely basic example to be able to generate tables to the front end user similar to how ServiceNow acts.
