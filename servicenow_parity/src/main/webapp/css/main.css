@@ -30,3 +30,6 @@ ul li:after {
     height: 1px;
     background: darkgray;
 }
+.icon {
+    text-align: center;
+}
