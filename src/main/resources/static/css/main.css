@@ -1,0 +1,42 @@
+body {
+    background-color: lightgray;
+    height: 100%;
+}
+
+.container-fluid {
+	height : 100vh;
+}
+
+.mynavbar {
+    color: #D9D8D5;
+    text-align: center;
+    padding: 10px;   
+}
+a:hover {
+    background-color: slategrey;
+}
+.navbar.center .navbar-inner {
+    text-align: center;
+}
+
+.filter {
+    background-color: aliceblue;
+    text-align : center;
+    width : 100%;
+}
+
+.navbar.center .navbar-inner .nav {
+    display: flex;
+    float: none;
+    vertical-align: top;
+}
+
+ul li:after {
+    content: "";
+    display: block;
+    height: 1px;
+    background: darkgray;
+}
+.icon {
+    text-align: center;
+}
