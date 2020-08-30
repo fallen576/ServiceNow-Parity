@@ -9,7 +9,8 @@ import javax.persistence.Table;
 @Table(name="modules")
 public class Module {
 	@Id
-	private String module_name;
+	@Column(name="module_name")
+	private String moduleName;
 
 	@Column(name="table_name")
 	private String tableName;
@@ -19,16 +20,16 @@ public class Module {
 	}
 
 	public Module(String module_name, String tableName) {
-		this.module_name = module_name;
+		this.moduleName = module_name;
 		this.tableName = tableName;
 	}
 
-	public String getModule_name() {
-		return module_name;
+	public String getModuleName() {
+		return moduleName;
 	}
 
-	public void setModule_name(String module_name) {
-		this.module_name = module_name;
+	public void ModuleName(String module_name) {
+		this.moduleName = module_name;
 	}
 
 	public String getTableName() {
@@ -41,6 +42,6 @@ public class Module {
 	
 	@Override
 	public String toString() {
-		return "module [module_name=" + module_name + ", tableName=" + tableName + "]";
+		return "module [module_name=" + moduleName + ", tableName=" + tableName + "]";
 	}
 }

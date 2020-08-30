@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -20,15 +21,21 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.snp.db.JdbcRepo;
 import com.snp.entity.Module;
+import com.snp.entity.User;
 import com.snp.service.ModuleService;
+import com.snp.service.UserService;
 
 @Controller
-public class Nav {
+public class Glide {
 	@Autowired
 	private ModuleService modService;
 	
-	@RequestMapping(value="/Nav", method = RequestMethod.GET)
+	@Autowired
+	private JdbcRepo db;
+	
+	@RequestMapping(value="/Glide", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<String> loadModules() {
 		//this method retrieves modules
@@ -44,6 +51,9 @@ public class Nav {
 	@GetMapping("/table/{table_name}")
 	public ModelAndView loadTable(Model model, @PathVariable(value="table_name") String table) {
 		model.addAttribute("modules", (List<Module>) modService.findAll());		
+		
+		this.db.findAll(table);
+		
 		Map<String, Object> params = new HashMap<>();
 	    params.put("table", table);
 		return new ModelAndView("home", params);
@@ -60,4 +70,5 @@ public class Nav {
 		modService.findAll().forEach(modules::add);
 		return modules;
 	}
+	
 }
