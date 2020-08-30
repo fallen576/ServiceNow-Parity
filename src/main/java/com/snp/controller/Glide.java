@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
@@ -52,10 +54,34 @@ public class Glide {
 	public ModelAndView loadTable(Model model, @PathVariable(value="table_name") String table) {
 		model.addAttribute("modules", (List<Module>) modService.findAll());		
 		
-		this.db.findAll(table);
+		String schema = this.db.findAll(table);
+		JSONArray json = new JSONArray(schema);
+		String[] elementNames = null;
+		ArrayList<ArrayList<String>> data2 = new ArrayList<ArrayList<String>>();
+		
+		ArrayList<HashMap<String, String>> data = new ArrayList<HashMap<String, String>>();
+		
+		for (int i = 0; i < json.length(); i++) {
+			JSONObject obj = json.getJSONObject(i);
+			elementNames = JSONObject.getNames(obj);
+			ArrayList<String> tmp = new ArrayList<String>();			
+			for (String elementName : elementNames) {
+				tmp.add(obj.getString(elementName));
+				//HashMap<String, String> row =  new HashMap<String, String>();
+				//row.put(elementName, obj.getString(elementName));
+				//data.add(row);
+				//System.out.println(elementName + " " + obj.getString(elementName));
+			}
+			data2.add(tmp);
+		}
+		System.out.println("JSON : " + json);
+		System.out.println("Data2: " + data2);
 		
 		Map<String, Object> params = new HashMap<>();
 	    params.put("table", table);
+	    params.put("columns", elementNames);
+	    params.put("data", data2);
+	    params.put("schema", json);
 		return new ModelAndView("home", params);
 	}
 	

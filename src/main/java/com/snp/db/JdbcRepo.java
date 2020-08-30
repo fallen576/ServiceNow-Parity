@@ -1,29 +1,24 @@
 package com.snp.db;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.sql.DataSource;
-
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.snp.model.DatabaseTable;
 
 @Component
 public class JdbcRepo {
@@ -53,26 +48,50 @@ public class JdbcRepo {
 		return sql;
 	}
 	
-	public void findAll(String table) {
-		ArrayList<String> columns = new ArrayList<>();
-		
+	public String findAll(String table) {		
 		String sql = this.SELECT_ALL;
 		
 		String answer = jdbcTemplate.query(sql + table, new ResultSetExtractor<String>() {
 			public String extractData(ResultSet rs) throws SQLException, DataAccessException {
-				ResultSetMetaData md = rs.getMetaData();
+				/*
+				DatabaseTable dbt = new DatabaseTable();
+				ArrayList<String> columns = new ArrayList<String>();
+				HashMap<Integer, String[]> rows = new HashMap<Integer, String[]>();
 				
-				while (rs.next()) {
-					for (int i = 1; i <= md.getColumnCount(); i++) {
-						columns.add(md.getColumnName(i));
-						System.out.println("Column Name: " + md.getColumnName(i));
-						System.out.println("Value " + rs.getObject(i));
-					}
+				ResultSetMetaData md = rs.getMetaData();
+				for (int i = 1; i <= md.getColumnCount(); i++) {
+					columns.add(md.getColumnLabel(i));
 				}
 				
-				return "ben";
+				int numRows = 1;
+				while (rs.next()) {
+					String[] tmpRow = new String[columns.size()];
+					for (int i = 0; i < columns.size(); i++) {
+						tmpRow[i] = rs.getString(i);
+					}
+					rows.put(numRows, tmpRow);
+					numRows++;
+				}
+				dbt.setColumns(columns);
+				dbt.setRows(rows);
+				*/
+				
+				ResultSetMetaData md = rs.getMetaData();
+				
+				JSONArray jsonArray = new JSONArray();
+				while (rs.next()) {
+					JSONObject json = new JSONObject();
+					for (int i = 1; i <= md.getColumnCount(); i++) {
+						json.put(md.getColumnName(i), rs.getObject(i));
+					}
+					jsonArray.put(json);
+				}
+				System.out.println("JSON: " + jsonArray);
+				return jsonArray.toString();
 			}
 		}); 
+		
 		System.out.println("Ben's answer is " + answer);
+		return answer;
 	}
 }

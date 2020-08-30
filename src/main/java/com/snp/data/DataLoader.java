@@ -25,8 +25,8 @@ public class DataLoader implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {		
 		
+		this.modService.save(new Module("Modules", "modules"));
 		this.modService.save(new Module("Users", "users"));
-		this.modService.save(new Module("Settings", "settings"));
 		
 		this.userService.save(new User("admin", "admin", "admin"));
 		this.userService.save(new User("Ben", "Gianni", "BenGianni"));

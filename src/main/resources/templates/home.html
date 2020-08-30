@@ -32,6 +32,9 @@
                                 <li>
                                 	Table Name:&nbsp;<span th:text="${table}"></span>
                                 </li>
+                                <li>
+                                	Table Schema:&nbsp;<span th:text="${schema}"></span>
+                                </li>
                             </ul>
                         </nav>
                     </div>
@@ -41,30 +44,14 @@
                     <table class="table" id="table">
                         <thead>
                             <tr>
-                            <th scope="col"></th>
-                            <th scope="col">Link to</th>
-                            <th scope="col">Last</th>
-                            <th scope="col">Handle</th>
+                            <th scope="col"/>
+                            <th scope="col" th:each="column: ${columns}" th:text="${column}"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                            <th class="icon" scope="row"><a href=""><img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25"/></a></th>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdosdsds</td>
-                            </tr>
-                            <tr>
-                            <th class="icon" scope="row"><a href=""><img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25"/></a></th>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                            </tr>
-                            <tr>
-                            <th class="icon" scope="row"><a href=""><img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25"/></a></th>
-                            <td>Larry</td>
-                            <td>the Bird</td>
-                            <td>@twitter</td>
+                            <tr th:each="row: ${data}">
+                            	<th class="icon" scope="row"><a href=""><img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25"/></a></th>
+                           		<td th:each="entry: ${row}" th:text="${entry}"></td>
                             </tr>
                         </tbody>
                     </table>
