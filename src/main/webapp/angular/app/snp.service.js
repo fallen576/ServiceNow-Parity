@@ -12,7 +12,7 @@
         service.getAllModules = function () {
             var promise = $http({
                 method: "GET",
-                url: "http://localhost:8080/SNP/Glide"
+                url: "http://localhost:8080/SNP/api/v1/modules"
             });
             return promise;
         };
@@ -20,7 +20,7 @@
         service.loadListView = function(table) {
             var promise = $http({
                 method: "GET",
-                url: ("http://localhost:808/table/" + table)
+                url: ("http://localhost:8080/SNP/api/v1/table/" + table)
             });
             return promise;
         };

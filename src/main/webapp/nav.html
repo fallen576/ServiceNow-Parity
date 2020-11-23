@@ -5,25 +5,29 @@
   <meta charset="utf-8">
   <title>Angular</title>
   <!-- Libraries -->
-  	  <script src="angular/lib/angular.min.js"></script>
-      <script src="angular/lib/angular-ui-router.min.js"></script>
-      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-      <link rel="stylesheet" href="angular/lib/main.css">
+  <script src="angular/lib/angular.min.js"></script>
+  <script src="angular/lib/angular-ui-router.min.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+  <link rel="stylesheet" href="angular/lib/main.css">
+  <script>
+    $('#table').DataTable();
+    </script>
+  <!-- Modules -->
+  <script src="angular/app/snp.module.js"></script>
 
-      <!-- Modules -->
-      <script src="angular/app/snp.module.js"></script>
+  <!-- Routes -->
 
-      <!-- Routes -->
-
-      <!-- 'data' module artifacts -->
-      <script src="angular/app/snp.service.js"></script>
-      <script src="angular/app/snp.modulecontroller.js"></script>
+  <!-- 'data' module artifacts -->
+  <script src="angular/app/snp.service.js"></script>
+  <script src="angular/app/snp.modulecontroller.js"></script>
 </head>
 
-<body>
+<body ng-controller="ModuleController as mc">
 
-  <div class="container-fluid" ng-controller="ModuleController as mc">
+  <div class="container-fluid">
     <div class="row h-100">
       <!--left nav bar-->
       <div class="col-2" style="background-color: #37424F">
@@ -40,14 +44,33 @@
                 <a class="nav-link rounded" href="/SNP">Home</a>
               </li>
               <li ng-repeat="module in mc.modules">
-                <a class="nav-link" href="table/{{module.tableName}}">{{module.moduleName}}</a>
+                {{module.tableName}}
+                <button ng-click="mc.loadTable(module['tableName'])">{{module.moduleName}}</button>
               </li>
             </ul>
           </nav>
         </div>
       </div>
     </div>
-
+    <!--main content area-->
+    <div class="col-10" style="background-color: #FFFFFF">
+      <table class="table" id="table">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col" ng-repeat="header in mc.headers track by $index">
+              {{header}}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="item in mc.table track by $index">
+            <th class="icon" scope="row"><a href=""><img src="angular/lib/icon.png" alt="Open Record" height="25" width="25" /></a></th>
+            <td ng-repeat="i in item">{{i}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 </body>
 
 </html>
