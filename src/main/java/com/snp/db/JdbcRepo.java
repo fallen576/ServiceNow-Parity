@@ -86,12 +86,36 @@ public class JdbcRepo {
 					}
 					jsonArray.put(json);
 				}
-				System.out.println("JSON: " + jsonArray);
+				//System.out.println("JSON: " + jsonArray);
 				return jsonArray.toString();
 			}
 		}); 
 		
-		System.out.println("Ben's answer is " + answer);
+		//System.out.println("Ben's answer is " + answer);
 		return answer;
+	}
+	
+	public String formView(String table, String guid) {
+		
+		return jdbcTemplate.query(SELECT_ALL + table + " WHERE SYS_ID= '" + guid + "'", new ResultSetExtractor<String>() {
+			public String extractData(ResultSet rs) throws SQLException, DataAccessException {
+				return _process(rs);
+			}
+			
+		});
+	}
+	
+	private String _process(ResultSet rs) throws SQLException {
+		ResultSetMetaData md = rs.getMetaData();
+		
+		JSONArray jsonArray = new JSONArray();
+		while (rs.next()) {
+			JSONObject json = new JSONObject();
+			for (int i = 1; i <= md.getColumnCount(); i++) {
+				json.put(md.getColumnName(i), rs.getObject(i));
+			}
+			jsonArray.put(json);
+		}
+		return jsonArray.toString();
 	}
 }

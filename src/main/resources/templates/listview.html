@@ -2,6 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
     <head>
+    	<title>[[${tableName}]]</title>
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 		<link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -10,7 +11,7 @@
         <script type="text/javascript" th:src="@{/js/script.js}"></script>
     </head>
     <body>
-        <div class="container-fluid">
+    	<div class="container-fluid">
             <div class="row h-100">
                 <!--left nav bar-->
                 <div class="col-2" style="background-color: #37424F">
@@ -44,7 +45,7 @@
                         </thead>
                         <tbody>
                             <tr th:each="row: ${data}">
-                            	<th class="icon" scope="row"><a th:href="@{/table/{table_name}?sys_id={guid}(table_name=${table},guid=${row[0]})}"><img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25"/></a></th>
+                            	<th class="icon" scope="row"><a href=""><img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25"/></a></th>
                            		<td th:each="entry: ${row}" th:text="${entry}"></td>
                             </tr>
                         </tbody>
