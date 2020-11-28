@@ -25,7 +25,7 @@
                                     <input name="filter" class="nav-link filter rounded" placeholder="Search for Tables"></input>
                                 </li>
 								<li class="nav-item">
-                                	<a class="nav-link rounded" href="/SNP">Home</a>
+                                	<a class="nav-link rounded" href="/">Home</a>
                                 </li>
                                 <li th:each="module : ${modules}">
                                 	<a class="nav-link" th:href="@{/table/{table_name}_list.do(table_name=${module.tableName})}">[[${module.moduleName}]]</a>
@@ -36,12 +36,13 @@
                 </div>
                 <!--main content area-->
                 <div th:if="${table}" class="col-10" style="background-color: #FFFFFF">
-                    <div class="col-12">
-                        <div class="row" th:each="item,i: ${data[0]}">
-                            <label for="${columns[i.index]}" th:text="${columns[i.index]}"></label>
-                            <input name="${columns[i.index]}" th:value="${item}"/>
-                        </div>
-                    </div>
+                        <form action="/update" method="post">
+					  <div class="form-group" th:each="item,i: ${data[0]}">
+					  	<label th:for="${columns[i.index]}" th:text="${columns[i.index]}"></label>
+                        <input class="form-control" th:name="${columns[i.index]}" th:value="${item}"/>
+					  </div>
+					  <button type="submit" class="btn btn-default">Submit</button>
+					</form>
                 </div>
             </div>
         </div>  

@@ -44,7 +44,7 @@
                         </thead>
                         <tbody>
                             <tr th:each="row: ${data}">
-                            	<th class="icon" scope="row"><a th:href="@{/table/{table_name}?sys_id={guid}(table_name=${table},guid=${row[0]})}"><img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25"/></a></th>
+                            	<th class="icon" scope="row"><a th:href="@{/table/{table_name}?sysparm_query=sys_id={guid}(table_name=${table},guid=${row[0]})}"><img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25"/></a></th>
                            		<td th:each="entry: ${row}" th:text="${entry}"></td>
                             </tr>
                         </tbody>

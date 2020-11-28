@@ -28,7 +28,7 @@ public class User {
 	@Type(type = "uuid-char")
 	private UUID id;
 	
-	@Column(name="uer_name")
+	@Column(name="user_name")
 	private String user_name;
 	
 	@Column(name="first_name")

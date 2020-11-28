@@ -1,10 +1,14 @@
 package com.snp.controller;
 
+import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -70,8 +76,6 @@ public class Glide {
 			}
 			data2.add(tmp);
 		}
-		//System.out.println("JSON : " + json);
-		//System.out.println("Data2: " + data2);
 		
 		Map<String, Object> params = new HashMap<>();
 	    params.put("table", table);
@@ -88,13 +92,22 @@ public class Glide {
 	}
 	
 	@GetMapping("/table/{table_name}")
-	public ModelAndView loadFormView(Model model, 
+	public ModelAndView loadView(Model model, 
 									@PathVariable(value="table_name") String table,
-									@RequestParam String sys_id) {
+									@RequestParam String sysparm_query) {
+		
+		boolean listView = true;
+		
+		List<NameValuePair> qParams = URLEncodedUtils.parse(sysparm_query, Charset.forName("UTF-8"));
+		
+		if (qParams.get(0).getName().equals("sys_id")) {
+			listView = false;
+		}
+		
+		String schema = this.db.lookup(table, qParams);
 		
 		Map<String, Object> params = new HashMap<>();
 		
-		String schema = this.db.formView(table, sys_id);
 		JSONArray json = new JSONArray(schema);
 		String[] elementNames = null;
 		ArrayList<ArrayList<String>> data2 = new ArrayList<ArrayList<String>>();
@@ -114,6 +127,10 @@ public class Glide {
 	    params.put("columns", elementNames);
 	    params.put("data", data2);
 	    params.put("schema", json);
+		
+		if (listView) 
+			return new ModelAndView("home", params);
+		
 		return new ModelAndView("listview", params);
 	}
 	
