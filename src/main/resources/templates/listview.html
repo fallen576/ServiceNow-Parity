@@ -36,12 +36,12 @@
                 </div>
                 <!--main content area-->
                 <div th:if="${table}" class="col-10" style="background-color: #FFFFFF">
-                        <form action="/update" method="post">
+                    <form th:action="@{/update/{table_name}(table_name=${table})}" method="post">
 					  <div class="form-group" th:each="item,i: ${data[0]}">
 					  	<label th:for="${columns[i.index]}" th:text="${columns[i.index]}"></label>
-                        <input class="form-control" th:name="${columns[i.index]}" th:value="${item}"/>
+                        <input class="form-control" th:name="${columns[i.index]}" th:value="${item}" th:readonly="${columns[i.index]} == 'SYS_ID'"/>
 					  </div>
-					  <button type="submit" class="btn btn-default">Submit</button>
+					  <button type="submit" class="btn btn-info">Submit</button>
 					</form>
                 </div>
             </div>

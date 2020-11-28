@@ -6,7 +6,10 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
@@ -87,7 +90,7 @@ public class JdbcRepo {
 		for (NameValuePair param : params) {
 			  query += param.getName() + " = '" + param.getValue() + "'";
 		}
-		System.out.println("FINAL QUERY IS !!!!!!!!!!!!!!! " + query);
+		//System.out.println("FINAL QUERY IS !!!!!!!!!!!!!!! " + query);
 		return jdbcTemplate.query(query,
 				new ResultSetExtractor<String>() {
 			
@@ -95,6 +98,36 @@ public class JdbcRepo {
 						return _process(rs);
 					}
 		});
+	}
+	
+	public String updateRecord(Map<?, ?> m, String table) {
+		Set<?> s = m.entrySet();
+        Iterator<?> it = s.iterator();
+        String query = "UPDATE " + table + " SET ";
+        String where = " WHERE SYS_ID = '" ;
+        String id = "";
+        
+        while(it.hasNext()){
+        	Map.Entry<String,String[]> entry = (Map.Entry<String,String[]>)it.next();
+        	 String key = entry.getKey();
+             String[] value = entry.getValue();
+             
+             if (key.equals("SYS_ID")) {
+            	 where += value[0] + "'";
+            	 id = value[0];
+             }
+             else {
+            	 query += key + "='" + value[0] + "', ";
+             }
+		}
+        query = query.substring(0, query.length() - 2);
+        query += where;
+        
+        System.out.println("FINAL QUERY!!! " + query);
+        
+        jdbcTemplate.update(query);
+        return id;
+        
 	}
 	
 	private String _process(ResultSet rs) throws SQLException {

@@ -4,8 +4,13 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -20,6 +25,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -132,6 +138,16 @@ public class Glide {
 			return new ModelAndView("home", params);
 		
 		return new ModelAndView("listview", params);
+	}
+	
+	@PostMapping("/update/{table_name}")
+	public ModelAndView update(Model model, HttpServletRequest req,
+							  @PathVariable(value="table_name") String table) {
+		
+		Map<?, ?> m =req.getParameterMap();
+        String id = this.db.updateRecord(m, table);
+        return new ModelAndView("redirect:/table/" + table + "?sysparm_query=sys_id=" + id);
+		
 	}
 	
 	private List<Module> _loadModules() {
