@@ -23,6 +23,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -148,35 +149,41 @@ public class Glide {
 		return new ModelAndView("listview", params);
 	}
 	
-	@PostMapping("/update/{table_name}")
-	public ModelAndView update(Model model, HttpServletRequest req,
+	@PostMapping(path = "/update/{table_name}", produces=MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public HashMap<String, String> update(Model model, HttpServletRequest req,
 							  @PathVariable(value="table_name") String table) throws JsonProcessingException {
 		
+		HashMap<String, String> response = new HashMap<>();
 		Map<?, ?> m =req.getParameterMap();
         String id = this.db.updateRecord(m, table);
+        response.put("sys_id", id);
         try {
         	sendSseEvent(m);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			response.put("message", "We ran into an error. Please try again.");
+			return response;
 		}
-        return new ModelAndView("redirect:/table/" + table + "?sysparm_query=sys_id=" + id);
+        
+        response.put("message", "Successfully updated record.");
+        return response;
 		
 	}
 	
 
 	@GetMapping("/sse")
 	public SseEmitter _emit(HttpServletResponse response, Map<?, ?> payload) throws Exception {
-		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!we here");
 		response.setHeader("Cache-Control", "no-store");
 		
-		SseEmitter emitter = new SseEmitter();
+		SseEmitter emitter = new SseEmitter(86400000L);
+
         emitters.add(emitter);
         
         emitter.onCompletion(() -> emitters.remove(emitter));
         emitter.onTimeout(() -> emitters.remove(emitter));
-        
-        System.out.println("!!!!!!!!!!!!!!!!and we done?");
+       
         return emitter;
 	}
 	
@@ -185,14 +192,10 @@ public class Glide {
 		
 		emitters.forEach(emitter -> {
 		      try {
-		        // close connnection, browser automatically reconnects
-		        // emitter.complete();
-		        String json = new ObjectMapper().writeValueAsString(payload);
+		        //String json = new ObjectMapper().writeValueAsString(payload);
 		        SseEventBuilder builder = SseEmitter.event()
 		        									.name("update")
-		        									.data(json);
-		        // SseEventBuilder builder =
-		        // SseEmitter.event().reconnectTime(10_000L).data(memoryInfo).id("1");
+		        									.data(payload);
 		        emitter.send(builder);
 		      }
 		      catch (Exception e) {
