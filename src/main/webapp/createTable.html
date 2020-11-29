@@ -11,9 +11,7 @@
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <link rel="stylesheet" href="angular/lib/main.css">
-  <script>
-    $('#table').DataTable();
-    </script>
+  <script src="angular/app/addarow.js"></script>
   <!-- Modules -->
   <script src="angular/app/snp.module.js"></script>
 
@@ -49,10 +47,39 @@
           </nav>
         </div>
       </div>
-    </div>
-    <!--main content area-->
-    <div class="col-10" style="background-color: #FFFFFF">
-      
+      <!--main content area-->
+      <div class="container col-10" style="background-color: #FFFFFF">
+		    <table id="myTable" class=" table order-list">
+		    <thead>
+		        <tr>
+		            <td>Field Name</td>
+		            <td>Field type</td>
+		        </tr>
+		    </thead>
+		    <tbody>
+		        <tr>
+		            <td class="col-sm-4">
+		                <input type="text" name="name" class="form-control" />
+		            </td>
+		            <td class="col-sm-4">
+		                <input name="type"  class="form-control" value="String" readonly/>
+		            </td>
+		            <td class="col-sm-2"><a class="deleteRow"></a>
+		
+		            </td>
+		        </tr>
+		    </tbody>
+		    <tfoot>
+		        <tr>
+		            <td colspan="5" style="text-align: left;">
+		                <input type="button" class="btn btn-lg btn-block btn-primary " id="addrow" value="Add Row" />
+		            </td>
+		        </tr>
+		        <tr>
+		        </tr>
+		    </tfoot>
+		</table>
+		</div> 
     </div>
 </body>
 

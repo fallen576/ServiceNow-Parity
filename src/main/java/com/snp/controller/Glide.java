@@ -73,6 +73,11 @@ public class Glide {
 	
 	@GetMapping("/table/{table_name}_list.do")
 	public ModelAndView loadTable(Model model, @PathVariable(value="table_name") String table) {
+		
+		if (table.equals("createTable")) {
+			return new ModelAndView("redirect:/createTable.html");
+		}
+		
 		model.addAttribute("modules", (List<Module>) modService.findAll());		
 		
 		String schema = this.db.findAll(table);
