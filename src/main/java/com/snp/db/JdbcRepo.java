@@ -123,7 +123,7 @@ public class JdbcRepo {
         query = query.substring(0, query.length() - 2);
         query += where;
         
-        System.out.println("FINAL QUERY!!! " + query);
+        //System.out.println("FINAL QUERY!!! " + query);
         
         jdbcTemplate.update(query);
         return id;

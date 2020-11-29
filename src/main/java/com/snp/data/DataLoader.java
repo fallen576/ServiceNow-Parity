@@ -37,15 +37,15 @@ public class DataLoader implements ApplicationRunner {
 
 		
 		for (int i = 0; i < lastNames.length; i++) {
-			String fName = firstNames[rand(firstNames)];
-			String lName = lastNames[rand(lastNames)];
+			String fName = firstNames[_rand(firstNames)];
+			String lName = lastNames[_rand(lastNames)];
 			String uName = fName+lName;
 			this.userService.save(new User(fName, lName, uName));
 		}
 		
 	}
 	
-	private static int rand(String[] arr) {
+	private static int _rand(String[] arr) {
 		return (int) (Math.random() * arr.length - 1);
 	}
 }

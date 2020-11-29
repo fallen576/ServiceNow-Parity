@@ -1,5 +1,6 @@
 package com.snp.controller;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -8,6 +9,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +35,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,6 +54,8 @@ public class Glide {
 	
 	@Autowired
 	private JdbcRepo db;
+	
+	private static CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 	
 	@RequestMapping(value="/Glide", method = RequestMethod.GET)
 	@ResponseBody
@@ -142,12 +150,57 @@ public class Glide {
 	
 	@PostMapping("/update/{table_name}")
 	public ModelAndView update(Model model, HttpServletRequest req,
-							  @PathVariable(value="table_name") String table) {
+							  @PathVariable(value="table_name") String table) throws JsonProcessingException {
 		
 		Map<?, ?> m =req.getParameterMap();
         String id = this.db.updateRecord(m, table);
+        try {
+        	sendSseEvent(m);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         return new ModelAndView("redirect:/table/" + table + "?sysparm_query=sys_id=" + id);
 		
+	}
+	
+
+	@GetMapping("/sse")
+	public SseEmitter _emit(HttpServletResponse response, Map<?, ?> payload) throws Exception {
+		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!we here");
+		response.setHeader("Cache-Control", "no-store");
+		
+		SseEmitter emitter = new SseEmitter();
+        emitters.add(emitter);
+        
+        emitter.onCompletion(() -> emitters.remove(emitter));
+        emitter.onTimeout(() -> emitters.remove(emitter));
+        
+        System.out.println("!!!!!!!!!!!!!!!!and we done?");
+        return emitter;
+	}
+	
+	public void sendSseEvent(Map<?,?> payload) {
+		List<SseEmitter> deadEmitters = new ArrayList<>();
+		
+		emitters.forEach(emitter -> {
+		      try {
+		        // close connnection, browser automatically reconnects
+		        // emitter.complete();
+		        String json = new ObjectMapper().writeValueAsString(payload);
+		        SseEventBuilder builder = SseEmitter.event()
+		        									.name("update")
+		        									.data(json);
+		        // SseEventBuilder builder =
+		        // SseEmitter.event().reconnectTime(10_000L).data(memoryInfo).id("1");
+		        emitter.send(builder);
+		      }
+		      catch (Exception e) {
+		        deadEmitters.add(emitter);
+		      }
+		    });
+
+		    emitters.removeAll(deadEmitters);
 	}
 	
 	private List<Module> _loadModules() {
