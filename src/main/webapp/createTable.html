@@ -11,7 +11,6 @@
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <link rel="stylesheet" href="angular/lib/main.css">
-  <script src="angular/app/addarow.js"></script>
   <!-- Modules -->
   <script src="angular/app/snp.module.js"></script>
 
@@ -20,14 +19,15 @@
   <!-- 'data' module artifacts -->
   <script src="angular/app/snp.service.js"></script>
   <script src="angular/app/snp.modulecontroller.js"></script>
+  <script src="angular/app/snp.createtablecontroller.js"></script>
 </head>
 
-<body ng-controller="ModuleController as mc">
+<body>
 
   <div class="container-fluid">
     <div class="row h-100">
       <!--left nav bar-->
-      <div class="col-2" style="background-color: #37424F">
+      <div class="col-2" style="background-color: #37424F" ng-controller="ModuleController as mc">
         <div class="mynavbar">
           <div id="navbar-header">
             <h4>Select a module</h4>
@@ -48,38 +48,43 @@
         </div>
       </div>
       <!--main content area-->
-      <div class="container col-10" style="background-color: #FFFFFF">
-		    <table id="myTable" class=" table order-list">
-		    <thead>
-		        <tr>
-		            <td>Field Name</td>
-		            <td>Field type</td>
-		        </tr>
-		    </thead>
-		    <tbody>
-		        <tr>
-		            <td class="col-sm-4">
-		                <input type="text" name="name" class="form-control" />
-		            </td>
-		            <td class="col-sm-4">
-		                <input name="type"  class="form-control" value="String" readonly/>
-		            </td>
-		            <td class="col-sm-2"><a class="deleteRow"></a>
-		
-		            </td>
-		        </tr>
-		    </tbody>
-		    <tfoot>
-		        <tr>
-		            <td colspan="5" style="text-align: left;">
-		                <input type="button" class="btn btn-lg btn-block btn-primary " id="addrow" value="Add Row" />
-		            </td>
-		        </tr>
-		        <tr>
-		        </tr>
-		    </tfoot>
-		</table>
-		</div> 
+      <div class="container col-10" style="background-color: #FFFFFF" ng-controller="CreateTableController as table">
+        <form class="new-table" novalidate>
+          <div class="row">
+            <button type="submit" class="btn btn-success ml-auto" ng-click="table.submit()">Save</button>
+          </div>
+          <div class="row">
+            <div class="col-4 text-center">
+              <h5>Field Name</h5>
+            </div>
+            <div class="col-4 text-center">
+              <h5>Field Type</h5>
+            </div>
+            <div class="col-4 text-center">
+
+            </div>
+          </div>
+          <!--here is content-->
+          <div class="row" ng-repeat="option in table.fields track by $index">
+            <div class="col-4 text-center">
+              <input type="text" placeholder="Field Name">
+            </div>
+            <div class="col-4 text-center">
+              <select name="types">
+                <option value="">-- None --</option>
+                <option value="string">String</option>
+                <option value="integer">Integer</option>
+              </select>
+            </div>
+            <div class="col-4 text-center">
+              <button class="btn btn btn-danger" ng-click="table.removeField()">Remove Row</button>
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn btn-block btn-secondary" ng-click="table.addField()">Add a Field</button>
+          </div>
+        </form>
+      </div>
     </div>
 </body>
 

@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
@@ -36,8 +37,12 @@ public class JdbcRepo {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 	
+	private static final Logger LOG =
+	        Logger.getLogger(JdbcRepo.class.getPackage().getName());
+	
 	private String SELECT_ALL = "SELECT * FROM ";
 	private String LIMIT = " LIMIT ?";
+	
 
 	public String createTable(String table, HashMap<String, String> columns) {
 		//does table exist?
@@ -89,8 +94,8 @@ public class JdbcRepo {
 		
 		for (NameValuePair param : params) {
 			  query += param.getName() + " = '" + param.getValue() + "'";
-		}
-		//System.out.println("FINAL QUERY IS !!!!!!!!!!!!!!! " + query);
+		}	
+		LOG.info(query);
 		return jdbcTemplate.query(query,
 				new ResultSetExtractor<String>() {
 			
