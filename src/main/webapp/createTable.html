@@ -51,7 +51,10 @@
       <div class="container col-10" style="background-color: #FFFFFF" ng-controller="CreateTableController as table">
         <form class="new-table" novalidate>
           <div class="row">
-            <button type="submit" class="btn btn-success ml-auto" ng-click="table.submit()">Save</button>
+            <h5>Table Name</h5>
+            <input type="text" ng-model="table.name" />
+            <button ng-disabled="table.fields.length === 0" type="submit" class="btn btn-success ml-auto"
+              ng-click="table.submit()">Save</button>
           </div>
           <div class="row">
             <div class="col-4 text-center">
@@ -67,21 +70,24 @@
           <!--here is content-->
           <div class="row" ng-repeat="option in table.fields track by $index">
             <div class="col-4 text-center">
-              <input type="text" placeholder="Field Name">
+              <input type="text" placeholder="Field Name" ng-model="option.fieldName">
             </div>
             <div class="col-4 text-center">
-              <select name="types">
+              <select name="types" ng-model="option.fieldType">
                 <option value="">-- None --</option>
                 <option value="string">String</option>
                 <option value="integer">Integer</option>
               </select>
             </div>
             <div class="col-4 text-center">
-              <button class="btn btn btn-danger" ng-click="table.removeField()">Remove Row</button>
+              <button class="btn btn btn-danger" ng-click="table.removeField();">Remove Row</button>
             </div>
           </div>
+          <div ng-if="table.error" class="row alert alert-danger" role="alert">
+            Please fill in field name and type before adding a new row
+          </div>
           <div class="row">
-            <button class="btn btn-block btn-secondary" ng-click="table.addField()">Add a Field</button>
+            <button class="btn btn-block btn-secondary" ng-click="table.addField();">Add a Field</button>
           </div>
         </form>
       </div>
