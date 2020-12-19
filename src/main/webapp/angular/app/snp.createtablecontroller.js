@@ -13,6 +13,7 @@
             "fieldType": ""
         }];
         c.name = "";
+        c.nameError = false;
         c.error = false;
 
         c.addField = function () {
@@ -38,13 +39,26 @@
             });
         };
 
-        c.removeField = function () {
-            c.fields.pop();
+        c.removeField = function (i) {
+            c.fields.splice(i, 1);
         }
     
         c.submit = function () {
+            
+            if (c.name === "") {
+                c.nameError = true;
+                return;
+            }
+            c.nameError = false;
+
             $http({
-                url: ''
+                url: "/api/v1/table/create",
+                method: "POST",
+                data: ({"tableName": c.name, "tableFields": c.fields})
+            }).success(function(data) {
+                alert(JSON.stringify(data));
+            }).error(function(data) {
+                alert("whoops " + JSON.stringify(data));
             });
         };
 

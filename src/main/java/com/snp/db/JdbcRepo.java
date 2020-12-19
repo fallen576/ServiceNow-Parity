@@ -28,7 +28,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.snp.entity.Module;
 import com.snp.model.DatabaseTable;
+import com.snp.service.ModuleService;
 
 
 @Component
@@ -37,6 +39,9 @@ public class JdbcRepo {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 	
+	@Autowired
+	private ModuleService modService;
+	
 	private static final Logger LOG =
 	        Logger.getLogger(JdbcRepo.class.getPackage().getName());
 	
@@ -44,10 +49,29 @@ public class JdbcRepo {
 	private String LIMIT = " LIMIT ?";
 	
 
-	public String createTable(String table, HashMap<String, String> columns) {
+	public String createTable(JSONObject data) {
 		//does table exist?
-		String sql = "CREATE TABLE ";
+		String sql = "CREATE TABLE " + data.getString("tableName").replaceAll(" ", "_") + "( sys_id uuid default random_uuid(), ";
+		JSONArray fields = data.getJSONArray("tableFields");
 		
+		for (int i = 0; i < fields.length(); i++) {
+			JSONObject tmp = fields.getJSONObject(i);
+			String name = tmp.getString("fieldName").replaceAll(" ", "_");
+			String type = (tmp.getString("fieldType").equals("string") ? "varchar(255)" : "int");
+			
+			LOG.info(name);
+			LOG.info(type);
+			
+			sql += " " + name  + " " + type + ","; 
+		}
+		
+		sql = sql.substring(0, sql.length() - 1) + ");";
+		
+		jdbcTemplate.execute(sql);
+		
+		modService.save(new Module(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_")));
+		
+		LOG.info(sql);
 		return sql;
 	}
 	

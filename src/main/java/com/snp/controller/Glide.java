@@ -78,6 +78,10 @@ public class Glide {
 			return new ModelAndView("redirect:/createTable.html");
 		}
 		
+		if (table.equals("h2-console")) {
+			return new ModelAndView("redirect:/h2-console");
+		}
+		
 		model.addAttribute("modules", (List<Module>) modService.findAll());		
 		
 		String schema = this.db.findAll(table);
