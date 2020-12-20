@@ -59,7 +59,7 @@ public class JdbcRepo {
 		for (int i = 0; i < fields.length(); i++) {
 			JSONObject tmp = fields.getJSONObject(i);
 			String name = tmp.getString("fieldName").replaceAll(" ", "_");
-			String type = (tmp.getString("fieldType").equals("string") ? "varchar(255)" : "int");
+			String type = (tmp.getString("fieldType").equals("string") ? "varchar(255)" : "varchar(255)");
 			
 			LOG.info(name);
 			LOG.info(type);
@@ -179,33 +179,37 @@ public class JdbcRepo {
         
 	}
 	
-	public String insertRecord(Map<?, ?> m, String table) {
+	public int insertRecord(Map<?, ?> m, String table) {
 		Set<?> s = m.entrySet();
         Iterator<?> it = s.iterator();
-        String query = "UPDATE " + table + " SET ";
-        String where = " WHERE SYS_ID = '" ;
-        String id = "";
+        String query = "INSERT INTO " + table + " (";
+        ArrayList<String> values = new ArrayList<>();
+        //insert into users(FIRST_NAME,LAST_NAME,USER_NAME) VALUES ('a','b','c')
         
         while(it.hasNext()){
-        	Map.Entry<String,String[]> entry = (Map.Entry<String,String[]>)it.next();
-        	 String key = entry.getKey();
-             String[] value = entry.getValue();
+        	 Map.Entry<String,String[]> entry = (Map.Entry<String,String[]>)it.next();
+        	 String col = entry.getKey();
+             values.add(entry.getValue()[0]);
              
-             if (key.equals("SYS_ID")) {
-            	 where += value[0] + "'";
-            	 id = value[0];
-             }
-             else {
-            	 query += key + "='" + value[0] + "', ";
-             }
+             query += col + ",";
 		}
-        query = query.substring(0, query.length() - 2);
-        query += where;
         
-        //System.out.println("FINAL QUERY!!! " + query);
+        query = query.substring(0, query.length() - 1) + ") VALUES (";
         
-        jdbcTemplate.update(query);
-        return id;
+        LOG.info("query after cols " + query);
+        
+        
+        for (String i : values) {
+        	query += "'" + i + "',";
+        }
+        
+        query = query.substring(0, query.length() - 1) + ");";
+        
+        LOG.info("Final " + query);
+        
+        
+        
+        return jdbcTemplate.update(query);
         
 	}
 	

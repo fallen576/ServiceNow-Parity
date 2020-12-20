@@ -197,15 +197,13 @@ public class Glide {
 	
 	@PostMapping(path = "/insert/{table_name}", produces=MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public HashMap<String, String> insert(Model model, HttpServletRequest req,
+	public ModelAndView insert(Model model, HttpServletRequest req,
 							  @PathVariable(value="table_name") String table) throws JsonProcessingException {
 		
-		HashMap<String, String> response = new HashMap<>();
 		Map<?, ?> m =req.getParameterMap();
-        String id = this.db.insertRecord(m, table);
-        response.put("sys_id", id);        
-        response.put("message", "Successfully created record.");
-        return response;
+        this.db.insertRecord(m, table);
+        return new ModelAndView("redirect:/table/"+table+"_list.do");
+        
 		
 	}
 	
