@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -57,6 +58,8 @@ public class Glide {
 	private JdbcRepo db;
 	
 	private static CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
+	private static final Logger LOG =
+	        Logger.getLogger(JdbcRepo.class.getPackage().getName());
 	
 	@RequestMapping(value="/Glide", method = RequestMethod.GET)
 	@ResponseBody
@@ -113,6 +116,17 @@ public class Glide {
 	public String loadTable(Model model) {
 		model.addAttribute("modules", this._loadModules());
 		return "home";
+	}
+	
+	@GetMapping("/{table_name}.do")	
+	public ModelAndView newRecord(Model model, @PathVariable(value="table_name") String table) {
+		String col = this.db.getTableColumns(table);
+		Map<String, Object> params = new HashMap<>();
+		model.addAttribute("modules", this._loadModules());
+		model.addAttribute("columns", col.substring(1, col.length() - 1).split(","));
+		params.put("table", table);
+		
+		return new ModelAndView("newrecord", params);
 	}
 	
 	@GetMapping("/table/{table_name}")
@@ -177,6 +191,20 @@ public class Glide {
 		}
         
         response.put("message", "Successfully updated record.");
+        return response;
+		
+	}
+	
+	@PostMapping(path = "/insert/{table_name}", produces=MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public HashMap<String, String> insert(Model model, HttpServletRequest req,
+							  @PathVariable(value="table_name") String table) throws JsonProcessingException {
+		
+		HashMap<String, String> response = new HashMap<>();
+		Map<?, ?> m =req.getParameterMap();
+        String id = this.db.insertRecord(m, table);
+        response.put("sys_id", id);        
+        response.put("message", "Successfully created record.");
         return response;
 		
 	}

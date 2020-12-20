@@ -47,6 +47,8 @@ public class JdbcRepo {
 	
 	private String SELECT_ALL = "SELECT * FROM ";
 	private String LIMIT = " LIMIT ?";
+	private String COLUMNS = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE lower(TABLE_NAME)='?' "
+			+ "AND TABLE_SCHEMA='PUBLIC' AND COLUMN_NAME != 'SYS_ID';";
 	
 
 	public String createTable(JSONObject data) {
@@ -87,6 +89,23 @@ public class JdbcRepo {
 		return sql;
 	}
 	
+	public String getTableColumns(String table) {
+		String sql = COLUMNS.replace("?", table);
+		LOG.info("query " + sql);
+		
+		return jdbcTemplate.query(sql,
+				new ResultSetExtractor<String>() {
+			
+					public String extractData(ResultSet rs) throws SQLException, DataAccessException {
+						List<String> json = new ArrayList<>();
+						while (rs.next()) {
+							json.add(rs.getString("COLUMN_NAME"));
+						}
+						return json.toString();
+					}
+		});
+	}
+	
 	public String findAll(String table) {		
 		String sql = this.SELECT_ALL;
 		
@@ -115,10 +134,11 @@ public class JdbcRepo {
 	public String lookup(String table, List<NameValuePair> params) {
 		
 		String query = SELECT_ALL + table + " WHERE ";
-		
-		for (NameValuePair param : params) {
-			  query += param.getName() + " = '" + param.getValue() + "'";
-		}	
+		if (params != null) {
+			for (NameValuePair param : params) {
+				  query += param.getName() + " = '" + param.getValue() + "'";
+			}	
+		}
 		LOG.info(query);
 		return jdbcTemplate.query(query,
 				new ResultSetExtractor<String>() {
@@ -130,6 +150,36 @@ public class JdbcRepo {
 	}
 	
 	public String updateRecord(Map<?, ?> m, String table) {
+		Set<?> s = m.entrySet();
+        Iterator<?> it = s.iterator();
+        String query = "UPDATE " + table + " SET ";
+        String where = " WHERE SYS_ID = '" ;
+        String id = "";
+        
+        while(it.hasNext()){
+        	Map.Entry<String,String[]> entry = (Map.Entry<String,String[]>)it.next();
+        	 String key = entry.getKey();
+             String[] value = entry.getValue();
+             
+             if (key.equals("SYS_ID")) {
+            	 where += value[0] + "'";
+            	 id = value[0];
+             }
+             else {
+            	 query += key + "='" + value[0] + "', ";
+             }
+		}
+        query = query.substring(0, query.length() - 2);
+        query += where;
+        
+        //System.out.println("FINAL QUERY!!! " + query);
+        
+        jdbcTemplate.update(query);
+        return id;
+        
+	}
+	
+	public String insertRecord(Map<?, ?> m, String table) {
 		Set<?> s = m.entrySet();
         Iterator<?> it = s.iterator();
         String query = "UPDATE " + table + " SET ";
