@@ -3,6 +3,7 @@ package com.snp.db;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,6 +43,7 @@ public class JdbcRepo {
 			+ "AND TABLE_SCHEMA='PUBLIC' AND COLUMN_NAME != 'SYS_ID';";
 	private String COLUMNS_WITH_SYS_ID = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE lower(TABLE_NAME)= ? "
 			+ "AND TABLE_SCHEMA='PUBLIC';";
+	private String DELETE_RECORD = "DELETE FROM table WHERE SYS_ID = 'pid'";
 	
 
 	public String createTable(JSONObject data) {
@@ -88,6 +90,14 @@ public class JdbcRepo {
 	
 	public List<Map<String, Object>> getRows(String table) {
 		return this.jdbcTemplate.queryForList("select * from " + table + ";");
+	}
+	
+	public void delete(String table, String id) {		
+		try {
+		this.jdbcTemplate.update(DELETE_RECORD.replace("table",  table).replace("pid",  id));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public String findAll(String table) {		

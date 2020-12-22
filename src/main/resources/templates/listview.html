@@ -37,6 +37,11 @@
                 </div>
                 <!--main content area-->
                 <div th:if="${table}" class="col-10" style="background-color: #FFFFFF">
+                	<form th:action="@{/delete/{table_name}/{sys_id}(table_name=${table},sys_id=${data[0][0]})}" method="post" id="deleteRecord">
+                	<div class="form-group" style="background-color: #FFFFFF;">
+						<button class="btn btn-danger" type="submit">Delete</button>
+					</div>
+					</form>
                     <form th:action="@{/update/{table_name}(table_name=${table})}" method="post" id="updateForm">
 					  <div class="form-group" th:each="item,i: ${data[0]}">
 					  	<label th:for="${columns[i.index]}" th:text="${columns[i.index]}"></label>

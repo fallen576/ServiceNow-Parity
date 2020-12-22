@@ -161,6 +161,15 @@ public class Glide {
 		return new ModelAndView("listview", params);
 	}
 	
+	@PostMapping(path = "/delete/{table_name}/{sys_id}")
+	public ModelAndView delete(Model model, @PathVariable(value="table_name") String table, @PathVariable(value="sys_id") String id) {
+		LOG.warning("deleting " + id + " from " + table);
+		db.delete(table, id);
+		model.addAttribute("modules", this._loadModules());
+		model.addAttribute("table", table);
+		return new ModelAndView("redirect:/table/"+table+"_list.do");
+	}
+	
 	@PostMapping(path = "/update/{table_name}", produces=MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public HashMap<String, String> update(Model model, HttpServletRequest req,
