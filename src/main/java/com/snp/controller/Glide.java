@@ -85,31 +85,21 @@ public class Glide {
 			return new ModelAndView("redirect:/h2-console");
 		}
 		
-		model.addAttribute("modules", (List<Module>) modService.findAll());		
+		//model.addAttribute("columns", db.getColumns(table, true));
 		
-		String schema = this.db.findAll(table);
-		JSONArray json = new JSONArray(schema);
-		String[] elementNames = null;
-		ArrayList<ArrayList<String>> data2 = new ArrayList<ArrayList<String>>();
+		List<Map<String, Object>> rows = db.getRows(table);
 		
-		ArrayList<HashMap<String, String>> data = new ArrayList<HashMap<String, String>>();
-		
-		for (int i = 0; i < json.length(); i++) {
-			JSONObject obj = json.getJSONObject(i);
-			elementNames = JSONObject.getNames(obj);
-			ArrayList<String> tmp = new ArrayList<String>();			
-			for (String elementName : elementNames) {
-				tmp.add(obj.getString(elementName));
-			}
-			data2.add(tmp);
+		if (rows.size() == 0) {
+			model.addAttribute("message", "No data yet.");
+		}
+		else {
+			model.addAttribute("rows", rows);
 		}
 		
-		Map<String, Object> params = new HashMap<>();
-	    params.put("table", table);
-	    params.put("columns", elementNames);
-	    params.put("data", data2);
-	    params.put("schema", json);
-		return new ModelAndView("home", params);
+		model.addAttribute("modules", (List<Module>) modService.findAll());
+		model.addAttribute("table", table);
+		
+		return new ModelAndView("home");
 	}
 	
 	@GetMapping("/")
@@ -120,10 +110,9 @@ public class Glide {
 	
 	@GetMapping("/{table_name}.do")	
 	public ModelAndView newRecord(Model model, @PathVariable(value="table_name") String table) {
-		String col = this.db.getTableColumns(table);
 		Map<String, Object> params = new HashMap<>();
 		model.addAttribute("modules", this._loadModules());
-		model.addAttribute("columns", col.substring(1, col.length() - 1).split(","));
+		model.addAttribute("columns", db.getColumns(table, false));
 		params.put("table", table);
 		
 		return new ModelAndView("newrecord", params);

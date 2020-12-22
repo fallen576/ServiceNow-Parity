@@ -1,6 +1,5 @@
 package com.snp.db;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -18,18 +17,10 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.snp.entity.Module;
-import com.snp.model.DatabaseTable;
 import com.snp.service.ModuleService;
 
 
@@ -47,8 +38,10 @@ public class JdbcRepo {
 	
 	private String SELECT_ALL = "SELECT * FROM ";
 	private String LIMIT = " LIMIT ?";
-	private String COLUMNS = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE lower(TABLE_NAME)='?' "
+	private String COLUMNS = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE lower(TABLE_NAME)= ? "
 			+ "AND TABLE_SCHEMA='PUBLIC' AND COLUMN_NAME != 'SYS_ID';";
+	private String COLUMNS_WITH_SYS_ID = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE lower(TABLE_NAME)= ? "
+			+ "AND TABLE_SCHEMA='PUBLIC';";
 	
 
 	public String createTable(JSONObject data) {
@@ -59,7 +52,7 @@ public class JdbcRepo {
 		for (int i = 0; i < fields.length(); i++) {
 			JSONObject tmp = fields.getJSONObject(i);
 			String name = tmp.getString("fieldName").replaceAll(" ", "_");
-			String type = (tmp.getString("fieldType").equals("string") ? "varchar(255)" : "varchar(255)");
+			String type = (tmp.getString("fieldType").equals("string") ? "varchar(255)" : "varchar(255)	");
 			
 			LOG.info(name);
 			LOG.info(type);
@@ -89,25 +82,16 @@ public class JdbcRepo {
 		return sql;
 	}
 	
-	public String getTableColumns(String table) {
-		String sql = COLUMNS.replace("?", table);
-		LOG.info("query " + sql);
-		
-		return jdbcTemplate.query(sql,
-				new ResultSetExtractor<String>() {
-			
-					public String extractData(ResultSet rs) throws SQLException, DataAccessException {
-						List<String> json = new ArrayList<>();
-						while (rs.next()) {
-							json.add(rs.getString("COLUMN_NAME"));
-						}
-						return json.toString();
-					}
-		});
+	public List<String> getColumns(String table, boolean withSysId) {		
+		return (List<String>) this.jdbcTemplate.query((withSysId) ? COLUMNS_WITH_SYS_ID : COLUMNS, new Object[] {table}, (rs, rowNum) -> rs.getString("COLUMN_NAME"));
+	}
+	
+	public List<Map<String, Object>> getRows(String table) {
+		return this.jdbcTemplate.queryForList("select * from " + table + ";");
 	}
 	
 	public String findAll(String table) {		
-		String sql = this.SELECT_ALL;
+		String sql = SELECT_ALL;
 		
 		String answer = jdbcTemplate.query(sql + table, new ResultSetExtractor<String>() {
 			public String extractData(ResultSet rs) throws SQLException, DataAccessException {
