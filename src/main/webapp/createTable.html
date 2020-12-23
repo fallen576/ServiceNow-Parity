@@ -4,22 +4,6 @@
 <head>
   <meta charset="utf-8">
   <title>Angular</title>
-  <!-- Libraries -->
-  <script src="angular/lib/angular.min.js"></script>
-  <script src="angular/lib/angular-ui-router.min.js"></script>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <link rel="stylesheet" href="angular/lib/main.css">
-  <!-- Modules -->
-  <script src="angular/app/snp.module.js"></script>
-
-  <!-- Routes -->
-
-  <!-- 'data' module artifacts -->
-  <script src="angular/app/snp.service.js"></script>
-  <script src="angular/app/snp.modulecontroller.js"></script>
-  <script src="angular/app/snp.createtablecontroller.js"></script>
 </head>
 
 <body>
@@ -60,30 +44,41 @@
               ng-click="table.submit()">Save</button>
           </div>
           <div class="row">
-            <div class="col-4 text-center">
+            <div class="col-3 text-center">
               <h5>Field Name</h5>
             </div>
-            <div class="col-4 text-center">
+            <div class="col-3 text-center">
               <h5>Field Type</h5>
             </div>
-            <div class="col-4 text-center">
+            <div class="col-3 text-center">
+              <h5>Reference Table</h5>
+            </div>
+            <div class="col-3 text-center">
 
             </div>
           </div>
           <!--here is content-->
           <div class="row" ng-repeat="option in table.fields track by $index">
-            <div class="col-4 text-center">
+            <div class="col-3 text-center">
               <input type="text" placeholder="Field Name" ng-model="option.fieldName">
             </div>
-            <div class="col-4 text-center">
-              <select name="types" ng-model="option.fieldType">
+            <div class="col-3 text-center">
+              <select name="types" ng-model="option.fieldType" ng-change="table.ref($index);">
                 <option value="">-- None --</option>
                 <option value="string">String</option>
                 <option value="integer">Integer</option>
                 <option value="reference">Reference</option>
               </select>
             </div>
-            <div class="col-4 text-center">
+            <div class="col-3 text-center">
+              <input ng-if="option.reference == true" type="text" placeholder="Reference Table"
+                ng-model="option.referenceTable">
+              <span ng-if="option.reference == true">
+                <button type="button" data-toggle="modal" data-target="#modal"><img
+                    src="angular/lib/magnifying_glass.jpg" alt="" height="28" width="28" /></button>
+              </span>
+            </div>
+            <div class="col-3 text-center">
               <button class="btn btn btn-danger" ng-click="table.removeField($index);">Remove Row</button>
             </div>
           </div>
@@ -91,11 +86,42 @@
             Please fill in field name and type before adding a new row
           </div>
           <div class="row">
-            <button class="btn btn-block btn-secondary" ng-click="table.addField();">Add a Field</button>
+            <button class="btn btn-block btn-secondary" ng-click="table.addField()">Add a Field</button>
           </div>
         </form>
       </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <iframe src="/table/modules_list.do"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Libraries -->
+    <script src="angular/lib/angular.min.js"></script>
+    <script src="angular/lib/angular-ui-router.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="angular/lib/main.css">
+    <!-- Modules -->
+    <script src="angular/app/snp.module.js"></script>
+
+    <!-- Routes -->
+
+    <!-- 'data' module artifacts -->
+    <script src="angular/app/snp.service.js"></script>
+    <script src="angular/app/snp.modulecontroller.js"></script>
+    <script src="angular/app/snp.createtablecontroller.js"></script>
 </body>
 
 </html>

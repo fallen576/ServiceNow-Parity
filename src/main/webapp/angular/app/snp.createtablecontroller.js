@@ -10,8 +10,10 @@
         var c = this;
         c.fields = [{
             "fieldName": "",
-            "fieldType": ""
+            "fieldType": "",
+            "reference": false
         }];
+        
         c.name = "";
         c.nameError = false;
         c.error = false;
@@ -21,7 +23,9 @@
             if (c.fields.length === 0) {
                 c.fields.push({
                     "fieldName": "",
-                    "fieldType": ""
+                    "fieldType": "",
+                    "reference": false,
+                    "referenceTable": ""
                 });
                 return;
             }
@@ -35,8 +39,13 @@
 
             c.fields.push({
                 "fieldName": "",
-                "fieldType": ""
+                "fieldType": "",
+                "reference": false
             });
+        };
+
+        c.ref = function(i) {
+            c.fields[i].reference = c.fields[i].fieldType == "reference" ? true : false;
         };
 
         c.removeField = function (i) {
@@ -44,7 +53,7 @@
         }
     
         c.submit = function () {
-            
+            alert(JSON.stringify(c.fields))
             if (c.name === "") {
                 c.nameError = true;
                 return;
@@ -56,7 +65,8 @@
                 method: "POST",
                 data: ({"tableName": c.name, "tableFields": c.fields})
             }).success(function(data) {
-                alert(JSON.stringify(data));
+                //alert(JSON.stringify(data));
+                location.href = "/"+tableName+"_list.do";
             }).error(function(data) {
                 alert("whoops " + JSON.stringify(data));
             });
