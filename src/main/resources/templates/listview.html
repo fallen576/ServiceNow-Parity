@@ -36,9 +36,9 @@
                     </div>
                 </div>
                 <!--main content area-->
-                <div th:if="${table}" class="col-10" style="background-color: #FFFFFF">
+                <div th:if="${table}" class="col-10 button-row">
                 	<form th:action="@{/delete/{table_name}/{sys_id}(table_name=${table},sys_id=${data[0][0]})}" method="post" id="deleteRecord">
-                	<div class="form-group" style="background-color: #FFFFFF;">
+                	<div class="form-group">
 						<button class="btn btn-danger" type="submit">Delete</button>
 					</div>
 					</form>

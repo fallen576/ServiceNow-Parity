@@ -43,3 +43,7 @@ ul li:after {
 .icon {
     text-align: center;
 }
+.button-row {
+	background-color: #FFFFFF;
+	padding-top: 10px;
+}

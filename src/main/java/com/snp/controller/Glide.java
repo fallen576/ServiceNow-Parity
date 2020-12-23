@@ -57,7 +57,10 @@ public class Glide {
 	@Autowired
 	private JdbcRepo db;
 	
-	private static CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
+	@Autowired 
+	private AMB amb;
+	
+	//private static CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 	private static final Logger LOG =
 	        Logger.getLogger(JdbcRepo.class.getPackage().getName());
 	
@@ -180,7 +183,11 @@ public class Glide {
         String id = this.db.updateRecord(m, table);
         response.put("sys_id", id);
         try {
-        	sendSseEvent(m);
+        	amb.trigger(m, "update");
+        	
+        	if (table.equals("module")) {
+        		amb.trigger(m, "updateModule");
+        	}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -203,40 +210,6 @@ public class Glide {
         return new ModelAndView("redirect:/table/"+table+"_list.do");
         
 		
-	}
-	
-
-	@GetMapping("/sse")
-	public SseEmitter _emit(HttpServletResponse response, Map<?, ?> payload) throws Exception {
-		response.setHeader("Cache-Control", "no-store");
-		
-		SseEmitter emitter = new SseEmitter(86400000L);
-
-        emitters.add(emitter);
-        
-        emitter.onCompletion(() -> emitters.remove(emitter));
-        emitter.onTimeout(() -> emitters.remove(emitter));
-       
-        return emitter;
-	}
-	
-	public void sendSseEvent(Map<?,?> payload) {
-		List<SseEmitter> deadEmitters = new ArrayList<>();
-		
-		emitters.forEach(emitter -> {
-		      try {
-		        //String json = new ObjectMapper().writeValueAsString(payload);
-		        SseEventBuilder builder = SseEmitter.event()
-		        									.name("update")
-		        									.data(payload);
-		        emitter.send(builder);
-		      }
-		      catch (Exception e) {
-		        deadEmitters.add(emitter);
-		      }
-		    });
-
-		    emitters.removeAll(deadEmitters);
 	}
 	
 	private List<Module> _loadModules() {

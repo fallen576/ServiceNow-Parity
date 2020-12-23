@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.logging.log4j2.Log4J2LoggingSystem;
@@ -54,7 +55,7 @@ public class API {
 	}
 	
 	@PostMapping("/api/v1/table/create")
-	public ResponseEntity<String> createTable(@RequestBody String body) {
+	public ResponseEntity<String> createTable(@RequestBody String body) throws JSONException, Exception {
 		
 		LOG.info(body);
 		db.createTable(new JSONObject(body));

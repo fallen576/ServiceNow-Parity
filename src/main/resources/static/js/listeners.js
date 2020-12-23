@@ -16,4 +16,22 @@
 			}
 		}
 	});
+	
+	sse.addEventListener("updateModule", (event) => {
+		console.log("module updated " + event.data);
+		
+		var json = JSON.parse(event.data);
+		
+	});
+	
+	sse.addEventListener("insertModule", (event) => {
+		console.log("module updated " + event.data);
+		
+		var json = JSON.parse(event.data);
+		var key = Object.keys(json);
+		console.log(key + " " + json[key]);
+		
+		$("#modules").append('<li><a href="/table/'+json[key]+'_list.do"><span class="nav-link">'+key+'</span></a></li>');
+		
+	});
 })();

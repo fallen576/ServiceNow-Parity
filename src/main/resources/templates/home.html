@@ -15,6 +15,7 @@
 <script type="text/javascript" charset="utf8"
 	src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
 <script type="text/javascript" th:src="@{/js/script.js}"></script>
+<script type="text/javascript" th:src="@{/js/listeners.js}"></script>
 
 
 </head>
@@ -43,9 +44,9 @@
 			</div>
 			
 			<!--main content area-->			 
-			<div th:if="${table}" class="col-10">
+			<div th:if="${table}" class="col-10 button-row">
 				
-				<div class="row" style="background-color: white;">
+				<div class="form-group">
 					<a class="btn btn-primary" th:href="@{/{table_name}.do(table_name=${table})}">New</a>
 				</div>
 				

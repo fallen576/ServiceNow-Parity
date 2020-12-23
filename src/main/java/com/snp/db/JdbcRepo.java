@@ -5,6 +5,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 
+import com.snp.controller.AMB;
 import com.snp.entity.Module;
 import com.snp.service.ModuleService;
 
@@ -34,6 +36,9 @@ public class JdbcRepo {
 	@Autowired
 	private ModuleService modService;
 	
+	@Autowired
+	private AMB amb;
+	
 	private static final Logger LOG =
 	        Logger.getLogger(JdbcRepo.class.getPackage().getName());
 	
@@ -46,7 +51,7 @@ public class JdbcRepo {
 	private String DELETE_RECORD = "DELETE FROM table WHERE SYS_ID = 'pid'";
 	
 
-	public String createTable(JSONObject data) {
+	public String createTable(JSONObject data) throws Exception {
 		//does table exist?
 		String sql = "CREATE TABLE " + data.getString("tableName").replaceAll(" ", "_") + "( sys_id uuid default random_uuid(), ";
 		JSONArray fields = data.getJSONArray("tableFields");
@@ -55,10 +60,6 @@ public class JdbcRepo {
 			JSONObject tmp = fields.getJSONObject(i);
 			String name = tmp.getString("fieldName").replaceAll(" ", "_");
 			String type = (tmp.getString("fieldType").equals("string") ? "varchar(255)" : "varchar(255)	");
-			
-			LOG.info(name);
-			LOG.info(type);
-			
 			sql += " " + name  + " " + type + ","; 
 		}
 		
@@ -66,7 +67,8 @@ public class JdbcRepo {
 		
 		jdbcTemplate.execute(sql);
 		
-		modService.save(new Module(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_")));
+		modService.save(new Module(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_")));		
+    	amb.trigger(Collections.singletonMap(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_")), "insertModule");
 		
 		LOG.info(sql);
 		return sql;
