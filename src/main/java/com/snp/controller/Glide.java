@@ -111,6 +111,21 @@ public class Glide {
 		return "home";
 	}
 	
+	@GetMapping("/reference/{table_name}")
+	public ModelAndView referenceView(Model model, @PathVariable(value="table_name") String table) {
+		
+		List<Map<String, Object>> rows = db.getRows(table);		
+		
+		if (rows.size() == 0) {
+			model.addAttribute("message", "No data yet.");
+		}
+		else {
+			model.addAttribute("rows", rows);
+		}
+		
+		return new ModelAndView("reference");
+	}
+	
 	@GetMapping("/{table_name}.do")	
 	public ModelAndView newRecord(Model model, @PathVariable(value="table_name") String table) {
 		Map<String, Object> params = new HashMap<>();

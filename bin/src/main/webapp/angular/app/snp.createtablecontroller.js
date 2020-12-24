@@ -51,7 +51,7 @@
         c.removeField = function (i) {
             c.fields.splice(i, 1);
         }
-		
+    
         c.submit = function () {
             alert(JSON.stringify(c.fields))
             if (c.name === "") {
