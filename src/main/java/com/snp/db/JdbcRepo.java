@@ -53,15 +53,29 @@ public class JdbcRepo {
 
 	public String createTable(JSONObject data) throws Exception {
 		//does table exist?
-		String sql = "CREATE TABLE " + data.getString("tableName").replaceAll(" ", "_") + "( sys_id uuid default random_uuid(), ";
+		String sql = "CREATE TABLE " + data.getString("tableName").replaceAll(" ", "_") + "( sys_id uuid default random_uuid(), primary key (sys_id), ";
 		JSONArray fields = data.getJSONArray("tableFields");
 		
 		for (int i = 0; i < fields.length(); i++) {
 			JSONObject tmp = fields.getJSONObject(i);
 			String name = tmp.getString("fieldName").replaceAll(" ", "_");
-			String type = (tmp.getString("fieldType").equals("string") ? "varchar(255)" : "varchar(255)	");
-			sql += " " + name  + " " + type + ","; 
+			String type = tmp.getString("fieldType");
+			boolean ref = false;
+			if (type.equals("reference")) {
+				ref = true;
+			}
+			//.equals("string") ? "varchar(255)" : "varchar(255)	");
+			sql += " " + name  + " varchar(255)  ,"; 
+
+			if (ref) {
+				sql += "foreign key (" + name + ") references";
+			}
 		}
+		
+		ref.forEach((fieldName) -> {
+		//	sql += " foreign key (" + fieldName + ") references";
+		});
+		
 		
 		sql = sql.substring(0, sql.length() - 1) + ");";
 		

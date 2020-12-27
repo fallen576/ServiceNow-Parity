@@ -11,7 +11,8 @@
         c.fields = [{
             "fieldName": "",
             "fieldType": "",
-            "reference": false
+            "reference": false,
+            "referenceValue": ""
         }];
         
         c.name = "";
@@ -40,7 +41,8 @@
             c.fields.push({
                 "fieldName": "",
                 "fieldType": "",
-                "reference": false
+                "reference": false,
+                "referenceTable": ""
             });
         };
 

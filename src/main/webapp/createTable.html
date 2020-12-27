@@ -74,7 +74,7 @@
               <input id="reference_{{$index}}" ng-if="option.reference == true" type="text" placeholder="Reference Table"
                 ng-model="option.referenceTable">
               <span ng-if="option.reference == true">
-                <button type="button" onclick="document.getElementById('modal1').style.display='block';$('#iframe1').attr('src','/reference/modules?name=1')" target="iframe_modal"><img
+                <button type="button" onclick="popup(this.name);" name="reference_{{$index}}" target="iframe_modal"><img
                     src="angular/lib/magnifying_glass.jpg" alt="" height="28" width="28" /></button>
               </span>
             </div>
@@ -89,6 +89,7 @@
             <button class="btn btn-block btn-secondary" ng-click="table.addField()">Add a Field</button>
           </div>
         </form>
+        {{table.fields}}
       </div>
     </div>
     <div id="modal1" class="modal">
@@ -107,6 +108,7 @@
 
 
     <link rel="stylesheet" href="angular/lib/main.css">
+    <script src="angular/lib/script.js"></script>
     <!-- Modules -->
     <script src="angular/app/snp.module.js"></script>
 
