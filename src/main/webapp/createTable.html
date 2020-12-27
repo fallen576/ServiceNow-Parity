@@ -71,10 +71,10 @@
               </select>
             </div>
             <div class="col-3 text-center">
-              <input ng-if="option.reference == true" type="text" placeholder="Reference Table"
+              <input id="reference_{{$index}}" ng-if="option.reference == true" type="text" placeholder="Reference Table"
                 ng-model="option.referenceTable">
               <span ng-if="option.reference == true">
-                <button type="button" onclick="document.getElementById('modal1').style.display='block'" target="iframe_modal"><img
+                <button type="button" onclick="document.getElementById('modal1').style.display='block';$('#iframe1').attr('src','/reference/modules?name=1')" target="iframe_modal"><img
                     src="angular/lib/magnifying_glass.jpg" alt="" height="28" width="28" /></button>
               </span>
             </div>
@@ -93,7 +93,7 @@
     </div>
     <div id="modal1" class="modal">
 	  <span onclick="document.getElementById('modal1').style.display='none';" style="background-color: white;">&times;</span>
-	  <iframe id="iframe1" height="75%" width="75%" src="/reference/modules" name="iframe_modal"></iframe>
+	  <iframe id="iframe1" src="/reference/modules" style="height: 600px;width: 1000px" name="iframe_modal"></iframe>
 	</div>
 
     <!-- Libraries -->
