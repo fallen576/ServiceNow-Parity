@@ -20,7 +20,11 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
 import com.snp.controller.AMB;
@@ -33,6 +37,9 @@ public class JdbcRepo {
 	
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	NamedParameterJdbcTemplate db;
 	
 	@Autowired
 	private ModuleService modService;
@@ -50,7 +57,7 @@ public class JdbcRepo {
 	private String COLUMNS_WITH_SYS_ID = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE lower(TABLE_NAME)= ? "
 			+ "AND TABLE_SCHEMA='PUBLIC';";
 	private String DELETE_RECORD = "DELETE FROM table WHERE SYS_ID = 'pid'";
-	private String SINGLE_RECORD = "SELECT * FROM ? WHERE sys_id = ?";
+	private String SINGLE_RECORD = "SELECT * FROM (?) WHERE sys_id = (?)";
 	
 
 	public String createTable(JSONObject data) throws Exception {
@@ -178,7 +185,6 @@ public class JdbcRepo {
 	public Map<String, Object> viewRecord(String table, String sys_id) {
 		return jdbcTemplate.queryForList("select * from " + table + " where sys_id = '" + sys_id + "'").get(0);
 	}
-	
 	public String updateRecord(Map<?, ?> m, String table) {
 		Set<?> s = m.entrySet();
         Iterator<?> it = s.iterator();

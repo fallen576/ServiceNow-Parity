@@ -15,7 +15,7 @@
 	 			}, 5000);
 	 		},
 	 		error: function(data) {
-	 			alert("Error " + JSON.stringify(data));
+	 			alert(data.responseText);
 	 		},
 	 	});
 	 	

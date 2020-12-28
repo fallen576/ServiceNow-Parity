@@ -44,6 +44,7 @@
 					  </div>
 					  <button type="submit" class="btn btn-info">Save</button>
 					</form>
+					<h4 th:if="${message != null}" th:text="${message}"></h4>
 					<div class="alert alert-success collapse" id="alert">
 					  <strong>Success!</strong> Successfully created record.
 					</div>
