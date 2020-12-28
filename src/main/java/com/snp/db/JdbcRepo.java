@@ -72,10 +72,6 @@ public class JdbcRepo {
 			}
 		}
 		
-		ref.forEach((fieldName) -> {
-		//	sql += " foreign key (" + fieldName + ") references";
-		});
-		
 		
 		sql = sql.substring(0, sql.length() - 1) + ");";
 		

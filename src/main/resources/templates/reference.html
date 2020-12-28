@@ -34,7 +34,7 @@
 			<tbody>
 				<tr th:each="listItem: ${rows}">
 					<th:block th:each="row,i: ${listItem}">
-						<td th:if="${i.index == 0}" class="icon" scope="row"><a th:data-id="${row.value}" onclick="selectReference(this.getAttribute('data-id'))">
+						<td th:if="${i.index == 0}" class="icon" scope="row"><a th:data-id="${row.value}" th:display_value="displayValue" onclick="selectReference(this.getAttribute('data-id'), this.getAttribute('display_value'))">
 								<img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25" />
 							</a></td>
 

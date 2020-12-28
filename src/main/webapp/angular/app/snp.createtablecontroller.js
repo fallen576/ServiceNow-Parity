@@ -4,15 +4,16 @@
     angular.module('ServiceNowParity')
         .controller('CreateTableController', CreateTableController);
 
-    CreateTableController.$inject = ['$http'];
-    function CreateTableController($http) {
+    CreateTableController.$inject = ['$http', '$scope'];
+    function CreateTableController($http, $scope) {
 
         var c = this;
         c.fields = [{
             "fieldName": "",
             "fieldType": "",
             "reference": false,
-            "referenceValue": ""
+            "referenceTable": "",
+            "dv": ""
         }];
         
         c.name = "";
@@ -26,7 +27,8 @@
                     "fieldName": "",
                     "fieldType": "",
                     "reference": false,
-                    "referenceTable": ""
+                    "referenceTable": "",
+                    "dv": ""
                 });
                 return;
             }
@@ -42,7 +44,8 @@
                 "fieldName": "",
                 "fieldType": "",
                 "reference": false,
-                "referenceTable": ""
+                "referenceTable": "",
+                "dv": ""
             });
         };
 
@@ -52,7 +55,13 @@
 
         c.removeField = function (i) {
             c.fields.splice(i, 1);
-        }
+        };
+
+        c.setReferenceField = function(i, value, dv) {
+            c.fields[i].referenceTable = value;
+            c.fields[i].dv = dv;
+        };
+
 		
         c.submit = function () {
             alert(JSON.stringify(c.fields))
