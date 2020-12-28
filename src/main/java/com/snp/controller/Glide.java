@@ -143,6 +143,17 @@ public class Glide {
 		return new ModelAndView("newrecord", params);
 	}
 	
+	@GetMapping("/table/{table_name}/{id}")
+	public ModelAndView viewRecord(Model model, 
+			@PathVariable(value="table_name") String table,
+			@PathVariable(value="id") String id) {
+		
+		model.addAttribute("modules", this._loadModules());	
+		model.addAttribute("row", db.viewRecord(table, id));
+		model.addAttribute("table", table);
+		return new ModelAndView("listview");
+	}
+	
 	@GetMapping("/table/{table_name}")
 	public ModelAndView loadView(Model model, 
 									@PathVariable(value="table_name") String table,

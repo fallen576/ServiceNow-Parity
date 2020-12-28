@@ -66,7 +66,7 @@
 								<tr th:each="listItem: ${rows}">
 								<th:block th:each="row,i: ${listItem}">	
 									<td th:if="${i.index == 0}" class="icon" scope="row">
-										<a th:href="@{/table/{table_name}?sysparm_query=sys_id={guid}(table_name=${table},guid=${row.value})}">
+										<a th:href="@{/table/{table_name}/{guid}(table_name=${table},guid=${row.value})}">
 											<img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25" />
 										</a>
 									</td>

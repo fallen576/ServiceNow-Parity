@@ -27,7 +27,7 @@
 			<thead>
 				<tr>
 					<th scope="col" />
-					<th scope="col" th:each="column: ${rows[0]}" th:if="${column.key != 'SYS_ID'}"
+					<th scope="col" th:each="column: ${rows[0]}" th:if="${column.key != 'SYS_ID' and column.key != 'DISPLAY'}"
 						th:text="${column.key}"></th>
 				</tr>
 			</thead>
@@ -38,7 +38,7 @@
 								<img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25" />
 							</a></td>
 
-						<td th:each="entry: ${row}" th:if="${entry.key != 'SYS_ID'}" th:text="${entry.value}">
+						<td th:each="entry: ${row}" th:if="${entry.key != 'SYS_ID' and entry.key != 'DISPLAY'}" th:text="${entry.value}">
 						</td>
 					</th:block>
 				</tr>

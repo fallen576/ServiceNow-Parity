@@ -1,5 +1,6 @@
 package com.snp.db;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -49,6 +50,7 @@ public class JdbcRepo {
 	private String COLUMNS_WITH_SYS_ID = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE lower(TABLE_NAME)= ? "
 			+ "AND TABLE_SCHEMA='PUBLIC';";
 	private String DELETE_RECORD = "DELETE FROM table WHERE SYS_ID = 'pid'";
+	private String SINGLE_RECORD = "SELECT * FROM ? WHERE sys_id = ?";
 	
 
 	public String createTable(JSONObject data) throws Exception {
@@ -56,26 +58,33 @@ public class JdbcRepo {
 		String sql = "CREATE TABLE " + data.getString("tableName").replaceAll(" ", "_") + "( sys_id uuid default random_uuid(), "
 				+ "primary key (sys_id), ";
 		JSONArray fields = data.getJSONArray("tableFields");
+		HashMap<String, String> map = new HashMap<>();
 		
 		for (int i = 0; i < fields.length(); i++) {
 			JSONObject tmp = fields.getJSONObject(i);
 			String name = tmp.getString("fieldName").replaceAll(" ", "_");
 			String type = tmp.getString("fieldType");
 			String refTable = "";
-			boolean ref = false;
 			if (type.equals("reference")) {
 				refTable = tmp.getString("dv");
-				ref = true;
+				map.put(name, refTable);
 			}
-			//.equals("string") ? "varchar(255)" : "varchar(255)	");
+			
 			sql += " " + name  + " varchar(255)  ,"; 
-
+			
+			/*
 			if (ref) {
 				sql += "foreign key (" + name + ") references "
 						+ refTable +"(sys_id)";
 			}
+			*/
 		}
-		
+		for (Map.Entry mapElement : map.entrySet()) { 
+			String k = (String) mapElement.getKey();
+			String v = (String) mapElement.getValue();
+			
+			sql += "foreign key (" + k + ") references " + v + "(sys_id) ON DELETE CASCADE ,";
+		}
 		
 		sql = sql.substring(0, sql.length() - 1) + ");";
 		
@@ -149,9 +158,11 @@ public class JdbcRepo {
 	public String lookup(String table, List<NameValuePair> params) {
 		
 		String query = SELECT_ALL + table + " WHERE ";
+		String sys_id = "";
 		if (params != null) {
 			for (NameValuePair param : params) {
 				  query += param.getName() + " = '" + param.getValue() + "'";
+				  sys_id = param.getValue();
 			}	
 		}
 		LOG.info(query);
@@ -162,6 +173,10 @@ public class JdbcRepo {
 						return _process(rs);
 					}
 		});
+	}
+	
+	public Map<String, Object> viewRecord(String table, String sys_id) {
+		return jdbcTemplate.queryForList("select * from " + table + " where sys_id = '" + sys_id + "'").get(0);
 	}
 	
 	public String updateRecord(Map<?, ?> m, String table) {

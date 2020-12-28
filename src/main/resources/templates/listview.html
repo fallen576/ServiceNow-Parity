@@ -37,11 +37,19 @@
                 </div>
                 <!--main content area-->
                 <div th:if="${table}" class="col-10 button-row">
-                	<form th:action="@{/delete/{table_name}/{sys_id}(table_name=${table},sys_id=${data[0][0]})}" method="post" id="deleteRecord">
+                	<form th:action="@{/delete/{table_name}/{guid}(table_name=${table},guid=${row.get('SYS_ID')})}" method="post" id="deleteRecord">
                 	<div class="form-group">
 						<button class="btn btn-danger" type="submit">Delete</button>
 					</div>
 					</form>
+					<form th:action="@{/update/{table_name}(table_name=${table})}" method="post" id="updateForm">
+					  <div class="form-group" th:each="item,i: ${row}">
+					  	<label th:for="${item.key}" th:text="${item.key}"></label>
+                        <input class="form-control" th:id="${itemkey}" th:name="${item.key}" th:value="${item.value}" th:readonly="${item.key == 'SYS_ID'}"/>
+					  </div>
+					  <button type="submit" class="btn btn-info">Update</button>
+					</form>
+					<!-- 
                     <form th:action="@{/update/{table_name}(table_name=${table})}" method="post" id="updateForm">
 					  <div class="form-group" th:each="item,i: ${data[0]}">
 					  	<label th:for="${columns[i.index]}" th:text="${columns[i.index]}"></label>
@@ -49,6 +57,7 @@
 					  </div>
 					  <button type="submit" class="btn btn-info">Update</button>
 					</form>
+					 -->
 					<div class="alert alert-success collapse" id="alert">
 					  <strong>Success!</strong> Successfully updated record.
 					</div>
