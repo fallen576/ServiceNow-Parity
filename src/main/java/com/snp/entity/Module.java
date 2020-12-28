@@ -32,13 +32,22 @@ public class Module {
 	@Column(name="table_name")
 	private String tableName;
 	
+	@Column(name="display")
+	private String display;
+	
 	public Module() {
 		
 	}
-
+	
 	public Module(String module_name, String tableName) {
 		this.moduleName = module_name;
 		this.tableName = tableName;
+	}
+
+	public Module(String module_name, String tableName, String display) {
+		this.moduleName = module_name;
+		this.tableName = tableName;
+		this.display = display;
 	}
 
 	public String getModuleName() {
@@ -56,9 +65,19 @@ public class Module {
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
 	}
-	
+
+	public String getDisplay() {
+		return display;
+	}
+
+	public void setDisplay(String display) {
+		this.display = display;
+	}
+
 	@Override
 	public String toString() {
-		return "module [module_name=" + moduleName + ", tableName=" + tableName + "]";
+		return "Module [id=" + id + ", moduleName=" + moduleName + ", tableName=" + tableName + ", display=" + display
+				+ "]";
 	}
+
 }

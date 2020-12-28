@@ -123,6 +123,13 @@ public class Glide {
 			model.addAttribute("rows", rows);
 		}
 		
+		if (table.equals("modules")) {
+			model.addAttribute("display", "MODULE_NAME");
+		}
+		else {
+			model.addAttribute("display", db.getDisplay(table));
+		}
+		
 		return new ModelAndView("reference");
 	}
 	
@@ -162,7 +169,8 @@ public class Glide {
 			elementNames = JSONObject.getNames(obj);
 			ArrayList<String> tmp = new ArrayList<String>();			
 			for (String elementName : elementNames) {
-				tmp.add(obj.getString(elementName));
+					tmp.add(obj.getString(elementName));
+				
 			}
 			data2.add(tmp);
 		}

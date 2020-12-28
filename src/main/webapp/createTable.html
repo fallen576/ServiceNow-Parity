@@ -72,7 +72,6 @@
             </div>
             <div class="col-3 text-center">
               <input id="reference_{{$index}}" ng-if="option.reference == true" type="text" placeholder="Reference Table" ng-model="option.dv">
-                <input type="hidden" id="reference_{{$index}}_dv" ng-model="option.referenceTable">
               <span ng-if="option.reference == true">
                 <button type="button" onclick="popup(this.name);" name="reference_{{$index}}" target="iframe_modal"><img
                     src="angular/lib/magnifying_glass.jpg" alt="" height="28" width="28" /></button>

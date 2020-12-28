@@ -12,7 +12,8 @@
             "fieldName": "",
             "fieldType": "",
             "reference": false,
-            "referenceTable": "",
+            "referenceValue": "",
+            "referenceTableName": "",
             "dv": ""
         }];
         
@@ -27,7 +28,8 @@
                     "fieldName": "",
                     "fieldType": "",
                     "reference": false,
-                    "referenceTable": "",
+                    "referenceValue": "",
+                    "referenceTableName": "",
                     "dv": ""
                 });
                 return;
@@ -44,7 +46,8 @@
                 "fieldName": "",
                 "fieldType": "",
                 "reference": false,
-                "referenceTable": "",
+                "referenceValue": "",
+                "referenceTableName": "",
                 "dv": ""
             });
         };
@@ -57,8 +60,9 @@
             c.fields.splice(i, 1);
         };
 
-        c.setReferenceField = function(i, value, dv) {
-            c.fields[i].referenceTable = value;
+        c.setReferenceField = function(i, value, dv, name) {
+        	c.fields[i].referenceTableName = name;
+            c.fields[i].referenceValue = value;
             c.fields[i].dv = dv;
         };
 

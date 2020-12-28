@@ -8,5 +8,5 @@ function selectReference(sys_id, dv) {
     var ind = id.split("_")[1];
     window.top.$("#"+id).val(sys_id);
     window.top.$("#"+id+"_dv").val(dv);
-    parent.close(ind, sys_id, dv);
+    parent.close(ind, sys_id, dv, window.location.href.split("reference/")[1].split("?")[0]);
 }

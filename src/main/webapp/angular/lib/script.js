@@ -3,11 +3,11 @@ function popup(name) {
     $('#iframe1').attr('src','/reference/modules?name='+ name);
 }
 
-function close(id, sys_id, dv) {
+function close(id, sys_id, dv, name) {
     document.getElementById('modal1').style.display='none';
 
     var scope = angular.element($('#main-controller')).scope();
     scope.$apply(function () {
-        scope.table.setReferenceField(id, sys_id, dv);
+        scope.table.setReferenceField(id, sys_id, dv, name);
     });
 }
