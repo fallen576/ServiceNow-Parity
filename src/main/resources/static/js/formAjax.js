@@ -9,13 +9,20 @@
 	 		data: form.serialize(),
 	 		success: function(data) {
 	 			console.log("Success " + JSON.stringify(data));
-	 			$("#alert").fadeIn();
+	 			$('#suc-message').text(data);
+	 			$("#alert-suc").fadeIn();
 	 			setTimeout(function() {
-	 				$("#alert").slideUp();
+	 				$("#alert-suc").slideUp();
 	 			}, 5000);
 	 		},
 	 		error: function(data) {
+	 		console.table(data);
 	 			alert(data.responseText);
+	 			$('#error-message').text(data.responseText);
+	 			$("#alert-war").fadeIn();
+	 			setTimeout(function() {
+	 				$("#alert-war").slideUp();
+	 			}, 10000);
 	 		},
 	 	});
 	 	

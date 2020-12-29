@@ -235,7 +235,7 @@ public class Glide {
 		
 	}
 	
-	@PostMapping(path = "/insert/{table_name}", produces=MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(path = "/insert/{table_name}")
 	@ResponseBody
 	public ResponseEntity<String> insert(Model model, HttpServletRequest req,
 							  @PathVariable(value="table_name") String table) throws JsonProcessingException {
@@ -244,9 +244,10 @@ public class Glide {
 		try {
 			this.db.insertRecord(m, table);
 			return ResponseEntity
-		            .status(HttpStatus.CREATED)                 
-		            .body("");
+		            .status(HttpStatus.OK)                 
+		            .body("Successfully created record.");
 		} catch (Exception e) {
+			LOG.warning(e.getMessage());
 			return ResponseEntity
 		            .status(HttpStatus.INTERNAL_SERVER_ERROR)                 
 		            .body(e.getMessage());

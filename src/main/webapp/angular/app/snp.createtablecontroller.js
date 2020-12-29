@@ -81,7 +81,7 @@
                 data: ({"tableName": c.name, "tableFields": c.fields})
             }).success(function(data) {
                 //alert(JSON.stringify(data));
-                location.href = "/"+tableName+"_list.do";
+                location.href = "/"+c.name+".do";
             }).error(function(data) {
                 alert("whoops " + JSON.stringify(data));
             });
