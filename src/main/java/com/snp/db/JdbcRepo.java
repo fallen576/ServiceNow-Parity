@@ -58,7 +58,7 @@ public class JdbcRepo {
 			+ "AND TABLE_SCHEMA='PUBLIC';";
 	private String DELETE_RECORD = "DELETE FROM table WHERE SYS_ID = 'pid'";
 	private String SINGLE_RECORD = "SELECT * FROM (?) WHERE sys_id = (?)";
-	
+	private Stringn REFERENCES = "SELECT  FKTABLE_NAME, FKCOLUMN_NAME, PKTABLE_NAME FROM INFORMATION_SCHEMA.CROSS_REFERENCES";
 
 	public String createTable(JSONObject data) throws Exception {
 		//does table exist?
