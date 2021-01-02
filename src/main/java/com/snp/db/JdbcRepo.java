@@ -29,6 +29,8 @@ import org.springframework.stereotype.Component;
 
 import com.snp.controller.AMB;
 import com.snp.entity.Module;
+import com.snp.model.Field;
+import com.snp.model.Reference;
 import com.snp.service.ModuleService;
 
 
@@ -58,7 +60,7 @@ public class JdbcRepo {
 			+ "AND TABLE_SCHEMA='PUBLIC';";
 	private String DELETE_RECORD = "DELETE FROM table WHERE SYS_ID = 'pid'";
 	private String SINGLE_RECORD = "SELECT * FROM (?) WHERE sys_id = (?)";
-	private Stringn REFERENCES = "SELECT  FKTABLE_NAME, FKCOLUMN_NAME, PKTABLE_NAME FROM INFORMATION_SCHEMA.CROSS_REFERENCES";
+	private String REFERENCES = "SELECT  FKTABLE_NAME, FKCOLUMN_NAME, PKTABLE_NAME FROM INFORMATION_SCHEMA.CROSS_REFERENCES WHERE FKTABLE_NAME = ?";
 
 	public String createTable(JSONObject data) throws Exception {
 		//does table exist?
@@ -78,13 +80,6 @@ public class JdbcRepo {
 			}
 			
 			sql += " " + name  + " varchar(255)  ,"; 
-			
-			/*
-			if (ref) {
-				sql += "foreign key (" + name + ") references "
-						+ refTable +"(sys_id)";
-			}
-			*/
 		}
 		for (Map.Entry mapElement : map.entrySet()) { 
 			String k = (String) mapElement.getKey();
@@ -126,7 +121,31 @@ public class JdbcRepo {
 	}
 	
 	public List<Map<String, Object>> getRows(String table) {
+		normalGet(this.jdbcTemplate.queryForList("select * from " + table + ";"), table);
 		return this.jdbcTemplate.queryForList("select * from " + table + ";");
+	}
+	
+	public List<Field> normalGet(List<Map<String, Object>> rows, String table) {
+		
+		//get a more normalized object structure to describe the table schema (i.e field types, display values etc...)
+		
+		List<Map<String, Object>> references = this.jdbcTemplate.queryForList(REFERENCES, new Object[] {table});
+		ArrayList<Field> fields = new ArrayList<>();
+		
+		for (Map<String, Object> row : rows) {
+		    for (Map.Entry<String, Object> i : row.entrySet()) {
+		        String fieldLabel = i.getKey();
+		        String fieldValue = (String) i.getValue();
+		        Field tmpF = new Field(fieldLabel, fieldValue);
+		        tmpF.setReference(null);
+		        fields.add(tmpF);
+		    }
+		}
+		LOG.info("Fields " + fields);
+		
+		//now decipher if field is reference using references list
+		
+		return new ArrayList<Field>();
 	}
 	
 	public void delete(String table, String id) {		
