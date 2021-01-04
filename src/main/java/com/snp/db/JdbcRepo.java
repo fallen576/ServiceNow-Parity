@@ -27,11 +27,14 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snp.controller.AMB;
 import com.snp.entity.Module;
 import com.snp.model.Field;
 import com.snp.model.Reference;
 import com.snp.service.ModuleService;
+
+import ch.qos.logback.classic.pattern.LineOfCallerConverter;
 
 
 @Component
@@ -60,11 +63,11 @@ public class JdbcRepo {
 			+ "AND TABLE_SCHEMA='PUBLIC';";
 	private String DELETE_RECORD = "DELETE FROM table WHERE SYS_ID = 'pid'";
 	private String SINGLE_RECORD = "SELECT * FROM (?) WHERE sys_id = (?)";
-	private String REFERENCES = "SELECT  FKTABLE_NAME, FKCOLUMN_NAME, PKTABLE_NAME FROM INFORMATION_SCHEMA.CROSS_REFERENCES WHERE FKTABLE_NAME = ?";
+	private String REFERENCES = "SELECT FKCOLUMN_NAME, PKTABLE_NAME FROM INFORMATION_SCHEMA.CROSS_REFERENCES WHERE lower(FKTABLE_NAME) = lower(?)";
 
 	public String createTable(JSONObject data) throws Exception {
 		//does table exist?
-		String sql = "CREATE TABLE " + data.getString("tableName").replaceAll(" ", "_") + "( sys_id uuid default random_uuid(), "
+		String sql = "CREATE TABLE " + data.getString("tableName").replaceAll(" ", "_") + "( sys_id VARCHAR(255) default random_uuid(), "
 				+ "primary key (sys_id), ";
 		JSONArray fields = data.getJSONArray("tableFields");
 		HashMap<String, String> map = new HashMap<>();
@@ -129,23 +132,50 @@ public class JdbcRepo {
 		
 		//get a more normalized object structure to describe the table schema (i.e field types, display values etc...)
 		
-		List<Map<String, Object>> references = this.jdbcTemplate.queryForList(REFERENCES, new Object[] {table});
-		ArrayList<Field> fields = new ArrayList<>();
+		List<Map<String, Object>> references = this.jdbcTemplate.queryForList(REFERENCES, new Object[] {table});		
+		List<Field> fields = new ArrayList<>();
 		
-		for (Map<String, Object> row : rows) {
+		for (Map<String, Object> row : rows) {			
 		    for (Map.Entry<String, Object> i : row.entrySet()) {
 		        String fieldLabel = i.getKey();
 		        String fieldValue = (String) i.getValue();
 		        Field tmpF = new Field(fieldLabel, fieldValue);
 		        tmpF.setReference(null);
 		        fields.add(tmpF);
+		        
+		        
+	        	//which field, create reference
+	        	for (Map<String, Object> reference : references) {
+	    		    String reference_field = (String) reference.get("FKCOLUMN_NAME");
+	    		    String referenced_table = (String) reference.get("PKTABLE_NAME");
+	    		    
+	    		    if (tmpF.getName().equals(reference_field)) {
+	    		    	tmpF.setReference(new Reference(tmpF.getValue(), _getDisplayValue(referenced_table, tmpF.getValue()))); 	
+	    		    }
+    		    }
+    		    
 		    }
 		}
-		LOG.info("Fields " + fields);
-		
-		//now decipher if field is reference using references list
+	
+		LOG.info("fields " + fields);
+		LOG.info("ref " + references);
 		
 		return new ArrayList<Field>();
+	}
+	
+	public String _getDisplayValue(String table, String value) {
+		
+		String display_field = (String) jdbcTemplate.query("select display from modules where TABLE_NAME = lower(?)",
+															new Object[] {table},
+															(rs, rowNum) -> rs.getString("DISPLAY")).get(0);
+		LOG.info("display field for " + table + " is " + display_field);
+		
+		
+		
+		String item = (String) jdbcTemplate.query("select ? from ? where SYS_ID = ?", new Object[] {display_field, table, value}, new int[] {Types.VARCHAR, Types.VARCHAR, Types.VARCHAR}, (rs, rowNum) -> rs.getString(display_field.toUpperCase())).get(0);
+		
+		LOG.info("Value is " + item);
+		return "";
 	}
 	
 	public void delete(String table, String id) {		

@@ -22,6 +22,11 @@ public class Reference {
 	public void setDisplayValue(String displayValue) {
 		this.displayValue = displayValue;
 	}
+
+	@Override
+	public String toString() {
+		return "Reference [value=" + value + ", displayValue=" + displayValue + "]";
+	}
 	
 	
 }
