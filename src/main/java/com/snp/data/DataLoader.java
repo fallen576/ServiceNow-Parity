@@ -40,7 +40,7 @@ public class DataLoader implements ApplicationRunner {
 		for (int i = 0; i < lastNames.length; i++) {
 			String fName = firstNames[_rand(firstNames)];
 			String lName = lastNames[_rand(lastNames)];
-			String uName = fName+lName;
+			String uName = fName + " " + lName;
 			this.userService.save(new User(fName, lName, uName));
 		}
 		

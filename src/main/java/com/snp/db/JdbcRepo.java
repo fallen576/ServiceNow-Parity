@@ -1,5 +1,6 @@
 package com.snp.db;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -21,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -42,9 +45,6 @@ public class JdbcRepo {
 	
 	@Autowired
 	JdbcTemplate jdbcTemplate;
-	
-	@Autowired
-	NamedParameterJdbcTemplate db;
 	
 	@Autowired
 	private ModuleService modService;
@@ -130,9 +130,8 @@ public class JdbcRepo {
 	
 	public List<Field> normalGet(List<Map<String, Object>> rows, String table) {
 		
-		//get a more normalized object structure to describe the table schema (i.e field types, display values etc...)
-		
-		List<Map<String, Object>> references = this.jdbcTemplate.queryForList(REFERENCES, new Object[] {table});		
+		//get a more normalized object structure to describe the table schema (i.e field types, display values etc...)	
+		List<Map<String, Object>> references = this.jdbcTemplate.queryForList(REFERENCES, table);		
 		List<Field> fields = new ArrayList<>();
 		
 		for (Map<String, Object> row : rows) {			
@@ -163,19 +162,14 @@ public class JdbcRepo {
 		return new ArrayList<Field>();
 	}
 	
-	public String _getDisplayValue(String table, String value) {
+	public String _getDisplayValue(String table, String value) {		
+		String displayField = jdbcTemplate.queryForObject("select display from modules where TABLE_NAME = lower(?)", String.class, table);
 		
-		String display_field = (String) jdbcTemplate.query("select display from modules where TABLE_NAME = lower(?)",
-															new Object[] {table},
-															(rs, rowNum) -> rs.getString("DISPLAY")).get(0);
-		LOG.info("display field for " + table + " is " + display_field);
+		String display = jdbcTemplate.queryForObject("select * from " + table + " where SYS_ID = ?",
+				(rs, rowNum) -> rs.getString(displayField.toUpperCase()),
+				value);
 		
-		
-		
-		String item = (String) jdbcTemplate.query("select ? from ? where SYS_ID = ?", new Object[] {display_field, table, value}, new int[] {Types.VARCHAR, Types.VARCHAR, Types.VARCHAR}, (rs, rowNum) -> rs.getString(display_field.toUpperCase())).get(0);
-		
-		LOG.info("Value is " + item);
-		return "";
+		return display;
 	}
 	
 	public void delete(String table, String id) {		
