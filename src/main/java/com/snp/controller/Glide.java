@@ -46,6 +46,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snp.db.JdbcRepo;
 import com.snp.entity.Module;
 import com.snp.entity.User;
+import com.snp.model.Field;
+import com.snp.model.Record;
 import com.snp.service.ModuleService;
 import com.snp.service.UserService;
 
@@ -88,15 +90,20 @@ public class Glide {
 			return new ModelAndView("redirect:/h2-console");
 		}
 		
-		//model.addAttribute("columns", db.getColumns(table, true));
-		
-		List<Map<String, Object>> rows = db.getRows(table);
-		
-		if (rows.size() == 0) {
+		List<Record> records = db.normalGet(table);
+
+		if (records.size() == 0) {
 			model.addAttribute("message", "No data yet.");
 		}
 		else {
-			model.addAttribute("rows", rows);
+			model.addAttribute("records", records);
+		}
+		
+		if (table.equals("modules")) {
+			model.addAttribute("display", "MODULE_NAME");
+		}
+		else {
+			model.addAttribute("display", db.getDisplay(table));
 		}
 		
 		model.addAttribute("modules", (List<Module>) modService.findAll());
@@ -114,14 +121,15 @@ public class Glide {
 	@GetMapping("/reference/{table_name}")
 	public ModelAndView referenceView(Model model, @PathVariable(value="table_name") String table) {
 		
-		List<Map<String, Object>> rows = db.getRows(table);		
-		
-		if (rows.size() == 0) {
+		List<Record> records = db.normalGet(table);
+
+		if (records.size() == 0) {
 			model.addAttribute("message", "No data yet.");
 		}
 		else {
-			model.addAttribute("rows", rows);
+			model.addAttribute("records", records);
 		}
+		
 		
 		if (table.equals("modules")) {
 			model.addAttribute("display", "MODULE_NAME");

@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snp.controller.AMB;
 import com.snp.entity.Module;
 import com.snp.model.Field;
+import com.snp.model.Record;
 import com.snp.model.Reference;
 import com.snp.service.ModuleService;
 
@@ -95,7 +96,7 @@ public class JdbcRepo {
 		
 		jdbcTemplate.execute(sql);
 		
-		modService.save(new Module(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_")));		
+		modService.save(new Module(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_"), "SYS_ID"));		
     	amb.trigger(Collections.singletonMap(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_")), "insertModule");
 		
 		LOG.info(sql);
@@ -119,22 +120,26 @@ public class JdbcRepo {
 	}
 	
 	public String getDisplay(String table) {
-		List<Map<String, Object>> list = this.jdbcTemplate.queryForList("SELECT DISPLAY FROM MODULES WHERE TABLE_NAME = ?", new Object[] {table});
-		return list.get(0).get("DISPLAY").toString();
+		String display = this.jdbcTemplate.queryForObject("SELECT DISPLAY FROM MODULES WHERE TABLE_NAME = ?", String.class, table);
+		return display;
 	}
 	
 	public List<Map<String, Object>> getRows(String table) {
-		normalGet(this.jdbcTemplate.queryForList("select * from " + table + ";"), table);
+		//normalGet(this.jdbcTemplate.queryForList("select * from " + table + ";"), table);
 		return this.jdbcTemplate.queryForList("select * from " + table + ";");
 	}
 	
-	public List<Field> normalGet(List<Map<String, Object>> rows, String table) {
+	public List<Record> normalGet(String table) {
 		
 		//get a more normalized object structure to describe the table schema (i.e field types, display values etc...)	
 		List<Map<String, Object>> references = this.jdbcTemplate.queryForList(REFERENCES, table);		
-		List<Field> fields = new ArrayList<>();
+		List<Map<String, Object>> rows = this.getRows(table);
+		List<Record> records = new ArrayList<>();
 		
-		for (Map<String, Object> row : rows) {			
+		for (Map<String, Object> row : rows) {
+			
+			List<Field> fields = new ArrayList<>();
+			
 		    for (Map.Entry<String, Object> i : row.entrySet()) {
 		        String fieldLabel = i.getKey();
 		        String fieldValue = (String) i.getValue();
@@ -154,12 +159,13 @@ public class JdbcRepo {
     		    }
     		    
 		    }
+		    records.add(new Record(fields));
 		}
 	
-		LOG.info("fields " + fields);
-		LOG.info("ref " + references);
+		//LOG.info("fields " + fields);
+		//LOG.info("ref " + references);
 		
-		return new ArrayList<Field>();
+		return records;
 	}
 	
 	public String _getDisplayValue(String table, String value) {		

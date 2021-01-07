@@ -1,17 +1,22 @@
 <!doctype html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	<link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
-	<script type="text/javascript" charset="utf8"
-		src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
-	<script type="text/javascript" th:src="@{/js/script.js}"></script>
-	<script type="text/javascript" th:src="@{/js/listeners.js}"></script>
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+	integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+	crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css"
+	href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8"
+	src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+<script type="text/javascript" th:src="@{/js/script.js}"></script>
+<script type="text/javascript" th:src="@{/js/listeners.js}"></script>
 
 
 </head>
@@ -22,24 +27,57 @@
 
 	<h4 th:if="${message != null}" th:text="${message}"></h4>
 
-	<div th:if="${message == null}" style="background-color: #FFFFFF;height: 600px;width: 1000px;overflow: auto;">
+	<div th:if="${message == null}"
+		style="background-color: #FFFFFF; height: 600px; width: 1000px; overflow: auto;">
+		<!--
 		<table class="table" id="table">
 			<thead>
 				<tr>
 					<th scope="col" />
-					<th scope="col" th:each="column: ${rows[0]}" th:if="${column.key != 'SYS_ID' and column.key != 'DISPLAY'}"
+					<th scope="col" th:each="column: ${rows[0]}"
+						th:if="${column.key != 'SYS_ID' and column.key != 'DISPLAY'}"
 						th:text="${column.key}"></th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr th:each="listItem: ${rows}">
 					<th:block th:each="row,i: ${listItem}">
-						<td th:if="${i.index == 0}" class="icon" scope="row"><a th:data-id="${row.value}" th:display_value="${listItem[__${display}__]}" onclick="selectReference(this.getAttribute('data-id'), this.getAttribute('display_value'))">
-								<img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25" />
-							</a></td>
+						<td th:if="${i.index == 0}" class="icon" scope="row"><a
+							th:data-id="${row.value}"
+							th:display_value="${listItem[__${display}__]}"
+							onclick="selectReference(this.getAttribute('data-id'), this.getAttribute('display_value'))">
+								<img th:src="@{/css/icon.png}" alt="Open Record" height="25"
+								width="25" />
+						</a></td>
 
-						<td th:each="entry: ${row}" th:if="${entry.key != 'SYS_ID' and entry.key != 'DISPLAY'}" th:text="${entry.value}">
-						</td>
+						<td th:each="entry: ${row}"
+							th:if="${entry.key != 'SYS_ID' and entry.key != 'DISPLAY'}"
+							th:text="${entry.value}"></td>
+					</th:block>
+				</tr>
+			</tbody>
+		</table>
+		-->
+		<table class="table" id="table">
+			<thead>
+				<tr>
+					<th scope="col" />
+					<th scope="col" th:each="field: ${records[0].getFields()}"
+						th:text="${field.getName()}"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="record,i: ${records}">
+					<th:block th:each="row,i: ${record.getFields()}">
+						<td th:if="${i.index == 0}" class="icon" scope="row"><a
+							th:data-id="${row.getValue()}"
+							th:display_value="${record.getDisplayValue(display)}"
+							onclick="selectReference(this.getAttribute('data-id'), this.getAttribute('display_value'))">
+								<img th:src="@{/css/icon.png}" alt="Open Record" height="25"
+								width="25" />
+						</a></td>
+
+						<td th:each="entry: ${row}" th:text="${row.getValue()}"></td>
 					</th:block>
 				</tr>
 			</tbody>
