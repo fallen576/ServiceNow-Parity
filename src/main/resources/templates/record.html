@@ -37,15 +37,18 @@
                 </div>
                 <!--main content area-->
                 <div th:if="${table}" class="col-10 button-row">
-                	<form th:action="@{/delete/{table_name}/{guid}(table_name=${table},guid=${row.get('SYS_ID')})}" method="post" id="deleteRecord">
-                	<div class="form-group">
-						<button class="btn btn-danger" type="submit">Delete</button>
-					</div>
+                
+	                <form th:action="@{/delete/{table_name}/{guid}(table_name=${table},guid=${record.getId()})}" method="post" id="deleteRecord">
+	                	<div class="form-group">
+							<button class="btn btn-danger" type="submit">Delete</button>
+						</div>
 					</form>
+					
 					<form th:action="@{/update/{table_name}(table_name=${table})}" method="post" id="updateForm">
-					  <div class="form-group" th:each="item,i: ${row}">
-					  	<label th:for="${item.key}" th:text="${item.key}"></label>
-                        <input class="form-control" th:id="${itemkey}" th:name="${item.key}" th:value="${item.value}" th:readonly="${item.key == 'SYS_ID'}"/>
+					  <div class="form-group" th:each="field: ${record.getFields()}">
+					  	<label th:for="${field.getName()}" th:text="${field.getName()}"></label>
+                        <input th:if="${field.isHasReference()}" class="form-control" th:id="${field.getName()}" th:name="${field.getName()}" th:value="${field.getReference().getDisplayValue()}"/>
+                        <input th:unless="${field.isHasReference()}" class="form-control" th:id="${field.getName()}" th:name="${field.getName()}" th:value="${field.getValue()}" th:readonly="${field.getName() == 'SYS_ID'}"/>
 					  </div>
 					  <button type="submit" class="btn btn-info">Update</button>
 					</form>

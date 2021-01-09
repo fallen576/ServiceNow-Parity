@@ -90,7 +90,7 @@ public class Glide {
 			return new ModelAndView("redirect:/h2-console");
 		}
 		
-		List<Record> records = db.normalGet(table);
+		List<Record> records = db.normalGet(table, null);
 
 		if (records.size() == 0) {
 			model.addAttribute("message", "No data yet.");
@@ -121,7 +121,7 @@ public class Glide {
 	@GetMapping("/reference/{table_name}")
 	public ModelAndView referenceView(Model model, @PathVariable(value="table_name") String table) {
 		
-		List<Record> records = db.normalGet(table);
+		List<Record> records = db.normalGet(table, null);
 
 		if (records.size() == 0) {
 			model.addAttribute("message", "No data yet.");
@@ -157,9 +157,11 @@ public class Glide {
 			@PathVariable(value="id") String id) {
 		
 		model.addAttribute("modules", this._loadModules());	
+		model.addAttribute("record", db.normalGet(table, id).get(0));
 		model.addAttribute("row", db.viewRecord(table, id));
 		model.addAttribute("table", table);
-		return new ModelAndView("listview");
+		return new ModelAndView("record");
+		//return new ModelAndView("listview");
 	}
 	
 	@GetMapping("/table/{table_name}")

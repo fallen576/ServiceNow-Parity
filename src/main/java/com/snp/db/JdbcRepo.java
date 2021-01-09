@@ -129,11 +129,13 @@ public class JdbcRepo {
 		return this.jdbcTemplate.queryForList("select * from " + table + ";");
 	}
 	
-	public List<Record> normalGet(String table) {
+	public List<Record> normalGet(String table, String id) {
 		
 		//get a more normalized object structure to describe the table schema (i.e field types, display values etc...)	
 		List<Map<String, Object>> references = this.jdbcTemplate.queryForList(REFERENCES, table);		
-		List<Map<String, Object>> rows = this.getRows(table);
+		List<Map<String, Object>> rows = (id == null) ? 
+				this.getRows(table) :
+				jdbcTemplate.queryForList("select * from " + table + " where sys_id = ?", id);;
 		List<Record> records = new ArrayList<>();
 		
 		for (Map<String, Object> row : rows) {
@@ -146,7 +148,6 @@ public class JdbcRepo {
 		        Field tmpF = new Field(fieldLabel, fieldValue);
 		        tmpF.setReference(null);
 		        fields.add(tmpF);
-		        
 		        
 	        	//which field, create reference
 	        	for (Map<String, Object> reference : references) {
@@ -161,9 +162,6 @@ public class JdbcRepo {
 		    }
 		    records.add(new Record(fields));
 		}
-	
-		//LOG.info("fields " + fields);
-		//LOG.info("ref " + references);
 		
 		return records;
 	}
@@ -232,8 +230,9 @@ public class JdbcRepo {
 	}
 	
 	public Map<String, Object> viewRecord(String table, String sys_id) {
-		return jdbcTemplate.queryForList("select * from " + table + " where sys_id = '" + sys_id + "'").get(0);
+		return jdbcTemplate.queryForList("select * from " + table + " where sys_id = ?", sys_id).get(0);
 	}
+	
 	public String updateRecord(Map<?, ?> m, String table) {
 		Set<?> s = m.entrySet();
         Iterator<?> it = s.iterator();
