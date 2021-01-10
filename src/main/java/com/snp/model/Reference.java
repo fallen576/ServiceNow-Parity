@@ -4,10 +4,17 @@ public class Reference {
 	
 	public String value;
 	public String displayValue;
+	public String table;
 	
 	public Reference(String value, String displayValue) {
 		this.value = value;
 		this.displayValue = displayValue;
+	}
+	
+	public Reference(String value, String displayValue, String table) {
+		this.value = value;
+		this.displayValue = displayValue;
+		this.table = table;
 	}
 	
 	public String getValue() {
@@ -21,6 +28,14 @@ public class Reference {
 	}
 	public void setDisplayValue(String displayValue) {
 		this.displayValue = displayValue;
+	}
+	
+	public void setTable(String table) {
+		this.table = table;
+	}
+	
+	public String getTable() {
+		return table;
 	}
 
 	@Override

@@ -224,6 +224,7 @@ public class Glide {
 		
 		HashMap<String, String> response = new HashMap<>();
 		Map<?, ?> m =req.getParameterMap();
+		LOG.info("data "  + m);
 		try {
         String id = this.db.updateRecord(m, table);
         response.put("sys_id", id);

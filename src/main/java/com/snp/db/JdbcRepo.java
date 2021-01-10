@@ -120,7 +120,7 @@ public class JdbcRepo {
 	}
 	
 	public String getDisplay(String table) {
-		String display = this.jdbcTemplate.queryForObject("SELECT DISPLAY FROM MODULES WHERE TABLE_NAME = ?", String.class, table);
+		String display = this.jdbcTemplate.queryForObject("SELECT DISPLAY FROM MODULES WHERE TABLE_NAME = lower(?)", String.class, table.toLowerCase());
 		return display;
 	}
 	
@@ -155,7 +155,7 @@ public class JdbcRepo {
 	    		    String referenced_table = (String) reference.get("PKTABLE_NAME");
 	    		    
 	    		    if (tmpF.getName().equals(reference_field)) {
-	    		    	tmpF.setReference(new Reference(tmpF.getValue(), _getDisplayValue(referenced_table, tmpF.getValue()))); 	
+	    		    	tmpF.setReference(new Reference(tmpF.getValue(), _getDisplayValue(referenced_table, tmpF.getValue()), referenced_table)); 	
 	    		    }
     		    }
     		    
