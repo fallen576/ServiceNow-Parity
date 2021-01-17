@@ -1,13 +1,13 @@
 <head th:replace="header"></head>
 
-<body>
+<body style="background-color: #FFFFFF">
 
 	<!--main content area-->
 
 	<h4 th:if="${message != null}" th:text="${message}"></h4>
 
 	<div th:if="${message == null}"
-		style="background-color: #FFFFFF; height: 600px; width: 1000px; overflow: auto;">
+		style="background-color: #FFFFFF; height: 100%; width: 100%; overflow: auto;">
 		<table class="table" id="table">
 			<thead>
 				<tr>
@@ -20,9 +20,8 @@
 				<tr th:each="record,i: ${records}">
 					<th:block th:each="row,i: ${record.getFields()}">
 						<td th:if="${i.index == 0}" class="icon" scope="row"><a
-							th:data-id="${row.getValue()}"
 							th:display_value="${record.getDisplayValue(display)}"
-							onclick="selectReference(this.getAttribute('data-id'), this.getAttribute('display_value'))">
+							th:onclick="selectReference([[${row.getValue()}]], this.getAttribute('display_value'))">
 								<img th:src="@{/css/icon.png}" alt="Open Record" height="25"
 								width="25" />
 						</a></td>

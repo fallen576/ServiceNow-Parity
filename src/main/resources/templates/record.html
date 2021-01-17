@@ -34,15 +34,16 @@
 					</form>
 					
 					<form th:action="@{/update/{table_name}(table_name=${table})}" method="post" id="updateForm">
-					  <div class="form-group" th:each="field: ${record.getFields()}">
+					  <div class="form-group" th:each="field,iter: ${record.getFields()}">
 					  	<label th:for="${field.getName()}" th:text="${field.getName()}"></label>
-					  	<input th:if="${field.isHasReference()}" class="form-control" th:id="${field.getName()}" th:name="${field.getName()}" th:value="${field.getValue()}"/>
-                        <input th:if="${field.isHasReference()}" class="form-control" th:id="${field.getName()} + '_dv'" th:name="${field.getName()}" th:value="${field.getReference().getDisplayValue()}"/>
+					  	<input th:if="${field.isHasReference()}" class="form-control" th:id="${field.getName()} + '_' + ${iter.index}" th:name="${field.getName()}" th:value="${field.getValue()}" readonly/>
+                        <input th:if="${field.isHasReference()}" class="form-control" th:id="${field.getName()} + '_' + ${iter.index} + '_dv'" th:name="${field.getName()}" th:value="${field.getReference().getDisplayValue()}"/>
                         <span th:if="${field.isHasReference()}">
                         	<a th:href="@{/reference/{table_name}(table_name=${field.getReference().getTable()})}">
 								<img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25" />
 							</a>
-							<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#exampleModal">Edit</button>
+							<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#exampleModal"
+							th:onclick="openModal([[${field.getReference().getTable()}]], [[${field.getName()} + '_' + ${iter.index}]]);">Edit</button>
                         </span>
                         <input th:unless="${field.isHasReference()}" class="form-control" th:id="${field.getName()}" th:name="${field.getName()}" th:value="${field.getValue()}" th:readonly="${field.getName() == 'SYS_ID'}"/>
 					  </div>
@@ -57,7 +58,7 @@
         </div>  
         <!-- Modal -->
 		<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		  <div class="modal-dialog">
+		  <div class="modal-dialog modal-xl">
 		    <div class="modal-content">
 		      <div class="modal-header">
 		        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
@@ -66,11 +67,10 @@
 		        </button>
 		      </div>
 		      <div class="modal-body">
-		        ...
+		         <iframe class="reference-frame" src="about:blank"></iframe>
 		      </div>
 		      <div class="modal-footer">
-		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-		        <button type="button" class="btn btn-primary">Save changes</button>
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
 		      </div>
 		    </div>
 		  </div>
