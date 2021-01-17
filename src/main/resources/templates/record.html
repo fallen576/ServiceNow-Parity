@@ -1,16 +1,5 @@
-<!doctype html>
-
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-    <head>
-    	<title>[[${table}]]</title>
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-		<link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
-        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
-        <script type="text/javascript" th:src="@{/js/listeners.js}"></script>
-        <script type="text/javascript" th:src="@{/js/formAjax.js}"></script>
-    </head>
+<head th:replace="header"></head>
+    
     <body>
     	<div class="container-fluid">
             <div class="row h-100">
@@ -47,8 +36,8 @@
 					<form th:action="@{/update/{table_name}(table_name=${table})}" method="post" id="updateForm">
 					  <div class="form-group" th:each="field: ${record.getFields()}">
 					  	<label th:for="${field.getName()}" th:text="${field.getName()}"></label>
+					  	<input th:if="${field.isHasReference()}" class="form-control" th:id="${field.getName()}" th:name="${field.getName()}" th:value="${field.getValue()}"/>
                         <input th:if="${field.isHasReference()}" class="form-control" th:id="${field.getName()} + '_dv'" th:name="${field.getName()}" th:value="${field.getReference().getDisplayValue()}"/>
-                        <input th:if="${field.isHasReference()}" class="form-control" th:id="${field.getName()}" th:name="${field.getName()}" th:value="${field.getValue()}"/>
                         <span th:if="${field.isHasReference()}">
                         	<a th:href="@{/reference/{table_name}(table_name=${field.getReference().getTable()})}">
 								<img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25" />
@@ -67,24 +56,24 @@
             </div>
         </div>  
         <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>
+		<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		        ...
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		        <button type="button" class="btn btn-primary">Save changes</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
     </body>
 </html>

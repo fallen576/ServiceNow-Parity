@@ -6,20 +6,22 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import com.snp.entity.Module;
+import com.snp.entity.TestReference;
 import com.snp.entity.User;
-import com.snp.service.ModuleService;
-import com.snp.service.UserService;
+import com.snp.service.*;
 
 @Component
 public class DataLoader implements ApplicationRunner {
 
     private UserService userService;
     private ModuleService modService;
+    private TestReferenceService tfService;
 
     @Autowired
-    public DataLoader(UserService userService, ModuleService modService) {
+    public DataLoader(UserService userService, ModuleService modService, TestReferenceService tfService) {
         this.userService = userService;
         this.modService = modService;
+        this.tfService = tfService;
     }
 
 	@Override
@@ -29,6 +31,7 @@ public class DataLoader implements ApplicationRunner {
 		this.modService.save(new Module("Users", "users", "USER_NAME"));
 		this.modService.save(new Module("Create Table", "createTable"));
 		this.modService.save(new Module("H2 Console", "h2-console"));
+		this.modService.save(new Module("Test Reference", "test_reference"));
 		
 		this.userService.save(new User("admin", "admin", "admin"));
 			
@@ -41,8 +44,14 @@ public class DataLoader implements ApplicationRunner {
 			String fName = firstNames[_rand(firstNames)];
 			String lName = lastNames[_rand(lastNames)];
 			String uName = fName + " " + lName;
-			this.userService.save(new User(fName, lName, uName));
+			User tmp = new User(fName, lName, uName);
+			this.userService.save(tmp);
 		}
+		
+		Iterable<User> users = userService.findAll();
+		users.forEach(u -> {
+			this.tfService.save(new TestReference(u));
+		});
 		
 	}
 	

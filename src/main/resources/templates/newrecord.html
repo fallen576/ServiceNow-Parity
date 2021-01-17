@@ -1,16 +1,4 @@
-<!doctype html>
-
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-    <head>
-    	<title>[[${tableName}]]</title>
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-		<link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
-        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
-        <script type="text/javascript" th:src="@{/js/listeners.js}"></script>
-        <script type="text/javascript" th:src="@{/js/formAjax.js}"></script>
-    </head>
+<head th:replace="header"></head>
     <body>
     	<div class="container-fluid">
             <div class="row h-100">

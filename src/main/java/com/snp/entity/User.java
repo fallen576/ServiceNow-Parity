@@ -46,6 +46,10 @@ public class User {
 		this.lastName = last_name;
 		this.user_name = user_name;
 	}
+	
+	public UUID getValue() {
+		return id;
+	}
 
 	public String getUser_name() {
 		return user_name;

@@ -250,7 +250,7 @@ public class JdbcRepo {
             	 id = value[0];
              }
              else {
-            	 query += key + "='" + value[0] + "', ";
+            	 query += key + "='" + value[0].trim() + "', ";
              }
 		}
         query = query.substring(0, query.length() - 2);
@@ -284,7 +284,7 @@ public class JdbcRepo {
         
         
         for (String i : values) {
-        	query += "'" + i + "',";
+        	query += "'" + i.trim() + "',";
         }
         
         query = query.substring(0, query.length() - 1) + ");";

@@ -68,7 +68,7 @@
 
 		
         c.submit = function () {
-            alert(JSON.stringify(c.fields))
+            //alert(JSON.stringify(c.fields))
             if (c.name === "") {
                 c.nameError = true;
                 return;
