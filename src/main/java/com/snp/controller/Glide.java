@@ -146,6 +146,8 @@ public class Glide {
 		Map<String, Object> params = new HashMap<>();
 		model.addAttribute("modules", this._loadModules());
 		model.addAttribute("columns", db.getColumns(table, false));
+		model.addAttribute("record",db.normalGetNewRecord(table));
+		
 		params.put("table", table);
 		
 		return new ModelAndView("newrecord", params);
@@ -253,10 +255,10 @@ public class Glide {
 		
 		Map<?, ?> m =req.getParameterMap();
 		try {
-			this.db.insertRecord(m, table);
+			String id = this.db.insertRecord(m, table);
 			return ResponseEntity
 		            .status(HttpStatus.OK)                 
-		            .body("Successfully created record.");
+		            .body("Successfully created record." + id);
 		} catch (Exception e) {
 			LOG.warning(e.getMessage());
 			return ResponseEntity

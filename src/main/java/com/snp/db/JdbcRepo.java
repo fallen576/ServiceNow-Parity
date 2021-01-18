@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +28,8 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
@@ -129,13 +132,36 @@ public class JdbcRepo {
 		return this.jdbcTemplate.queryForList("select * from " + table + ";");
 	}
 	
+	public Record normalGetNewRecord(String table) {
+		List<String> columns = this.getColumns(table, false);
+		List<Map<String, Object>> references = this.jdbcTemplate.queryForList(REFERENCES, table);
+		List<Field> fields = new ArrayList();
+		
+		for (String col : columns) {
+			Field field = new Field(col, null);
+			field.setReference(null);
+			fields.add(field);
+		
+			for (Map<String, Object> reference : references) {
+				String reference_field = (String) reference.get("FKCOLUMN_NAME");
+				String referenced_table = (String) reference.get("PKTABLE_NAME");
+				
+				if (field.getName().equals(reference_field)) {
+					field.setReference(new Reference(null, null, referenced_table));
+				}
+			}
+		}
+		Record record = new Record(fields);
+		return record;
+	}
+	
 	public List<Record> normalGet(String table, String id) {
 		
 		//get a more normalized object structure to describe the table schema (i.e field types, display values etc...)	
 		List<Map<String, Object>> references = this.jdbcTemplate.queryForList(REFERENCES, table);		
 		List<Map<String, Object>> rows = (id == null) ? 
 				this.getRows(table) :
-				jdbcTemplate.queryForList("select * from " + table + " where sys_id = ?", id);;
+				jdbcTemplate.queryForList("select * from " + table + " where sys_id = ?", id);
 		List<Record> records = new ArrayList<>();
 		
 		for (Map<String, Object> row : rows) {
@@ -263,7 +289,7 @@ public class JdbcRepo {
         
 	}
 	
-	public int insertRecord(Map<?, ?> m, String table) {
+	public String insertRecord(Map<?, ?> m, String table) {
 		Set<?> s = m.entrySet();
         Iterator<?> it = s.iterator();
         String query = "INSERT INTO " + table + " (";
@@ -291,9 +317,23 @@ public class JdbcRepo {
         
         LOG.info("Final " + query);
         
+        KeyHolder keyHolder = new GeneratedKeyHolder();
         
         
-        return jdbcTemplate.update(query);
+        final String sql = query;
+        
+        jdbcTemplate.update(connection -> {
+        	PreparedStatement ps = connection
+        	          .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        	
+        	return ps;
+        }, keyHolder);
+        
+        //jdbcTemplate.update(query, new Object[] {""}, keyHolder, new String[] {"SYS_ID"});
+        String key = (String) keyHolder.getKeys().get("SYS_ID");
+        LOG.info("SYS_ID " + key);
+        //jdbcTemplate.update(query);
+        return key;
         
 	}
 	
