@@ -73,7 +73,7 @@ public class JdbcRepo {
 		JSONArray fields = data.getJSONArray("tableFields");
 		HashMap<String, String> map = new HashMap<>();
 		
-		for (int i = 0; i < fields.length(); i++) {
+		for (int i = 0; i < fields.length(); i++) {	
 			JSONObject tmp = fields.getJSONObject(i);
 			String name = tmp.getString("fieldName").replaceAll(" ", "_");
 			String type = tmp.getString("fieldType");

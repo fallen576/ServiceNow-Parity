@@ -31,7 +31,7 @@ public class DataLoader implements ApplicationRunner {
 		this.modService.save(new Module("Users", "users", "USER_NAME"));
 		this.modService.save(new Module("Create Table", "createTable"));
 		this.modService.save(new Module("H2 Console", "h2-console"));
-		this.modService.save(new Module("Test Reference", "test_reference"));
+		this.modService.save(new Module("Test Reference", "example_reference"));
 		
 		this.userService.save(new User("admin", "admin", "admin"));
 			

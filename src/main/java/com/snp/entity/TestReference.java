@@ -15,7 +15,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name="test_reference")
+@Table(name="example_reference")
 public class TestReference {
 	@Id
 	@GeneratedValue(generator = "UUID")
