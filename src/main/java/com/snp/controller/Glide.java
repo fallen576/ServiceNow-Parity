@@ -83,7 +83,9 @@ public class Glide {
 	public ModelAndView loadTable(Model model, @PathVariable(value="table_name") String table) {
 		
 		if (table.equals("createTable")) {
-			return new ModelAndView("redirect:/createTable.html");
+			model.addAttribute("modules", (List<Module>) modService.findAll());
+			model.addAttribute("table", table);
+			return new ModelAndView("createTable");
 		}
 		
 		if (table.equals("h2-console")) {

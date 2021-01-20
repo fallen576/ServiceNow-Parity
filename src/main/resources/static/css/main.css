@@ -82,16 +82,22 @@ iframe {
 	float: left;
 }
  
- .styled-table {
+.styled-table {
     border-collapse: collapse;
     margin: 25px 0;
     font-size: 0.9em;
     font-family: sans-serif;
     min-width: 400px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-  }
+}
 
-  .reference {
-      float: left;
-      width: 75%;
-  }
+.reference {
+    float: left;
+    width: 75%;
+}
+
+.table_fields {
+    margin-top: 5px;
+    margin-bottom: 5%;
+    width: 25%;
+}

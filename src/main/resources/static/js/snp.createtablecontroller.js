@@ -4,10 +4,11 @@
     angular.module('ServiceNowParity')
         .controller('CreateTableController', CreateTableController);
 
-    CreateTableController.$inject = ['$http', '$scope'];
-    function CreateTableController($http, $scope) {
+    CreateTableController.$inject = ['$http', '$scope', '$sce'];
+    function CreateTableController($http, $scope, $sce) {
 
         var c = this;
+
         c.fields = [{
             "fieldName": "",
             "fieldType": "",
@@ -20,17 +21,23 @@
         c.name = "";
         c.nameError = false;
         c.error = false;
+        c.url = "";
 
         c.addField = function () {
+
+            setTimeout(() => {
+                $scope.$digest();
+              }, 5);
 
             if (c.fields.length === 0) {
                 c.fields.push({
                     "fieldName": "",
                     "fieldType": "",
                     "reference": false,
-                    "referenceValue": "",
                     "referenceTableName": "",
-                    "dv": ""
+                    "referenceTableValue": "",
+                    "referenceFieldName": "",
+                    "referenceFieldValue" :""
                 });
                 return;
             }
@@ -46,10 +53,15 @@
                 "fieldName": "",
                 "fieldType": "",
                 "reference": false,
-                "referenceValue": "",
                 "referenceTableName": "",
-                "dv": ""
+                "referenceTableValue": "",
+                "referenceFieldName": "",
+                "referenceFieldValue" :""
             });
+        };
+
+        c.setFrameDestination = function(name) {
+            c.url = '/reference/modules?name=' + name;
         };
 
         c.ref = function (i) {
@@ -58,12 +70,6 @@
 
         c.removeField = function (i) {
             c.fields.splice(i, 1);
-        };
-
-        c.setReferenceField = function (i, value, dv, name) {
-            c.fields[i].referenceTableName = name;
-            c.fields[i].referenceValue = value;
-            c.fields[i].dv = dv;
         };
 
 
