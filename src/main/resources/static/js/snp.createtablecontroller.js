@@ -4,8 +4,8 @@
     angular.module('ServiceNowParity')
         .controller('CreateTableController', CreateTableController);
 
-    CreateTableController.$inject = ['$http', '$scope', '$sce'];
-    function CreateTableController($http, $scope, $sce) {
+    CreateTableController.$inject = ['$http', '$scope', '$rootScope'];
+    function CreateTableController($http, $scope, $rootScope) {
 
         var c = this;
 
@@ -13,9 +13,10 @@
             "fieldName": "",
             "fieldType": "",
             "reference": false,
-            "referenceValue": "",
-            "referenceTableName": "",
-            "dv": ""
+            "referenceField": {
+                "value": "",
+                "display_value": ""
+            }
         }];
 
         c.name = "";
@@ -34,10 +35,10 @@
                     "fieldName": "",
                     "fieldType": "",
                     "reference": false,
-                    "referenceTableName": "",
-                    "referenceTableValue": "",
-                    "referenceFieldName": "",
-                    "referenceFieldValue" :""
+                    "referenceField": {
+                        "value": "",
+                        "display_value": ""
+                    }
                 });
                 return;
             }
@@ -53,10 +54,10 @@
                 "fieldName": "",
                 "fieldType": "",
                 "reference": false,
-                "referenceTableName": "",
-                "referenceTableValue": "",
-                "referenceFieldName": "",
-                "referenceFieldValue" :""
+                "referenceField": {
+                    "value": "",
+                    "display_value": ""
+                }
             });
         };
 
@@ -74,7 +75,7 @@
 
 
         c.submit = function () {
-            //alert(JSON.stringify(c.fields))
+            
             if (c.name === "") {
                 c.nameError = true;
                 return;
@@ -93,6 +94,14 @@
             });
         };
 
+        $scope.$on('update', function(event, reference) {
+
+            $scope.$apply(function() {
+                c.fields[reference.index].referenceField.value = reference.value;
+                c.fields[reference.index].referenceField.display_value = reference.display_value;
+            });
+
+        });
     }
 
 })();

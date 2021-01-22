@@ -28,14 +28,12 @@
                     <label for="tableName" style="font-weight: bold;">Table Name</label>
                     <input class="form-control" id="tableName" placeholder="Table Name" ng-model="table.name" />
                 </div>
-
                 <table class="styled-table" id="fields">
                     <thead>
                         <tr>
                             <th>Field Name</th>
                             <th>Field Type</th>
                             <th>Reference Table</th>
-                            <th>Reference Name</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -65,20 +63,8 @@
                                     </span>
                                 </span>
                             </td>
-                            <td>
-                                <span ng-if="option.referenceTableValue">
-                                    <input ng-model="option.referenceFieldValue" class="form-control reference" id="reference_field_{{$index}}" type="hidden" readonly/>
-                                    <input ng-model="option.referenceFieldName" class="form-control reference" id="reference_field_{{$index}}_dv" />
-                                    <span>
-                                        <a href="#exampleModal" data-toggle="modal" data-target="#exampleModal"
-                                            ng-click="table.setFrameDestination('reference_field' + $index)"><img height="40"
-                                                width="40" style="display: block" src="" alt=""></a>
-                                    </span>
-                                </span>
-                            </td>
                             <td><button class="btn btn-primary" ng-click="table.addField()">Add Field</button></td>
-                            <td><button class="btn btn-danger" ng-click="table.removeField($index);">Remove
-                                    Field</button></td>
+                            <td><button class="btn btn-danger" ng-click="table.removeField($index);">Remove Field</button></td>
                         </tr>
                     </tbody>
                 </table>
