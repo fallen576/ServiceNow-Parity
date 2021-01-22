@@ -5,7 +5,43 @@
 	<!--main content area-->
 
 	<h4 th:if="${message != null}" th:text="${message}"></h4>
-
+	<<div th:if="${message == null}" 
+		style="background-color: #FFFFFF; height: 100%; width: 100%; overflow: auto;"
+		ng-controller="ReferenceController as ref">
+				<div class="col">
+						<table class="table" id="table">
+							<thead>
+								<tr>
+									<th scope="col" />
+									<th scope="col" th:each="field: ${records[0].getFields()}"
+										th:text="${field.getName()}"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="record,i: ${records}">
+								<th:block th:each="field,i: ${record.getFields()}">		
+									<td th:if="${i.index == 0}" class="icon" scope="row"><a
+										th:display_value="${record.getDisplayValue(display)}"
+										th:raw_value="${field.getValue()}"
+										th:attr="ng-click='ref.trigger($event);'">
+										<img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25" />
+									</a></td>
+									
+										<!--  <td th:each="entry: ${row}" th:text="${row.getValue()}"></td>-->
+										
+										
+										<td th:if="${field.isHasReference()}">
+										<a style="cursor: pointer;" th:text="${field.getReference().getDisplayValue()}" 
+										th:href="@{/table/{table_name}/{guid}(table_name=${field.getReference().getTable().toLowerCase()},guid=${field.getReference().getValue()})}"></a>
+										</td>
+										<td th:unless="${field.isHasReference()}" th:text="${field.getValue()}"></td>
+									</th:block>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+<!-- 
 	<div th:if="${message == null}" 
 		style="background-color: #FFFFFF; height: 100%; width: 100%; overflow: auto;"
 		ng-controller="ReferenceController as ref">
@@ -32,6 +68,7 @@
 			</tbody>
 		</table>
 	</div>
+	-->
 </body>
 
 </html>

@@ -86,11 +86,11 @@
                 url: "/api/v1/table/create",
                 method: "POST",
                 data: ({ "tableName": c.name, "tableFields": c.fields })
-            }).success(function (data) {
+            }).then(function (data) {
                 //alert(JSON.stringify(data));
                 location.href = "/" + c.name + ".do";
-            }).error(function (data) {
-                alert("whoops " + JSON.stringify(data));
+            }, function (data) {
+                alert(JSON.stringify(data));
             });
         };
 

@@ -71,8 +71,11 @@ public class JdbcRepo {
 
 	public String createTable(JSONObject data) throws Exception {
 		//does table exist?
-		String sql = "CREATE TABLE " + data.getString("tableName").replaceAll(" ", "_") + "( sys_id VARCHAR(255) default random_uuid(), "
+		String sql = "CREATE TABLE " + data.getString("tableName").replaceAll(" ", "_").toLowerCase() + "( sys_id VARCHAR(255) default random_uuid(), "
 				+ "primary key (sys_id), ";
+		String safeSql = sql;
+		ArrayList<Object> params = new ArrayList();
+
 		JSONArray fields = data.getJSONArray("tableFields");
 		HashMap<String, String> map = new HashMap<>();
 		
@@ -82,25 +85,33 @@ public class JdbcRepo {
 			String type = tmp.getString("fieldType");
 			String refTable = "";
 			if (type.equals("reference")) {
-				refTable = tmp.getString("dv");
+				JSONObject refObject = tmp.getJSONObject("referenceField");
+				refTable = refObject.getString("display_value");
 				map.put(name, refTable);
 			}
 			
 			sql += " " + name  + " varchar(255)  ,"; 
+			safeSql += " ? varchar(255)  ,"; 
+			params.add(name);
 		}
 		for (Map.Entry mapElement : map.entrySet()) { 
 			String k = (String) mapElement.getKey();
 			String v = (String) mapElement.getValue();
 			
 			sql += "foreign key (" + k + ") references " + v + "(sys_id) ON DELETE CASCADE ,";
+			safeSql += "foreign key (?) references  ? (sys_id) ON DELETE CASCADE ,";
+			params.add(k);
+			params.add(v);
 		}
 		
 		sql = sql.substring(0, sql.length() - 1) + ");";
 		
+		LOG.info("SAFE SQL " + safeSql);
+		
 		jdbcTemplate.execute(sql);
 		
-		modService.save(new Module(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_"), "SYS_ID"));		
-    	amb.trigger(Collections.singletonMap(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_")), "insertModule");
+		modService.save(new Module(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_").toLowerCase(), "SYS_ID"));		
+    	amb.trigger(Collections.singletonMap(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_").toLowerCase()), "insertModule");
 		
 		LOG.info(sql);
 		return sql;

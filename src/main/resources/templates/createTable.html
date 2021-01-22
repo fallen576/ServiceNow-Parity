@@ -24,6 +24,9 @@
                 </div>
             </div>
             <div id="controller" style="background-color: #FFFFFF" class="col-10" ng-controller="CreateTableController as table">
+                <div class="form-group">
+                    <button class="btn btn-success" ng-disabled="table.fields.length === 0" type="submit" ng-click="table.submit()">Create Table</button>
+				</div>
                 <div class="table_fields">
                     <label for="tableName" style="font-weight: bold;">Table Name</label>
                     <input class="form-control" id="tableName" placeholder="Table Name" ng-model="table.name" />
@@ -59,7 +62,7 @@
                                     <span>
                                         <a href="#exampleModal" data-toggle="modal" data-target="#exampleModal"
                                             ng-click="table.setFrameDestination('reference_' + $index)"><img height="40"
-                                                width="40" style="display: block" src="" alt=""></a>
+                                                width="40" style="display: block" th:src="@{/css/icon.png}" alt=""></a>
                                     </span>
                                 </span>
                             </td>
@@ -71,7 +74,9 @@
                 <div ng-if="table.error" class="alert alert-danger" role="alert">
                     Please fill in field name and type before adding a new row.
                 </div>
-                {{table.fields}}
+                <div ng-if="table.nameError" class="alert alert-danger" role="alert">
+                    Please give your table a name.
+                </div>
                 <!-- Modal -->
                 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
                     aria-hidden="true">
