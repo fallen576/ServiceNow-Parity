@@ -42,6 +42,7 @@ public class Module {
 	public Module(String module_name, String tableName) {
 		this.moduleName = module_name;
 		this.tableName = tableName;
+		this.display = "SYS_ID";
 	}
 
 	public Module(String module_name, String tableName, String display) {

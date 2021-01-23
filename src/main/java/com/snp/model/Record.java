@@ -21,6 +21,7 @@ public class Record {
 	}
 	
 	public String getDisplayValue(String displayField) {
+
 		for (Field f : fields) {
 			if (!f.getName().equals(displayField)) {
 				continue;

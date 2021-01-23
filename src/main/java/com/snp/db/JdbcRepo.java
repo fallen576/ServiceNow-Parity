@@ -86,7 +86,8 @@ public class JdbcRepo {
 			String refTable = "";
 			if (type.equals("reference")) {
 				JSONObject refObject = tmp.getJSONObject("referenceField");
-				refTable = refObject.getString("display_value");
+				//refTable = refObject.getString("display_value");
+				refTable = refObject.getString("value");
 				map.put(name, refTable);
 			}
 			

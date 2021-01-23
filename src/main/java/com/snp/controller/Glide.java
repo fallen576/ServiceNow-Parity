@@ -139,6 +139,8 @@ public class Glide {
 		else {
 			model.addAttribute("display", db.getDisplay(table));
 		}
+
+		model.addAttribute("table", table);
 		
 		return new ModelAndView("reference");
 	}

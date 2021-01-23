@@ -23,6 +23,7 @@
 									<td th:if="${i.index == 0}" class="icon" scope="row"><a
 										th:display_value="${record.getDisplayValue(display)}"
 										th:raw_value="${field.getValue()}"
+										th:attrappend="table_name=${table == 'modules'} ? ${record.getDisplayValue('TABLE_NAME')}"
 										th:attr="ng-click='ref.trigger($event);'">
 										<img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25" />
 									</a></td>
