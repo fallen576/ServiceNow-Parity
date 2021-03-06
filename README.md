@@ -24,3 +24,11 @@ http://localhost:8080/
 
 ### Record View
 ![Alt text](https://github.com/fallen576/ServiceNow-Parity/blob/master/src/main/resources/static/css/record_view.PNG "Record View")
+
+### Create a new Table
+![Alt text](https://github.com/fallen576/ServiceNow-Parity/blob/master/src/main/resources/static/css/create_table.PNG "Create Table View")
+
+### Database access
+The database is an in memory H2 DB and can be accesses by clicking the module H2 Console. Once there you can click connect without providing a password and you will be taken to the following screen:
+![Alt text](https://github.com/fallen576/ServiceNow-Parity/blob/master/src/main/resources/static/css/db.PNG "DB View")
+
