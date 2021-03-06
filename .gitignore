@@ -3,6 +3,11 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+.DS_Store
+.tern-project
+mvnw
+mvnw.cmd
+.mvn/wrapper
 
 ### STS ###
 .apt_generated
