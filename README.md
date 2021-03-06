@@ -17,7 +17,7 @@ mvn wildfly:deploy
 http://localhost:8080/
 ```
 
-![Alt text](src/main/resources/static/css/home.png?raw=true "Home Screen")
+![Alt text](https://github.com/fallen576/ServiceNow-Parity/blob/master/src/main/resources/static/css/record_view.PNG "Home Screen")
 ![Alt text](src/main/resources/static/css/example_modules.png?raw=true "Table View")
 ![Alt text](src/main/resources/static/css/record_view.png?raw=true "Record View")
 ![plot](src/main/resources/static/css/home.png)
