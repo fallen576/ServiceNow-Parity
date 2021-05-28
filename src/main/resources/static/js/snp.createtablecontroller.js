@@ -23,6 +23,7 @@
         c.nameError = false;
         c.error = false;
         c.url = "";
+        c.genericError = "";
 
         c.addField = function () {
 
@@ -90,7 +91,9 @@
                 //alert(JSON.stringify(data));
                 location.href = "/" + c.name + ".do";
             }, function (data) {
-                alert(JSON.stringify(data));
+                alert(data.data);
+                console.log(data);
+                c.genericError = data.data.split("org.h2.jdbc.JdbcSQLException: ")[1];
             });
         };
 

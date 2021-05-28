@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.logging.log4j2.Log4J2LoggingSystem;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,12 +55,15 @@ public class API {
 		return new ResponseEntity<>(db.findAll(table), HttpStatus.OK);
 	}
 	
-	@PostMapping("/api/v1/table/create")
+	@RequestMapping(value = "/api/v1/table/create", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
 	public ResponseEntity<String> createTable(@RequestBody String body) throws JSONException, Exception {
-		
-		LOG.info(body);
-		db.createTable(new JSONObject(body));
-		return new ResponseEntity<String>("{\"answer\": \"woot\"}", HttpStatus.OK);
+		try {
+			db.createTable(new JSONObject(body));
+		}
+		catch (Exception e) {
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<String>("good", HttpStatus.OK);
 	}
 	
 	private List<Module> _loadModules() {
