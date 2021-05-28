@@ -16,14 +16,14 @@
 			}
 		}
 	});
-	
+	/*
 	sse.addEventListener("updateModule", (event) => {
 		console.log("module updated " + event.data);
 		
 		var json = JSON.parse(event.data);
-		
+		console.log(event.data);		
 	});
-	
+	*/
 	sse.addEventListener("insertModule", (event) => {
 		console.log("module updated " + event.data);
 		

@@ -237,7 +237,7 @@ public class Glide {
         
         	amb.trigger(m, "update");
         	
-        	if (table.equals("module")) {
+        	if (table.equals("modules")) {
         		amb.trigger(m, "updateModule");
         	}
 		} catch (Exception e) {

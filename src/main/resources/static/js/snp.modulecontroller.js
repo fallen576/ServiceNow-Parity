@@ -13,18 +13,28 @@
         c.modules = [];
         c.table = [];
         c.headers = [];
-
-        var promise = GlideService.getAllModules();
-        promise.then((result) => {
+		
+		var sse = new EventSource('http://localhost:8080/sse');
+    	sse.addEventListener("updateModule", (event) => {
+			c.modules = [];
+			c.fetchModules();
+		});
+		
+		c.fetchModules = function() {
+			var promise = GlideService.getAllModules();
+        	promise.then((result) => {
             
-            for (var i in result.data) {
-                c.modules.push(result.data[i]);
-            }
-        })
-        .catch((error) => {
-            console.log("Error when reaching endpoint " + JSON.stringify(result));
-        });
-
+	            for (var i in result.data) {
+                	c.modules.push(result.data[i]);
+            	}
+        	})
+        	.catch((error) => {
+            	console.log("Error when reaching endpoint " + JSON.stringify(result));
+        	});
+		};
+		
+		c.fetchModules();
+		
         c.loadTable = function(table) {
             c.headers = [];
             c.table = [];
@@ -40,11 +50,6 @@
                 console.log(c.headers);
             });
         };
-
-        c.sayHi = function() {
-            alert("uh");
-        };
-        
-    }
-
+	}
+	
 })();
