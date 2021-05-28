@@ -1,105 +1,110 @@
 <head th:replace="headerNG"></head>
 
-<body id="angularApp" ng-app='ServiceNowParity'>
-    <div class="container-fluid">
-        <div class="row h-100">
-            <div class="col-2" style="background-color: #37424F">
-                <div class="mynavbar">
-                    <div id="navbar-header">
-                        <h4>Select a module</h4>
-                    </div>              
-                    <nav class="navbar" style="display: block;">
-                        <ul id="modules" class="navbar-nav">
-                            <li class="nav-item">
-                                <input name="filter" class="nav-link filter rounded" placeholder="Search for Tables"></input>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link rounded" href="/">Home</a>
-                            </li>
-                            <li th:each="module : ${modules}">
-                                <a class="nav-link" th:href="@{/table/{table_name}_list.do(table_name=${module.tableName})}">[[${module.moduleName}]]</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
-            <div id="controller" style="background-color: #FFFFFF" class="col-10" ng-controller="CreateTableController as table">
-                <div class="form-group">
-                    <button class="btn btn-success m-top" ng-disabled="table.fields.length === 0" type="submit" ng-click="table.submit()">Create Table</button>
+<!-- <body id="angularApp" ng-app='ServiceNowParity'> -->
+	<div class="container-fluid">
+		<div class="row h-100">
+			<div class="col-2" style="background-color: #37424F" ng-controller="ModuleController as mc">
+				<div class="mynavbar">
+					<div id="navbar-header">
+						<h4>Select a module</h4>
+					</div>
+					<nav class="navbar" style="display: block;">
+						<ul id="modules" class="navbar-nav">
+							<li class="nav-item"><input name="filter"
+								class="nav-link filter rounded" placeholder="Search for Tables"
+								ng-model="search"></input></li>
+							<li class="nav-item"><a class="nav-link rounded" href="/">Home</a>
+							</li>
+							<li ng-repeat="module in mc.modules | filter : search"><a
+								class="nav-link rounded"
+								href="/table/{{module.tableName}}_list.do">{{module.moduleName}}</a>
+							</li>
+						</ul>
+					</nav>
 				</div>
-                <div class="table_fields">
-                    <label for="tableName" style="font-weight: bold;">Table Name</label>
-                    <input class="form-control" id="tableName" placeholder="Table Name" ng-model="table.name" />
-                </div>
-                <table class="styled-table" id="fields">
-                    <thead>
-                        <tr>
-                            <th>Field Name</th>
-                            <th>Field Type</th>
-                            <th>Reference Table</th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="option in table.fields track by $index">
-                            <td name="row_0">
-                                <input class="form-control" placeholder="Field Name" ng-model="option.fieldName" />
-                            </td>
-                            <td>
-                                <select class="form-control" name="types" ng-model="option.fieldType"
-                                    ng-change="table.ref($index);">
-                                    <option value="">-- None --</option>
-                                    <option value="string">String</option>
-                                    <option value="integer">Integer</option>
-                                    <option value="reference">Reference</option>
-                                </select>
-                            </td>
-                            <td>
-                                <span ng-if="option.reference == true">
-                                    <input ng-model="option.referenceTableValue" class="form-control reference" id="reference_{{$index}}" type="hidden" readonly/>
-                                    <input ng-model="option.referenceTableName" class="form-control reference" id="reference_{{$index}}_dv" />
-                                    <span>
-                                        <a href="#exampleModal" data-toggle="modal" data-target="#exampleModal"
-                                            ng-click="table.setFrameDestination('reference_' + $index)"><img height="40"
-                                                width="40" style="display: block" th:src="@{/css/icon.png}" alt=""></a>
-                                    </span>
-                                </span>
-                            </td>
-                            <td><button class="btn btn-primary" ng-click="table.addField()">Add Field</button></td>
-                            <td><button class="btn btn-danger" ng-click="table.removeField($index);">Remove Field</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div ng-if="table.error" class="alert alert-danger" role="alert">
-                    Please fill in field name and type before adding a new row.
-                </div>
-                <div ng-if="table.nameError" class="alert alert-danger" role="alert">
-                    Please give your table a name.
-                </div>
-                <!-- Modal -->
-                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-xl">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <iframe class="reference-frame" ng-src="{{table.url}}"></iframe>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+			</div>
+			<div id="controller" style="background-color: #FFFFFF" class="col-10"
+				ng-controller="CreateTableController as table">
+				<div class="form-group">
+					<button class="btn btn-success m-top"
+						ng-disabled="table.fields.length === 0" type="submit"
+						ng-click="table.submit()">Create Table</button>
+				</div>
+				<div class="table_fields">
+					<label for="tableName" style="font-weight: bold;">Table
+						Name</label> <input class="form-control" id="tableName"
+						placeholder="Table Name" ng-model="table.name" />
+				</div>
+				<table class="styled-table" id="fields">
+					<thead>
+						<tr>
+							<th>Field Name</th>
+							<th>Field Type</th>
+							<th>Reference Table</th>
+							<th></th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="option in table.fields track by $index">
+							<td name="row_0"><input class="form-control"
+								placeholder="Field Name" ng-model="option.fieldName" /></td>
+							<td><select class="form-control" name="types"
+								ng-model="option.fieldType" ng-change="table.ref($index);">
+									<option value="">-- None --</option>
+									<option value="string">String</option>
+									<option value="integer">Integer</option>
+									<option value="reference">Reference</option>
+							</select></td>
+							<td><span ng-if="option.reference == true"> <input
+									ng-model="option.referenceTableValue"
+									class="form-control reference" id="reference_{{$index}}"
+									type="hidden" readonly /> <input
+									ng-model="option.referenceTableName"
+									class="form-control reference" id="reference_{{$index}}_dv" />
+									<span> <a href="#exampleModal" data-toggle="modal"
+										data-target="#exampleModal"
+										ng-click="table.setFrameDestination('reference_' + $index)"><img
+											height="40" width="40" style="display: block"
+											th:src="@{/css/icon.png}" alt=""></a>
+								</span>
+							</span></td>
+							<td><button class="btn btn-primary"
+									ng-click="table.addField()">Add Field</button></td>
+							<td><button class="btn btn-danger"
+									ng-click="table.removeField($index);">Remove Field</button></td>
+						</tr>
+					</tbody>
+				</table>
+				<div ng-if="table.error" class="alert alert-danger" role="alert">
+					Please fill in field name and type before adding a new row.</div>
+				<div ng-if="table.nameError" class="alert alert-danger" role="alert">
+					Please give your table a name.</div>
+				<!-- Modal -->
+				<div class="modal fade" id="exampleModal" tabindex="-1"
+					aria-labelledby="exampleModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-xl">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<iframe class="reference-frame" ng-src="{{table.url}}"></iframe>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary"
+									data-dismiss="modal">Cancel</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 
 </html>

@@ -11,12 +11,18 @@
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
         <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
         <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
+        
         <script type="text/javascript" th:src="@{/js/listeners.js}"></script>
         <script type="text/javascript" th:src="@{/js/formAjax.js}"></script>
         <script type="text/javascript" th:src="@{/js/script.js}"></script>
+        
         <!-- Modules -->
         <script type="text/javascript" th:src="@{/js/snp.module.js}"></script>
+        
         <!-- 'data' module artifacts -->
         <script type="text/javascript" th:src="@{/js/snp.createtablecontroller.js}"></script>
         <script type="text/javascript" th:src="@{/js/snp.referencecontroller.js}"></script>
+        <script type="text/javascript" th:src="@{/js/snp.service.js}"></script>
+        <script type="text/javascript" th:src="@{/js/snp.modulecontroller.js}"></script>
 	</head>
+	<body id="angularApp" ng-app='ServiceNowParity'>
