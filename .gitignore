@@ -36,3 +36,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+mvnw*
+.tern-project
+.DS_Store
+.mvn*
