@@ -8,20 +8,30 @@
 	 		url: form.attr('action'),
 	 		data: form.serialize(),
 	 		success: function(data) {
-				try {
+				//pretty ugly, definitely needs changed
+				try {	
+					//insert
 					var parsed = JSON.parse(data);
 					//alert(parsed.table + " " + parsed.id);
-				location.href = "/table/" + parsed.table + "/" + parsed.id;
+					$('#suc-message').text();
+					$("#alert-suc").fadeIn();
+					setTimeout(function() {
+						$("#alert-suc").slideUp();
+						location.href = "/table/" + parsed.table + "/" + parsed.id;
+					}, 4000);
+				
 				} catch(e) {
+					//update
 					data = "Record has been updated."
 				}
 				 //console.log("Success " + JSON.stringify(data));
 				
-	 			$('#suc-message').text(data);
+	 			$('#suc-message').text("Record has been created. You will now be redirected");
 	 			$("#alert-suc").fadeIn();
 	 			setTimeout(function() {
 	 				$("#alert-suc").slideUp();
-	 			}, 5000);
+				 }, 3000);
+				 
 	 		},
 	 		error: function(data) {
 	 		console.table(data);

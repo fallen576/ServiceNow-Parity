@@ -247,7 +247,7 @@ public class JdbcRepo {
 		return answer;
 	}
 	
-	public String lookup(String table, List<NameValuePair> params) {
+	public List<Record> lookup(String table, List<NameValuePair> params) {
 		
 		String query = SELECT_ALL + table + " WHERE ";
 		String sys_id = "";
@@ -258,13 +258,40 @@ public class JdbcRepo {
 			}	
 		}
 		LOG.info(query);
-		return jdbcTemplate.query(query,
-				new ResultSetExtractor<String>() {
+		
+		//New type of lookup
+		//get a more normalized object structure to describe the table schema (i.e field types, display values etc...)	
+		List<Map<String, Object>> references = this.jdbcTemplate.queryForList(REFERENCES, table);		
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(query);
+		List<Record> records = new ArrayList<>();
+		
+		for (Map<String, Object> row : rows) {
 			
-					public String extractData(ResultSet rs) throws SQLException, DataAccessException {
-						return _process(rs);
-					}
-		});
+			List<Field> fields = new ArrayList<>();
+			
+		    for (Map.Entry<String, Object> i : row.entrySet()) {
+		        String fieldLabel = i.getKey();
+		        String fieldValue = (String) i.getValue();
+		        Field tmpF = new Field(fieldLabel, fieldValue);
+		        tmpF.setReference(null);
+		        fields.add(tmpF);
+		        
+	        	//which field, create reference
+	        	for (Map<String, Object> reference : references) {
+	    		    String reference_field = (String) reference.get("FKCOLUMN_NAME");
+	    		    String referenced_table = (String) reference.get("PKTABLE_NAME");
+	    		    
+	    		    if (tmpF.getName().equals(reference_field)) {
+	    		    	tmpF.setReference(new Reference(tmpF.getValue(), _getDisplayValue(referenced_table, tmpF.getValue()), referenced_table)); 	
+	    		    }
+    		    }
+    		    
+		    }
+		    records.add(new Record(fields));
+		}
+		
+		return records;
+
 	}
 	
 	public Map<String, Object> viewRecord(String table, String sys_id) {

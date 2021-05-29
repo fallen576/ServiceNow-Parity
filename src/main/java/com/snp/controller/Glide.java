@@ -182,36 +182,30 @@ public class Glide {
 		if (qParams.get(0).getName().equals("sys_id")) {
 			listView = false;
 		}
-		
-		String schema = this.db.lookup(table, qParams);
-		
-		Map<String, Object> params = new HashMap<>();
-		
-		JSONArray json = new JSONArray(schema);
-		String[] elementNames = null;
-		ArrayList<ArrayList<String>> data2 = new ArrayList<ArrayList<String>>();
-		
-		for (int i = 0; i < json.length(); i++) {
-			JSONObject obj = json.getJSONObject(i);
-			elementNames = JSONObject.getNames(obj);
-			ArrayList<String> tmp = new ArrayList<String>();			
-			for (String elementName : elementNames) {
-					tmp.add(obj.getString(elementName));
-				
-			}
-			data2.add(tmp);
+
+		List<Record> records = db.lookup(table, qParams);
+
+		if (records.size() == 0) {
+			model.addAttribute("message", "No data yet.");
+		}
+		else {
+			model.addAttribute("records", records);
 		}
 		
-		model.addAttribute("modules", this._loadModules());		
-		params.put("table", table);
-	    params.put("columns", elementNames);
-	    params.put("data", data2);
-	    params.put("schema", json);
 		
+		if (table.equals("modules")) {
+			model.addAttribute("display", "MODULE_NAME");
+		}
+		else {
+			model.addAttribute("display", db.getDisplay(table));
+		}
+
+		model.addAttribute("table", table);
+
 		if (listView) 
-			return new ModelAndView("home", params);
+			return new ModelAndView("home");
 		
-		return new ModelAndView("listview", params);
+		return new ModelAndView("listview");
 	}
 	
 	@PostMapping(path = "/delete/{table_name}/{sys_id}")
