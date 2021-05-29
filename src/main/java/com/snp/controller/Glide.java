@@ -260,9 +260,12 @@ public class Glide {
 		Map<?, ?> m =req.getParameterMap();
 		try {
 			String id = this.db.insertRecord(m, table);
+			JSONObject resp = new JSONObject();
+			resp.put("table", table);
+			resp.put("id", id);
 			return ResponseEntity
 		            .status(HttpStatus.OK)                 
-		            .body("Successfully created record." + id);
+		            .body(resp.toString());
 		} catch (Exception e) {
 			LOG.warning(e.getMessage());
 			return ResponseEntity

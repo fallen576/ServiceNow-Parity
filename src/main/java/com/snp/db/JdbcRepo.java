@@ -341,10 +341,7 @@ public class JdbcRepo {
         	return ps;
         }, keyHolder);
         
-        //jdbcTemplate.update(query, new Object[] {""}, keyHolder, new String[] {"SYS_ID"});
-        String key = (String) keyHolder.getKeys().get("SYS_ID");
-        LOG.info("SYS_ID " + key);
-        //jdbcTemplate.update(query);
+		String key = (String) keyHolder.getKeys().get("SCOPE_IDENTITY()");
         return key;
         
 	}
