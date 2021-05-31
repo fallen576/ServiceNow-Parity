@@ -1,6 +1,8 @@
  $(document).ready( function () {
+	$('#submit').prop('disabled', false);
 	 $('#updateForm').submit((e) => {
 	 	//prevent original submit
+		$('#submit').prop('disabled', true);
 	 	e.preventDefault();	
 	 	var form = $('#updateForm');
 	 	$.ajax({
