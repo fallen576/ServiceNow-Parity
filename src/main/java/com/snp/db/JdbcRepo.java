@@ -26,6 +26,7 @@ import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snp.controller.AMB;
 import com.snp.entity.Module;
+import com.snp.entity.User;
 import com.snp.model.Field;
 import com.snp.model.Record;
 import com.snp.model.Reference;
@@ -371,6 +373,45 @@ public class JdbcRepo {
 		String key = (String) keyHolder.getKeys().get("SCOPE_IDENTITY()");
         return key;
         
+	}
+	
+	public User findUserByUserName(String user_name) {
+		LOG.info("attempting to locat user... " + user_name);
+		User user = null;
+		try {
+			//select * from users where user_name = 'admin' works
+			return (User) jdbcTemplate.query(new PreparedStatementCreator() {
+                @Override
+                public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+                    PreparedStatement ps = connection.prepareStatement("SELECT * FROM users WHERE user_name = ?");
+                    ps.setString(1, user_name);
+                    return ps;
+                }
+            }, new RowMapper<User>() {
+                @Override
+                public User mapRow(ResultSet resultSet, int rownum) throws SQLException {
+                	LOG.info("inside row mapper????????????");
+                    String username = resultSet.getString("USER_NAME");
+                    String pass = resultSet.getString("PASSWORD");
+                    String fname = resultSet.getString("FIRST_NAME");
+                    String lname = resultSet.getString("LAST_NAME");
+                    User tmpUser = new User();
+                    tmpUser.setUser_name(username);
+                    tmpUser.setFirstName(fname);
+                    tmpUser.setLastName(lname);
+                    tmpUser.setPassword(pass);
+               
+                    System.out.println(tmpUser.toString());
+                    return tmpUser;
+                }
+            });
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.info("in catch block of db.... something went wrong locating user " + e.getMessage() + e.getLocalizedMessage());
+		}
+		LOG.info("user has been located...");
+		return user;
 	}
 	
 	private String _process(ResultSet rs) throws SQLException {
