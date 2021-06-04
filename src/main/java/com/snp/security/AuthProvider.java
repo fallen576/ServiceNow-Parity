@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -23,19 +24,27 @@ public class AuthProvider implements AuthenticationProvider {
 	private static final Logger LOG =
 	        Logger.getLogger(AuthProvider.class.getPackage().getName());
 	
+	@Autowired
+	private JdbcRepo db;
+	
 	@Override
 	public Authentication authenticate(Authentication auth) throws AuthenticationException {
 		LOG.info("Inside AuthProvider Class " + auth.getName() + " " + auth.getCredentials());
 		String username = auth.getName();
 		String password = (String) auth.getCredentials();
+		
+		auth.setAuthenticated(false);
 		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        //authorities.add(new SimpleGrantedAuthority("ROLE_ONE"));
         authorities.add(new SimpleGrantedAuthority("ROLE_anyone"));
-		User user = new User(username, username, username);
-		return new UsernamePasswordAuthenticationToken(username, password, authorities);
-		
-		
-		//if good return auth else return null??
+        
+        User user = db.findUserByUserName(username);
+        
+        if (user != null && BCrypt.checkpw(password, user.getPassword())) {
+    		LOG.info("password match");
+    		return new UsernamePasswordAuthenticationToken(username, password, authorities);
+        }
+        
+    	throw new BadCredentialsException("Invalid Login... Try admin:admin :)");
 	}
 
 	@Override

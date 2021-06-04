@@ -83,6 +83,11 @@ public class User {
 	public String getPassword() {
 		return this.password;
 	}
+	
+	public void setValue(UUID id) {
+		this.id = id;
+	}
+	
 	public void setPassword(String pass) {
 		this.password = pass;
 	}

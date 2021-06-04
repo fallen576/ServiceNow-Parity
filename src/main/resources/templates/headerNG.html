@@ -25,4 +25,11 @@
         <script type="text/javascript" th:src="@{/js/snp.service.js}"></script>
         <script type="text/javascript" th:src="@{/js/snp.modulecontroller.js}"></script>
 	</head>
+	<nav class="navbar navbar-dark bg-dark">
+		<a class="navbar-brand" href="/">ServiceNow-Parity</a>
+		<a href="/" th:inline="text">Hi, [[${#httpServletRequest.remoteUser}]]!</a>
+		<form th:action="@{/logout}" method="post">
+			<button class="btn btn-primary" type="submit">Logout</button>
+		</form>
+	</nav>
 	<body id="angularApp" ng-app='ServiceNowParity'>
