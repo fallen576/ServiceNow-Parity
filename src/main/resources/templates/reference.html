@@ -1,11 +1,11 @@
 <head th:replace="headerNG"></head>
 
-<body style="background-color: #FFFFFF" ng-app="ServiceNowParity">
+<!--<body style="background-color: #FFFFFF" ng-app="ServiceNowParity">-->
 
 	<!--main content area-->
 
 	<h4 th:if="${message != null}" th:text="${message}"></h4>
-	<<div th:if="${message == null}" 
+	<div th:if="${message == null}" 
 		style="background-color: #FFFFFF; height: 100%; width: 100%; overflow: auto;"
 		ng-controller="ReferenceController as ref">
 				<div class="col">
