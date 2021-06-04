@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.apache.http.NameValuePair;
@@ -36,7 +37,9 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snp.controller.AMB;
+import com.snp.entity.HasRole;
 import com.snp.entity.Module;
+import com.snp.entity.Role;
 import com.snp.entity.User;
 import com.snp.model.Field;
 import com.snp.model.Record;
@@ -401,5 +404,21 @@ public class JdbcRepo {
 			jsonArray.put(json);
 		}
 		return jsonArray.toString();
+	}
+
+	public List<Role> findRoleForUser(UUID value) {
+		
+		@SuppressWarnings("deprecation")
+		List<String> has_roles = jdbcTemplate.query("Select * from sys_user_has_role where user = ?",
+				new Object[] {value},
+				(rs, rowNum) -> rs.getString("role"));
+		
+		String inSql = String.join(",", Collections.nCopies(has_roles.size(), "?"));
+		
+		@SuppressWarnings("deprecation")
+		List<Role> roles = jdbcTemplate.query(String.format("select name, description from sys_user_role where SYS_ID IN (%s)", inSql),
+				has_roles.toArray(),
+						(rs, rowNum) -> new Role(rs.getString("name"), rs.getString("description")));
+		return roles;
 	}
 }

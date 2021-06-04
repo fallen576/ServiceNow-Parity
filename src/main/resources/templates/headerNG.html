@@ -1,6 +1,6 @@
 <!doctype html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 
 	<head>
         <title>[[${table}]]</title>
@@ -31,4 +31,6 @@
 			<button class="btn btn-primary" type="submit">Logout</button>
 		</form>
 	</nav>
+	<h1 sec:authorize="hasAuthority('ROLE_Admin')">You are seeing this cause youre admin</h1>
+	<h1 sec:authorize="hasAuthority('ROLE_Guest')">You are seeing this cause youre guest</h1>
 	<body id="angularApp" ng-app='ServiceNowParity'>

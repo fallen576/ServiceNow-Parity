@@ -17,11 +17,12 @@ import org.hibernate.annotations.Type;
 @Entity
 @Table(name="example_reference")
 public class TestReference {
+	
 	@Id
 	@GeneratedValue(generator = "UUID")
 	@GenericGenerator(
-	        name = "UUID",
-	        strategy = "org.hibernate.id.UUIDGenerator"
+        name = "UUID",
+        strategy = "org.hibernate.id.UUIDGenerator"
 	)
 	@Column(name = "sys_id", updatable = false, nullable = false)
 	@ColumnDefault("random_uuid()")

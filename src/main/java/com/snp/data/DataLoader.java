@@ -5,6 +5,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import com.snp.entity.HasRole;
 import com.snp.entity.Module;
 import com.snp.entity.Role;
 import com.snp.entity.TestReference;
@@ -18,29 +19,40 @@ public class DataLoader implements ApplicationRunner {
     private ModuleService modService;
     private TestReferenceService tfService;
     private RoleService roleService;
+    private HasRoleService hasRoleService;
 
     @Autowired
-    public DataLoader(UserService userService, ModuleService modService, TestReferenceService tfService, RoleService roleService) {
+    public DataLoader(UserService userService, ModuleService modService, TestReferenceService tfService, RoleService roleService, HasRoleService hasRoleService) {
         this.userService = userService;
         this.modService = modService;
         this.tfService = tfService;
         this.roleService = roleService;
+        this.hasRoleService = hasRoleService;
     }
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {		
 		
+		//create modules
 		this.modService.save(new Module("Modules", "modules", "MODULE_NAME"));
 		this.modService.save(new Module("Users", "users", "USER_NAME"));
 		this.modService.save(new Module("Create Table", "createTable"));
 		this.modService.save(new Module("H2 Console", "h2-console"));
 		this.modService.save(new Module("Test Reference", "example_reference"));
-		this.modService.save(new Module("Roles", "sys_user_role", "description"));
+		this.modService.save(new Module("Roles", "sys_user_role", "name"));
+		this.modService.save(new Module("User Roles", "sys_user_has_role", "user"));
 		
-		this.roleService.save(new Role("admin", "Admin allows all CRUD operations and ability to access db."));
-		this.roleService.save(new Role("guest", "Everyone gets guest by default."));
+		//create roles
+		Role admin = new Role("Admin", "Admin allows all CRUD operations and ability to access db.");
+		Role guest = new Role("Guest", "Everyone gets guest by default.");
+		this.roleService.save(admin);
+		this.roleService.save(guest);
 		
-		this.userService.save(new User("admin", "admin", "admin"));
+		//create default admin user and associate admin role
+		User adminUser = new User("admin", "admin", "admin");
+		this.userService.save(adminUser);
+		this.hasRoleService.save(new HasRole(admin, adminUser));
+		
 		String[] firstNames = { "Adam", "Alex", "Aaron", "Ben", "Carl", "Dan", "David", "Edward", "Fred",
 				"Frank", "George", "Hal", "Hank", "Ike", "John", "Jack", "Joe", "Larry", "Monte", "Matthew",
 				"Mark", "Nathan", "Otto", "Paul", "Peter", "Roger", "Roger", "Steve", "Thomas", "Tim", "Ty",
@@ -61,8 +73,8 @@ public class DataLoader implements ApplicationRunner {
 				"Moody", "Moore", "Napier", "Nelson", "Norquist", "Nuttle", "Olson", "Ostrander", "Reamer", "Reardon", "Reyes", 
 				"Rice", "Ripka", "Roberts", "Rogers", "Root", "Sandstrom", "Sawyer", "Schlicht", "Schmitt", "Schwager", "Schutz",
 				"Schuster", "Tapia", "Thompson", "Tiernan", "Tisler" };
-
 		
+		//create random users
 		for (int i = 0; i < lastNames.length; i++) {
 			String fName = firstNames[_rand(firstNames)];
 			String lName = lastNames[_rand(lastNames)];
@@ -71,9 +83,12 @@ public class DataLoader implements ApplicationRunner {
 			this.userService.save(tmp);
 		}
 		
+		//populate test reference table, this was used to test reference fields in the system as it was being developed
+		//also assign each user the guest role
 		Iterable<User> users = userService.findAll();
 		users.forEach(u -> {
 			this.tfService.save(new TestReference(u));
+			this.hasRoleService.save(new HasRole(guest, u));
 		});
 		
 	}

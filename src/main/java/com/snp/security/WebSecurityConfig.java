@@ -41,16 +41,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {    
         http.authorizeRequests()
-        	.antMatchers("/h2-console/**").permitAll()
-            .anyRequest().authenticated() 
+        	.antMatchers("/h2-console/**").hasRole("Admin")
+            .anyRequest().authenticated()
             .and()
-        .formLogin().and() 
-        .httpBasic()
-        .and()
-        .logout() .invalidateHttpSession(true) 
-        .clearAuthentication(true) .permitAll(); 
-        http.csrf().disable();
-        http.headers().frameOptions().disable();
+	        .formLogin().and() 
+	        .httpBasic()
+	        .and()
+	        .logout() .invalidateHttpSession(true) 
+	        .clearAuthentication(true) .permitAll(); 
+	        http.csrf().disable();
+	        http.headers().frameOptions().disable();
       
     }
 }
