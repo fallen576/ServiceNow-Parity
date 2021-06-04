@@ -26,6 +26,7 @@ import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snp.controller.AMB;
 import com.snp.entity.Module;
+import com.snp.entity.User;
 import com.snp.model.Field;
 import com.snp.model.Record;
 import com.snp.model.Reference;
@@ -371,6 +373,20 @@ public class JdbcRepo {
 		String key = (String) keyHolder.getKeys().get("SCOPE_IDENTITY()");
         return key;
         
+	}
+	
+	public User findUserByUserName(String user_name) {
+		LOG.info("attempting to locat user... " + user_name);
+		User user = null;
+		try {
+			
+			user = jdbcTemplate.queryForObject("select * from users where user_name = ?", new UserRowMapper(), new Object[] {user_name});
+			
+		} catch (Exception e) {
+			LOG.info("in catch block of db.... something went wrong locating user " + e.getMessage() + e.getLocalizedMessage());
+		}
+		LOG.info("user has been located...");
+		return user;
 	}
 	
 	private String _process(ResultSet rs) throws SQLException {

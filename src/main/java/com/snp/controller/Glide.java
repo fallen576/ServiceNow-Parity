@@ -141,6 +141,7 @@ public class Glide {
 		}
 
 		model.addAttribute("table", table);
+		model.addAttribute("reference", true);
 		
 		return new ModelAndView("reference");
 	}

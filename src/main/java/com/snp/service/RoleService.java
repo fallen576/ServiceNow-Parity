@@ -4,23 +4,23 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.snp.entity.User;
-import com.snp.repository.UserRepository;
+import com.snp.entity.Role;
+import com.snp.repository.RoleRepository;
 
 @Service
-public class UserService {
-	
+public class RoleService {
+
 	@Autowired(required = true)
-	private UserRepository userRepo;
+	private RoleRepository roleRepo;
 	
 	@PersistenceContext
 	private EntityManager em;
 	
-	public Iterable<User> findAll() {
-		return userRepo.findAll();
+	public Iterable<Role> findAll() {
+		return roleRepo.findAll();
 	}
 	
-	public void save(User user) {
-		userRepo.save(user);
+	public void save(Role role) {
+		roleRepo.save(role);
 	}
 }

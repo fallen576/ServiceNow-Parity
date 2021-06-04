@@ -1,8 +1,6 @@
 package com.snp.entity;
 
-import java.io.Serializable;
 import java.util.UUID;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,6 +10,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 @Entity
 @Table(name="users")
@@ -37,6 +36,9 @@ public class User {
 	@Column(name="last_name")
 	private String lastName;
 	
+	@Column(name="password")
+	private String password;
+	
 	public User() {
 		
 	}
@@ -45,6 +47,7 @@ public class User {
 		this.firstName = first_name;
 		this.lastName = last_name;
 		this.user_name = user_name;
+		this.password = BCrypt.hashpw(user_name, BCrypt.gensalt());
 	}
 	
 	public UUID getValue() {
@@ -75,8 +78,20 @@ public class User {
 		this.lastName = lastName;
 	}	
 	
+	public String getPassword() {
+		return this.password;
+	}
+	
+	public void setValue(UUID id) {
+		this.id = id;
+	}
+	
+	public void setPassword(String pass) {
+		this.password = pass;
+	}
+	
 	@Override
 	public String toString() {
-		return this.getUser_name() + " " + this.getFirstName() + " " + this.getLastName();
+		return this.getUser_name() + " " + this.getFirstName() + " " + this.getLastName() + " " + this.getPassword();
 	}
 }
