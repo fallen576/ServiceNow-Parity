@@ -34,22 +34,22 @@ public class DataLoader implements ApplicationRunner {
 	public void run(ApplicationArguments args) throws Exception {		
 		
 		//create modules
-		this.modService.save(new Module("Modules", "modules", "MODULE_NAME"));
-		this.modService.save(new Module("Users", "users", "USER_NAME"));
-		this.modService.save(new Module("Create Table", "createTable"));
-		this.modService.save(new Module("H2 Console", "h2-console"));
-		this.modService.save(new Module("Test Reference", "example_reference"));
-		this.modService.save(new Module("Roles", "sys_user_role", "name"));
-		this.modService.save(new Module("User Roles", "sys_user_has_role", "user"));
+		this.modService.save(new Module("Modules", "modules", "MODULE_NAME", "ben"));
+		this.modService.save(new Module("Users", "users", "USER_NAME", "ben"));
+		this.modService.save(new Module("Create Table", "createTable", "", "ben"));
+		this.modService.save(new Module("H2 Console", "h2-console", "", "ben"));
+		this.modService.save(new Module("Test Reference", "example_reference", "", "ben"));
+		this.modService.save(new Module("Roles", "sys_user_role", "name", "ben"));
+		this.modService.save(new Module("User Roles", "sys_user_has_role", "user", "ben"));
 		
 		//create roles
-		Role admin = new Role("Admin", "Admin allows all CRUD operations and ability to access db.");
-		Role guest = new Role("Guest", "Everyone gets guest by default.");
+		Role admin = new Role("Admin", "Admin allows all CRUD operations and ability to access db.", "ben");
+		Role guest = new Role("Guest", "Everyone gets guest by default.", "ben");
 		this.roleService.save(admin);
 		this.roleService.save(guest);
 		
 		//create default admin user and associate admin role
-		User adminUser = new User("admin", "admin", "admin");
+		User adminUser = new User("admin", "admin", "admin", "ben");
 		this.userService.save(adminUser);
 		this.hasRoleService.save(new HasRole(admin, adminUser));
 		
@@ -79,7 +79,7 @@ public class DataLoader implements ApplicationRunner {
 			String fName = firstNames[_rand(firstNames)];
 			String lName = lastNames[_rand(lastNames)];
 			String uName = fName + " " + lName;
-			User tmp = new User(fName, lName, uName);
+			User tmp = new User(fName, lName, uName, "ben");
 			this.userService.save(tmp);
 		}
 		
@@ -87,8 +87,8 @@ public class DataLoader implements ApplicationRunner {
 		//also assign each user the guest role
 		Iterable<User> users = userService.findAll();
 		users.forEach(u -> {
-			this.tfService.save(new TestReference(u));
-			this.hasRoleService.save(new HasRole(guest, u));
+			this.tfService.save(new TestReference(u, "ben"));
+			this.hasRoleService.save(new HasRole(guest, u, "ben"));
 		});
 		
 	}

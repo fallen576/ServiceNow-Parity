@@ -46,6 +46,7 @@ import com.snp.entity.User;
 import com.snp.model.Field;
 import com.snp.model.Record;
 import com.snp.model.Reference;
+import com.snp.security.IAuthenticationFacade;
 import com.snp.service.ModuleService;
 
 import ch.qos.logback.classic.pattern.LineOfCallerConverter;
@@ -63,6 +64,9 @@ public class JdbcRepo {
 	@Autowired
 	private AMB amb;
 	
+	@Autowired
+    private IAuthenticationFacade auth;
+	
 	private static final Logger LOG =
 	        Logger.getLogger(JdbcRepo.class.getPackage().getName());
 	
@@ -77,9 +81,14 @@ public class JdbcRepo {
 	private String REFERENCES = "SELECT FKCOLUMN_NAME, PKTABLE_NAME FROM INFORMATION_SCHEMA.CROSS_REFERENCES WHERE lower(FKTABLE_NAME) = lower(?)";
 
 	public String createTable(JSONObject data) throws Exception {
+		LOG.info("Current user " + auth.getAuthentication().getName() + " " + auth.getAuthentication().getCredentials());
 		//does table exist?
 		String sql = "CREATE TABLE " + data.getString("tableName").replaceAll(" ", "_").toLowerCase() + "( sys_id VARCHAR(255) default random_uuid(), "
-				+ "primary key (sys_id), ";
+				+ "sys_created_on TIMESTAMP(23), "
+				+ "sys_updated_on TIMESTAMP(23), "
+				+ "sys_created_by VARCHAR(255), "
+				+ "sys_updated_by VARCHAR(255), "
+				+ " primary key (sys_id), ";
 		String safeSql = sql;
 		ArrayList<Object> params = new ArrayList();
 
@@ -118,7 +127,7 @@ public class JdbcRepo {
 		
 		jdbcTemplate.execute(sql);
 		
-		modService.save(new Module(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_").toLowerCase(), "SYS_ID"));		
+		modService.save(new Module(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_").toLowerCase(), "SYS_ID", auth.getAuthentication().getName()));		
     	amb.trigger(Collections.singletonMap(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_").toLowerCase()), "insertModule");
 		
 		LOG.info(sql);
@@ -190,7 +199,7 @@ public class JdbcRepo {
 			
 		    for (Map.Entry<String, Object> i : row.entrySet()) {
 		        String fieldLabel = i.getKey();
-		        String fieldValue = i.getValue().toString();
+		        String fieldValue = (i.getValue() == null) ? "" : i.getValue().toString();
 		       
 		        Field tmpF = new Field(fieldLabel, fieldValue);
 		        tmpF.setReference(null);
@@ -332,6 +341,9 @@ public class JdbcRepo {
              else if (key.toLowerCase().equals("sys_updated_on")) {
             	 query += key + "='" + new Timestamp(System.currentTimeMillis()) + "', ";
              }
+             else if (key.toLowerCase().equals("sys_updated_by")) {
+            	 query += key + "='" + auth.getAuthentication().getName() + "', ";
+             }
              else {
             	 query += key + "='" + value[0].trim() + "', ";
              }
@@ -357,9 +369,14 @@ public class JdbcRepo {
         	 Map.Entry<String,String[]> entry = (Map.Entry<String,String[]>)it.next();
         	 String col = entry.getKey();
         	 if (col.toLowerCase().equals("sys_created_on") || col.toLowerCase().equals("sys_updated_on")) {
-        		 continue;
+        		 values.add((new Timestamp(System.currentTimeMillis()).toString()));
         	 }
-             values.add(entry.getValue()[0]);
+        	 else if (col.toLowerCase().equals("sys_created_by") || col.toLowerCase().equals("sys_updated_by")) {
+        		 values.add(auth.getAuthentication().getName());
+        	 }
+         	 else {
+        		 values.add(entry.getValue()[0]);
+        	 }
              
              query += col + ",";
 		}

@@ -9,7 +9,7 @@ public class Field {
 	public boolean hasReference;
 	public Reference reference;
 	public boolean readOnly;
-	private String[] readOnlyFields = new String[] {"password", "sys_id", "sys_created_on", "sys_created_by"};
+	private String[] readOnlyFields = new String[] {"password", "sys_id", "sys_created_on", "sys_created_by", "sys_updated_by"};
 	public Field (String name, String value) {
 		this.name = name;
 		this.value = value;

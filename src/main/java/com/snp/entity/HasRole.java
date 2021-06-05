@@ -16,7 +16,10 @@ import javax.persistence.Table;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.snp.db.JdbcRepo;
+import com.snp.security.IAuthenticationFacade;
 
 @Entity
 @Table(name = "sys_user_has_role")
@@ -39,6 +42,12 @@ public class HasRole {
 	@Column(name = "sys_updated_on", updatable = false)
 	public Date updatedOn;
 
+	@Column(name = "sys_created_by")
+	public String sys_created_by;
+	
+	@Column(name = "sys_updated_by")
+	public String sys_updated_by;
+	
 	@OneToOne
 	@JoinColumn(name = "user")
 	private User user;
@@ -54,6 +63,13 @@ public class HasRole {
 	public HasRole(Role role, User user) {
 		this.role = role;
 		this.user = user;
+	}
+	
+	public HasRole(Role role, User user, String name) {
+		this.role = role;
+		this.user = user;
+		this.sys_created_by = name;
+		this.sys_updated_by = name;
 	}
 
 	public UUID getId() {
@@ -78,6 +94,22 @@ public class HasRole {
 
 	public void setRole(Role role) {
 		this.role = role;
+	}
+
+	public String getSys_created_by() {
+		return sys_created_by;
+	}
+
+	public void setSys_created_by(String name) {
+		this.sys_created_by = name;
+	}
+
+	public void setSys_updated_by(String name) {
+		this.sys_updated_by = name;
+	}
+
+	public String getSys_updated_by() {
+		return sys_updated_by;
 	}
 
 	@PrePersist

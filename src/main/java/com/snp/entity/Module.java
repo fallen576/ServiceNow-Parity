@@ -14,10 +14,17 @@ import javax.persistence.Table;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.snp.security.IAuthenticationFacade;
 
 @Entity
 @Table(name="modules")
 public class Module {
+	
+	//@Autowired
+    //private IAuthenticationFacade auth;
+	
 	@Id
 	@GeneratedValue(generator = "UUID")
 	@GenericGenerator(
@@ -44,6 +51,12 @@ public class Module {
 	@Column(name = "sys_updated_on", updatable = false)
 	public Date updatedOn;
 	
+	@Column(name = "sys_created_by")
+	public String sys_created_by;
+	
+	@Column(name = "sys_updated_by")
+	public String sys_updated_by;
+	
 	public Module() {
 		
 	}
@@ -58,6 +71,14 @@ public class Module {
 		this.moduleName = module_name;
 		this.tableName = tableName;
 		this.display = display;
+	}
+	
+	public Module(String module_name, String tableName, String display, String user) {
+		this.moduleName = module_name;
+		this.tableName = tableName;
+		this.display = display;
+		this.sys_created_by = user;
+		this.sys_updated_by = user;
 	}
 
 	public String getModuleName() {
@@ -92,6 +113,13 @@ public class Module {
 	@PreUpdate
 	void updatedAt() {
 		this.updatedOn = new Date();
+	}
+	public void setSys_created_by(String name) {
+		this.sys_created_by = name;
+	}
+
+	public void setSys_updated_by(String name) {
+		this.sys_updated_by = name;
 	}
 
 	@Override

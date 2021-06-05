@@ -16,10 +16,16 @@ import javax.persistence.Table;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.snp.security.IAuthenticationFacade;
 
 @Entity
 @Table(name="example_reference")
 public class TestReference {
+	
+	//@Autowired
+    //private IAuthenticationFacade auth;
 	
 	@Id
 	@GeneratedValue(generator = "UUID")
@@ -42,6 +48,12 @@ public class TestReference {
 	@Column(name = "sys_updated_on", updatable = false)
 	public Date updatedOn;
 	
+	@Column(name = "sys_created_by")
+	public String sys_created_by;
+	
+	@Column(name = "sys_updated_by")
+	public String sys_updated_by;
+	
 	@PrePersist
 	void createdAt() {
 		this.createdOn = this.updatedOn = new Date();
@@ -51,6 +63,13 @@ public class TestReference {
 	void updatedAt() {
 		this.updatedOn = new Date();
 	}
+	public void setSys_created_by(String name) {
+		this.sys_created_by = name;
+	}
+
+	public void setSys_updated_by(String name) {
+		this.sys_updated_by = name;
+	}
 	
 	public TestReference() {
 		
@@ -58,6 +77,12 @@ public class TestReference {
 	
 	public TestReference(User user) {
 		this.user = user;
+	}
+	
+	public TestReference(User user, String name) {
+		this.user = user;
+		this.sys_created_by = name;
+		this.sys_updated_by = name;
 	}
 	
 	public void setUser(User user) {
