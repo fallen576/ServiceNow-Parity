@@ -34,7 +34,7 @@
 					</div>
 					<input th:unless="${field.isHasReference()}"
 						class="form-control mb-2" th:id="${field.getName()}"
-						th:name="${field.getName()}" />
+						th:name="${field.getName()}" th:readonly="${field.isReadOnly()}" />
 				</div>
 				<button id="submit" type="submit" class="btn btn-info">Save</button>
 			</form>

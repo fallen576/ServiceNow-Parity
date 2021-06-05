@@ -1,10 +1,13 @@
 package com.snp.entity;
 
+import java.util.Date;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.ColumnDefault;
@@ -38,6 +41,12 @@ public class User {
 	
 	@Column(name="password")
 	private String password;
+	
+	@Column(name = "sys_created_on", updatable = false)
+	public Date createdOn;
+
+	@Column(name = "sys_updated_on", updatable = false)
+	public Date updatedOn;
 	
 	public User() {
 		
@@ -88,6 +97,16 @@ public class User {
 	
 	public void setPassword(String pass) {
 		this.password = pass;
+	}
+	
+	@PrePersist
+	void createdAt() {
+		this.createdOn = this.updatedOn = new Date();
+	}
+
+	@PreUpdate
+	void updatedAt() {
+		this.updatedOn = new Date();
 	}
 	
 	@Override

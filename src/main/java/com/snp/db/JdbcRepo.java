@@ -6,9 +6,11 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -156,6 +158,7 @@ public class JdbcRepo {
 		
 		for (String col : columns) {
 			Field field = new Field(col, null);
+			if (col.toLowerCase().equals("sys_created_on") || col.toLowerCase().equals("sys_updated_on")) field.setReadOnly(true);
 			field.setReference(null);
 			fields.add(field);
 		
@@ -187,9 +190,11 @@ public class JdbcRepo {
 			
 		    for (Map.Entry<String, Object> i : row.entrySet()) {
 		        String fieldLabel = i.getKey();
-		        String fieldValue = (String) i.getValue();
+		        String fieldValue = i.getValue().toString();
+		       
 		        Field tmpF = new Field(fieldLabel, fieldValue);
 		        tmpF.setReference(null);
+		        if (fieldLabel.toLowerCase().equals("sys_created_on") || fieldLabel.toLowerCase().equals("sys_updated_on")) tmpF.setReadOnly(true);
 		        fields.add(tmpF);
 		        
 	        	//which field, create reference
@@ -278,6 +283,7 @@ public class JdbcRepo {
 		        String fieldLabel = i.getKey();
 		        String fieldValue = (String) i.getValue();
 		        Field tmpF = new Field(fieldLabel, fieldValue);
+		        if (fieldLabel.toLowerCase().equals("sys_created_on") || fieldLabel.toLowerCase().equals("sys_updated_on")) tmpF.setReadOnly(true);
 		        tmpF.setReference(null);
 		        fields.add(tmpF);
 		        
@@ -313,11 +319,18 @@ public class JdbcRepo {
         while(it.hasNext()){
         	Map.Entry<String,String[]> entry = (Map.Entry<String,String[]>)it.next();
         	 String key = entry.getKey();
+        	 if (key.toLowerCase().equals("sys_created_on")) {
+        		 continue;
+        	 }
+
              String[] value = entry.getValue();
              
              if (key.equals("SYS_ID")) {
             	 where += value[0] + "'";
             	 id = value[0];
+             }
+             else if (key.toLowerCase().equals("sys_updated_on")) {
+            	 query += key + "='" + new Timestamp(System.currentTimeMillis()) + "', ";
              }
              else {
             	 query += key + "='" + value[0].trim() + "', ";
@@ -343,6 +356,9 @@ public class JdbcRepo {
         while(it.hasNext()){
         	 Map.Entry<String,String[]> entry = (Map.Entry<String,String[]>)it.next();
         	 String col = entry.getKey();
+        	 if (col.toLowerCase().equals("sys_created_on") || col.toLowerCase().equals("sys_updated_on")) {
+        		 continue;
+        	 }
              values.add(entry.getValue()[0]);
              
              query += col + ",";

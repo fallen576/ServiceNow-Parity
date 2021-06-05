@@ -1,15 +1,19 @@
 package com.snp.model;
 
+import java.util.Arrays;
+
 public class Field {
 
 	public String name;
 	public String value;
 	public boolean hasReference;
 	public Reference reference;
-	
+	public boolean readOnly;
+	private String[] readOnlyFields = new String[] {"password", "sys_id", "sys_created_on", "sys_created_by"};
 	public Field (String name, String value) {
 		this.name = name;
 		this.value = value;
+		this.readOnly = (Arrays.stream(readOnlyFields).anyMatch(name.toLowerCase()::equals)) ? true : false;
 		this.hasReference = false;
 	}
 	
@@ -18,8 +22,15 @@ public class Field {
 		this.name = name;
 		this.value = value;
 		this.hasReference = hasReference;
+		this.readOnly = (Arrays.stream(readOnlyFields).anyMatch(name.toLowerCase()::equals)) ? true : false;
 	}
-
+	
+	public Field(String name, String value, boolean hasReference, boolean readOnly) {
+		this.name = name;
+		this.value = value;
+		this.hasReference = hasReference;
+		this.readOnly = readOnly;
+	}
 
 	public String getName() {
 		return name;
@@ -61,10 +72,19 @@ public class Field {
 		this.reference = reference;
 	}
 	
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+
+
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
+	}
+	
 	@Override
 	public String toString() {
 		return "Field [name=" + name + ", value=" + value + ", hasReference=" + hasReference + ", reference="
-				+ reference + "]";
+				+ reference + ", readOnly=" + readOnly + "]";
 	}
 	
 }

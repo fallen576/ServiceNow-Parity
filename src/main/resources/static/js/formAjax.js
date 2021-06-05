@@ -10,7 +10,7 @@
 	 		url: form.attr('action'),
 	 		data: form.serialize(),
 	 		success: function(data) {
-				//pretty ugly, definitely needs changed
+				//pretty ugly, definitely needs changed.. also when there is an error it doesn't show now..
 				try {	
 					//insert
 					var parsed = JSON.parse(data);

@@ -35,7 +35,7 @@
 										<a style="cursor: pointer;" th:text="${field.getReference().getDisplayValue()}" 
 										th:href="@{/table/{table_name}/{guid}(table_name=${field.getReference().getTable().toLowerCase()},guid=${field.getReference().getValue()})}"></a>
 										</td>
-										<td th:unless="${field.isHasReference()}" th:text="${field.getValue()}"></td>
+										<td th:unless="${field.isHasReference()}" th:text="${field.getValue()}" th:readonly="${field.isReadOnly()}"></td>
 									</th:block>
 								</tr>
 							</tbody>

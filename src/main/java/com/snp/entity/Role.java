@@ -1,10 +1,13 @@
 package com.snp.entity;
 
+import java.util.Date;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
@@ -30,6 +33,12 @@ public class Role {
 	
 	@Column(name="description")
 	private String description;
+	
+	@Column(name = "sys_created_on", updatable = false)
+	public Date createdOn;
+
+	@Column(name = "sys_updated_on", updatable = false)
+	public Date updatedOn;
 	
 	public Role() {
 		
@@ -62,6 +71,16 @@ public class Role {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	@PrePersist
+	void createdAt() {
+		this.createdOn = this.updatedOn = new Date();
+	}
+
+	@PreUpdate
+	void updatedAt() {
+		this.updatedOn = new Date();
 	}
 
 	@Override
