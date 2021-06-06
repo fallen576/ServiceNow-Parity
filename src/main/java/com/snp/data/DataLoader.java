@@ -51,7 +51,7 @@ public class DataLoader implements ApplicationRunner {
 		//create default admin user and associate admin role
 		User adminUser = new User("admin", "admin", "admin", "ben");
 		this.userService.save(adminUser);
-		this.hasRoleService.save(new HasRole(admin, adminUser));
+		this.hasRoleService.save(new HasRole(admin, adminUser, "ben"));
 		
 		String[] firstNames = { "Adam", "Alex", "Aaron", "Ben", "Carl", "Dan", "David", "Edward", "Fred",
 				"Frank", "George", "Hal", "Hank", "Ike", "John", "Jack", "Joe", "Larry", "Monte", "Matthew",

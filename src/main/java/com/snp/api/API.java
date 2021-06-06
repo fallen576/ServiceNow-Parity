@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snp.db.JdbcRepo;
 import com.snp.entity.Module;
 import com.snp.service.ModuleService;
+import com.snp.service.UserService;
 
 @RestController
 public class API {
@@ -38,6 +39,9 @@ public class API {
 	
 	@Autowired
 	private ModuleService modService;
+	
+	@Autowired
+	private UserService userService;
 	
 	@Autowired
 	private JdbcRepo db;
@@ -51,8 +55,12 @@ public class API {
 	
 	@GetMapping("/api/v1/table/{table_name}")
 	public ResponseEntity<String> loadTable(@PathVariable(value="table_name") String table) {
-		
-		return new ResponseEntity<>(db.findAll(table), HttpStatus.OK);
+		try {
+			return new ResponseEntity<>(db.findAll(table).toLowerCase(), HttpStatus.OK);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
 	}
 	
 	@RequestMapping(value = "/api/v1/table/create", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)

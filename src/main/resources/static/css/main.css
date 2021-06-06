@@ -3,6 +3,11 @@ body {
     overflow: auto;
     height: 100%;
 }
+
+.content {
+	overflow: auto;
+}
+
 a {
 	color : inherit;
 }

@@ -1,5 +1,9 @@
 $(document).ready( function () {
-    $('#table').DataTable();
+    $('#table').DataTable({
+    	"columnDefs": [
+    		{ "width": "10px", "targets": 0 }	
+  		]
+    });
 });
 
 function selectReference(sys_id, dv) {
