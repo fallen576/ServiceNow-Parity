@@ -229,6 +229,7 @@ public class Glide {
 		try {
         String id = this.db.updateRecord(m, table);
         response.put("sys_id", id);
+        response.put("action", "update");
         
         	amb.trigger(m, "update");
         	
@@ -247,25 +248,27 @@ public class Glide {
 		
 	}
 	
-	@PostMapping(path = "/insert/{table_name}")
+	@PostMapping(path = "/insert/{table_name}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<String> insert(Model model, HttpServletRequest req,
+	public ResponseEntity<HashMap<String, String>> insert(Model model, HttpServletRequest req,
 							  @PathVariable(value="table_name") String table) throws JsonProcessingException {
 		
 		Map<?, ?> m =req.getParameterMap();
+		HashMap<String, String> resp = new HashMap<>();
 		try {
 			String id = this.db.insertRecord(m, table);
-			JSONObject resp = new JSONObject();
 			resp.put("table", table);
 			resp.put("id", id);
+			resp.put("action", "insert");
 			return ResponseEntity
 		            .status(HttpStatus.OK)                 
-		            .body(resp.toString());
+		            .body(resp);
 		} catch (Exception e) {
 			LOG.warning(e.getMessage());
+			resp.put("error", e.getMessage());
 			return ResponseEntity
 		            .status(HttpStatus.INTERNAL_SERVER_ERROR)                 
-		            .body(e.getMessage());
+		            .body(resp);
 		}
         
         

@@ -10,35 +10,45 @@
 	 		url: form.attr('action'),
 	 		data: form.serialize(),
 	 		success: function(data) {
-				//pretty ugly, definitely needs changed.. also when there is an error it doesn't show now..
-				try {	
-					//insert
-					var parsed = JSON.parse(data);
-					//alert(parsed.table + " " + parsed.id);
-					$('#suc-message').text();
-					$("#alert-suc").fadeIn();
-					setTimeout(function() {
-						$("#alert-suc").slideUp();
-						location.href = "/table/" + parsed.table + "/" + parsed.id;
-					}, 4000);
-				
+	 			data = JSON.stringify(data);
+	 			var parsed = "";
+				try {
+					parsed = JSON.parse(data);
+					if (parsed.action == "insert") {
+						$('#suc-message').text();
+						$("#alert-suc").fadeIn();
+						setTimeout(function() {
+							$("#alert-suc").slideUp();
+							location.href = "/table/" + parsed.table + "/" + parsed.id;
+						}, 4000);
+					
+						$('#suc-message').text("Record has been created. You will now be redirected");
+			 			$("#alert-suc").fadeIn();
+			 			setTimeout(function() {
+			 				$("#alert-suc").slideUp();
+						 }, 3000);
+					}	 
+					else {
+						$('#suc-message').text(parsed.message);
+			 			$("#alert-suc").fadeIn();
+			 			setTimeout(function() {
+			 				$("#alert-suc").slideUp();
+						 }, 3000);
+					}
 				} catch(e) {
-					//update
-					data = "Record has been updated."
-				}
-				 //console.log("Success " + JSON.stringify(data));
-				
-	 			$('#suc-message').text("Record has been created. You will now be redirected");
-	 			$("#alert-suc").fadeIn();
-	 			setTimeout(function() {
-	 				$("#alert-suc").slideUp();
-				 }, 3000);
+					$('#error-message').text(e);
+		 			$("#alert-war").fadeIn();
+		 			setTimeout(function() {
+		 				$("#alert-war").slideUp();
+		 			}, 10000);
+	 			}
 				 
 	 		},
 	 		error: function(data) {
 	 		console.table(data);
+	 		$('#submit').prop('disabled', false);
 	 			//alert(data.responseText);
-	 			$('#error-message').text(data.responseText);
+	 			$('#error-message').text(data.responseJSON.error);
 	 			$("#alert-war").fadeIn();
 	 			setTimeout(function() {
 	 				$("#alert-war").slideUp();
