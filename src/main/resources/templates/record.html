@@ -41,7 +41,7 @@
 					<input th:unless="${field.isHasReference()}"
 						class="form-control mb-2" th:id="${field.getName()}"
 						th:name="${field.getName()}" th:value="${field.getValue()}"
-						th:readonly="${field.isReadOnly()}" />
+						th:readonly="${field.isReadOnly()}" th:required="${field.isRequired()}" />
 				</div>
 				<button type="submit" class="btn btn-info">Update</button>
 			</form>

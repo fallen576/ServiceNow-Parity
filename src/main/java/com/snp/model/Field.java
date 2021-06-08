@@ -10,6 +10,9 @@ public class Field {
 	public Reference reference;
 	public boolean readOnly;
 	private String[] readOnlyFields = new String[] {"password", "sys_id", "sys_created_on", "sys_created_by", "sys_updated_by"};
+	//private boolean required;
+	private String[] nonRequiredFields = new String[] {"sys_id", "sys_created_on", "sys_created_by", "sys_updated_by"};
+	
 	public Field (String name, String value) {
 		this.name = name;
 		this.value = value;
@@ -79,6 +82,10 @@ public class Field {
 
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
+	}
+	
+	public boolean isRequired() {
+		return (Arrays.stream(nonRequiredFields).anyMatch(this.name.toLowerCase()::equals)) ? false : true;
 	}
 	
 	@Override
