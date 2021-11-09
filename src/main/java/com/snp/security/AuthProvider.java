@@ -19,9 +19,12 @@ import org.springframework.stereotype.Component;
 import com.snp.db.JdbcRepo;
 import com.snp.entity.HasRole;
 import com.snp.entity.Role;
+import com.snp.entity.SystemLog;
+import com.snp.entity.SystemLog.LogLevel;
 import com.snp.entity.User;
 import com.snp.repository.HasRoleRepository;
 import com.snp.service.HasRoleService;
+import com.snp.service.LogService;
 
 @Component
 public class AuthProvider implements AuthenticationProvider {
@@ -32,10 +35,15 @@ public class AuthProvider implements AuthenticationProvider {
 	@Autowired
 	private JdbcRepo db;
 	
+	@Autowired
+	private LogService logService;
+	
 	@Override
 	public Authentication authenticate(Authentication auth) throws AuthenticationException {
 		String username = auth.getName();
 		String password = (String) auth.getCredentials();
+		
+		logService.save(new SystemLog(LogLevel.Info, "Attempting to log in " + username, "Login"));
 		
 		User user = db.findUserByUserName(username);
         
@@ -46,6 +54,7 @@ public class AuthProvider implements AuthenticationProvider {
     		roles.stream()
     		.forEach(x -> {
     			LOG.info("ROLES for " + username + " " + x.toString());
+    			logService.save(new SystemLog(LogLevel.Info, username + " has role ROLE_" + x.getName(), "Login"));
     			authorities.add(new SimpleGrantedAuthority("ROLE_" + x.getName()));
     		});
         	LOG.info("success returning " + authorities);
@@ -53,6 +62,7 @@ public class AuthProvider implements AuthenticationProvider {
     		return new UsernamePasswordAuthenticationToken(username, password, authorities);
         }
         
+        logService.save(new SystemLog(LogLevel.Warning, "Failed log in for " + username, "Login"));
     	throw new BadCredentialsException("Invalid Login... Try admin:admin");
 	}
 

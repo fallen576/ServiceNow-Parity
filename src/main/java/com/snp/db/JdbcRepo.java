@@ -35,6 +35,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,12 +43,16 @@ import com.snp.controller.AMB;
 import com.snp.entity.HasRole;
 import com.snp.entity.Module;
 import com.snp.entity.Role;
+import com.snp.entity.SystemLog;
+import com.snp.entity.SystemLog.LogLevel;
 import com.snp.entity.User;
 import com.snp.model.Field;
 import com.snp.model.Record;
 import com.snp.model.Reference;
 import com.snp.security.IAuthenticationFacade;
+import com.snp.service.LogService;
 import com.snp.service.ModuleService;
+import com.snp.service.RoleService;
 
 import ch.qos.logback.classic.pattern.LineOfCallerConverter;
 
@@ -67,6 +72,12 @@ public class JdbcRepo {
 	@Autowired
     private IAuthenticationFacade auth;
 	
+	@Autowired
+	private RoleService roleService;
+	
+	@Autowired
+	private LogService logService;
+	
 	private static final Logger LOG =
 	        Logger.getLogger(JdbcRepo.class.getPackage().getName());
 	
@@ -81,9 +92,11 @@ public class JdbcRepo {
 	private String REFERENCES = "SELECT FKCOLUMN_NAME, PKTABLE_NAME FROM INFORMATION_SCHEMA.CROSS_REFERENCES WHERE lower(FKTABLE_NAME) = lower(?)";
 
 	public String createTable(JSONObject data) throws Exception {
-		LOG.info("Current user " + auth.getAuthentication().getName() + " " + auth.getAuthentication().getCredentials());
+		LOG.info("Current user " + auth.getAuthentication().getName() + " " + auth.getAuthentication().getCredentials() + " new way? " 
+				+ SecurityContextHolder.getContext().getAuthentication().getName());
 		//does table exist?
-		String sql = "CREATE TABLE " + data.getString("tableName").replaceAll(" ", "_").toLowerCase() + "( sys_id VARCHAR(255) default random_uuid(), "
+		String table = data.getString("tableName").replaceAll(" ", "_").toLowerCase();
+		String sql = "CREATE TABLE " + table + "( sys_id VARCHAR(255) default random_uuid(), "
 				+ "sys_created_on TIMESTAMP(23), "
 				+ "sys_updated_on TIMESTAMP(23), "
 				+ "sys_created_by VARCHAR(255), "
@@ -124,11 +137,14 @@ public class JdbcRepo {
 		sql = sql.substring(0, sql.length() - 1) + ");";
 		
 		LOG.info("SAFE SQL " + safeSql);
+		logService.save(new SystemLog(LogLevel.Info, "Generating custom table using sql: " + sql, "CreateTable", auth.getAuthentication().getName()));
 		
 		jdbcTemplate.execute(sql);
 		
-		modService.save(new Module(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_").toLowerCase(), "SYS_ID", auth.getAuthentication().getName()));		
+		//create module for table, notify front end to update modules list and create a role for the table
+		modService.save(new Module(data.getString("tableName"), table, "SYS_ID", auth.getAuthentication().getName()));		
     	amb.trigger(Collections.singletonMap(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_").toLowerCase()), "insertModule");
+    	roleService.save(new Role(table, "CRUD access on " + table , auth.getAuthentication().getName()));
 		
 		LOG.info(sql);
 		return sql;

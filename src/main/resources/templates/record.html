@@ -43,7 +43,7 @@
 						th:name="${field.getName()}" th:value="${field.getValue()}"
 						th:readonly="${field.isReadOnly()}" th:required="${field.isRequired()}" />
 				</div>
-				<button type="submit" class="btn btn-info">Update</button>
+				<button type="submit" class="btn btn-info" sec:authorize="hasAnyRole('ROLE_Admin', 'ROLE_Guest')">Update</button>
 			</form>
 			<div class="alert alert-success collapse" id="alert-suc" style="margin-top:10px;">
 				<strong>Success! </strong> <span id="suc-message"></span>

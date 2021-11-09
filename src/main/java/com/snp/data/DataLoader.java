@@ -11,6 +11,8 @@ import com.snp.entity.Role;
 import com.snp.entity.TestReference;
 import com.snp.entity.User;
 import com.snp.service.*;
+import com.snp.entity.SystemLog;
+import com.snp.entity.SystemLog.LogLevel;
 
 @Component
 public class DataLoader implements ApplicationRunner {
@@ -20,18 +22,23 @@ public class DataLoader implements ApplicationRunner {
     private TestReferenceService tfService;
     private RoleService roleService;
     private HasRoleService hasRoleService;
+    private LogService logService;;
 
     @Autowired
-    public DataLoader(UserService userService, ModuleService modService, TestReferenceService tfService, RoleService roleService, HasRoleService hasRoleService) {
+    public DataLoader(UserService userService, ModuleService modService, TestReferenceService tfService,
+    		RoleService roleService, HasRoleService hasRoleService, LogService logService) {
         this.userService = userService;
         this.modService = modService;
         this.tfService = tfService;
         this.roleService = roleService;
         this.hasRoleService = hasRoleService;
+        this.logService = logService;
     }
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {		
+		
+		this.logService.save(new SystemLog(LogLevel.Info, "Inserting modules", "Startup", "administrator"));
 		
 		//create modules
 		this.modService.save(new Module("Modules", "modules", "MODULE_NAME", "ben"));
@@ -41,6 +48,9 @@ public class DataLoader implements ApplicationRunner {
 		this.modService.save(new Module("Test Reference", "example_reference", "", "ben"));
 		this.modService.save(new Module("Roles", "sys_user_role", "name", "ben"));
 		this.modService.save(new Module("User Roles", "sys_user_has_role", "user", "ben"));
+		this.modService.save(new Module("System Logs", "sys_log", "ben", "ben"));
+		
+		this.logService.save(new SystemLog(LogLevel.Info, "Inserting Roles", "Startup", "administrator"));
 		
 		//create roles
 		Role admin = new Role("Admin", "Admin allows all CRUD operations and ability to access db.", "ben");
@@ -48,10 +58,15 @@ public class DataLoader implements ApplicationRunner {
 		this.roleService.save(admin);
 		this.roleService.save(guest);
 		
+		this.logService.save(new SystemLog(LogLevel.Info, "Creating admin and assigning the admin role", "Startup", "administrator"));
+		
 		//create default admin user and associate admin role
 		User adminUser = new User("admin", "admin", "admin", "ben");
 		this.userService.save(adminUser);
 		this.hasRoleService.save(new HasRole(admin, adminUser, "ben"));
+		
+		
+		this.logService.save(new SystemLog(LogLevel.Info, "Generating semi random user records. Password will always be username.", "Startup", "administrator"));
 		
 		String[] firstNames = { "Adam", "Alex", "Aaron", "Ben", "Carl", "Dan", "David", "Edward", "Fred",
 				"Frank", "George", "Hal", "Hank", "Ike", "John", "Jack", "Joe", "Larry", "Monte", "Matthew",
@@ -82,6 +97,8 @@ public class DataLoader implements ApplicationRunner {
 			User tmp = new User(fName, lName, uName, "ben");
 			this.userService.save(tmp);
 		}
+		
+		this.logService.save(new SystemLog(LogLevel.Info, "Assinging guest role to every user.", "Startup", "administrator"));
 		
 		//populate test reference table, this was used to test reference fields in the system as it was being developed
 		//also assign each user the guest role
