@@ -9,6 +9,7 @@
 				
 				<div class="form-group">
 					<a class="btn btn-primary" th:href="@{/{table_name}.do(table_name=${table})}">New</a>
+					<a class="btn btn-success" href="#listcontrol" data-toggle="modal" data-target="#listcontrol">List Control</a>
 				</div>
 				
 				<h4 th:if="${message != null}" th:text="${message}"></h4>
@@ -49,5 +50,28 @@
 			</div>
 		</div>
 	</div>
+	<!-- Modal -->
+	<div class="modal fade" id="listcontrol" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Select which fields you would like to see</h5>
+				<button type="button" class="close" data-dismiss="modal"
+					aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="container">
+					<div id="checkboxes"></div>									    
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" onclick="listControl();">Save changes</button>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
 </body>
 </html>

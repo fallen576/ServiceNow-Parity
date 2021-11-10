@@ -1,5 +1,8 @@
 package com.snp.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -13,6 +16,7 @@ import com.snp.entity.User;
 import com.snp.service.*;
 import com.snp.entity.SystemLog;
 import com.snp.entity.SystemLog.LogLevel;
+import com.snp.entity.ListLayout;
 
 @Component
 public class DataLoader implements ApplicationRunner {
@@ -22,17 +26,19 @@ public class DataLoader implements ApplicationRunner {
     private TestReferenceService tfService;
     private RoleService roleService;
     private HasRoleService hasRoleService;
-    private LogService logService;;
+    private LogService logService;
+    private UserPreferenceService listLayout;
 
     @Autowired
     public DataLoader(UserService userService, ModuleService modService, TestReferenceService tfService,
-    		RoleService roleService, HasRoleService hasRoleService, LogService logService) {
+    		RoleService roleService, HasRoleService hasRoleService, LogService logService, UserPreferenceService listLayout) {
         this.userService = userService;
         this.modService = modService;
         this.tfService = tfService;
         this.roleService = roleService;
         this.hasRoleService = hasRoleService;
         this.logService = logService;
+        this.listLayout = listLayout;
     }
 
 	@Override
@@ -49,6 +55,9 @@ public class DataLoader implements ApplicationRunner {
 		this.modService.save(new Module("Roles", "sys_user_role", "name", "ben"));
 		this.modService.save(new Module("User Roles", "sys_user_has_role", "user", "ben"));
 		this.modService.save(new Module("System Logs", "sys_log", "ben", "ben"));
+		this.modService.save(new Module("List Layout", "sys_user_preference", "table", "ben"));
+		this.modService.save(new Module("Fields For List Layout", "sys_user_fieldentry", "field_name", "ben"));
+		
 		
 		this.logService.save(new SystemLog(LogLevel.Info, "Inserting Roles", "Startup", "administrator"));
 		
@@ -65,6 +74,11 @@ public class DataLoader implements ApplicationRunner {
 		this.userService.save(adminUser);
 		this.hasRoleService.save(new HasRole(admin, adminUser, "ben"));
 		
+		List<String> list = new ArrayList<String>();
+		list.add("sys_id");
+		list.add("table_name");
+		this.listLayout.save(new ListLayout("sys_user_preference", list, adminUser));
+		this.listLayout.save(new ListLayout("modules", list, adminUser));
 		
 		this.logService.save(new SystemLog(LogLevel.Info, "Generating semi random user records. Password will always be username.", "Startup", "administrator"));
 		
