@@ -23,8 +23,10 @@ function sendUpdateRequest() {
 function loadListControl() {
 	var table = location.href.split("table/")[1].split("_list.do")[0];
     $.get("/api/v1/fields/" + table, (data, status) => {
+    	$('.control').remove();
     	for (var i in data) {
-    		$('#checkboxes').append('<input class="form-check-input field-selection" type="checkbox" name="'+data[i]+'" value="'+data[i]+'"/>'+ data[i] +'<br />');
+ 			$('#checkboxes').append('<div class="form-check control"><input class="form-check-input field-selection" type="checkbox" name="'+data[i]+'" value="'+data[i]+'" id="'+ data[i] +'"><label class="form-check-label" for="'+ data[i] +'">'+ data[i] +'</label></div>');
+    		//$('#checkboxes').append('<input class="form-check-input field-selection" type="checkbox" name="'+data[i]+'" value="'+data[i]+'"/>'+ data[i] +'<br />');
     	}
     	$.get("/api/v1/fields/"+table+"/checked", (data, status) => {
     		if (data.length == 0) {
