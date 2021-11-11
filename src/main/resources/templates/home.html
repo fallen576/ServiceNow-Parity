@@ -28,7 +28,7 @@
 								<tr th:each="record,i: ${records}">
 								<th:block th:each="field,i: ${record.getFields()}">		
 									<td th:if="${i.index == 0}" class="icon" scope="row">
-										<a th:href="@{/table/{table_name}/{guid}(table_name=${table},guid=${field.getValue()})}">
+										<a th:href="@{/table/{table_name}/{guid}(table_name=${table},guid=${record.getValue()})}">
 											<img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25" />
 										</a>
 									</td>
@@ -63,7 +63,11 @@
 			</div>
 			<div class="modal-body">
 				<div class="container">
-					<div id="checkboxes"></div>									    
+					<div id="checkboxes">
+						<div id="user-pref-msg" class="alert alert-info" role="alert" style="display: none;">
+						  You do not have a custom list layout for this table!
+						</div>
+					</div>									    
 				</div>
 			</div>
 			<div class="modal-footer">

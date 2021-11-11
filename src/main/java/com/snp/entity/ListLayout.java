@@ -4,7 +4,7 @@ import java.util.List;
 import javax.persistence.*;
 
 @Entity
-@Table(name="sys_user_preference")
+@Table(name="sys_user_preference", uniqueConstraints = {@UniqueConstraint(columnNames = {"table", "user_ref"})})
 public class ListLayout extends BaseTable {
 
 	public ListLayout() {
@@ -15,7 +15,7 @@ public class ListLayout extends BaseTable {
 		super(username);
 	}
 	
-	public ListLayout(String table, List<String> list, User user) {
+	public ListLayout(String table, String[] list, User user) {
 		super();
 		this.table = table;
 		this.user = user;
@@ -29,9 +29,33 @@ public class ListLayout extends BaseTable {
 	@JoinColumn(name="user_ref")
 	private User user;
 	
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "sys_user_field", joinColumns = @JoinColumn(name = "name"))
     @Column(name = "list")
-    public List<String> list;
-	
+	@OrderColumn(name="list_order")
+    public String[] list;
+
+	public String getTable() {
+		return table;
+	}
+
+	public void setTable(String table) {
+		this.table = table;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public String[] getList() {
+		return list;
+	}
+
+	public void setList(String[] list) {
+		this.list = list;
+	}
 }

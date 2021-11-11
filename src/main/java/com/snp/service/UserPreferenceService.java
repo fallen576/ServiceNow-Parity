@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import com.snp.entity.HasRole;
 import com.snp.entity.Role;
+import com.snp.entity.User;
 import com.snp.entity.ListLayout;
 import com.snp.repository.HasRoleRepository;
 import com.snp.repository.UserPreference;
@@ -28,4 +29,9 @@ public class UserPreferenceService {
 	public void save(ListLayout listLayout) {
 		userPref.save(listLayout);
 	}
+	
+	public ListLayout findByTableAndUser(String table, User user) {
+		return userPref.findByTableAndUser(table, user);
+	}
+	
 }

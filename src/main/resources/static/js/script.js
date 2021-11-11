@@ -10,12 +10,14 @@ $(document).ready( function () {
     	for (var i in data) {
     		$('#checkboxes').append('<input class="form-check-input field-selection" type="checkbox" name="'+data[i]+'" value="'+data[i]+'"/>'+ data[i] +'<br />');
     	}
-    });
-    
-    $.get("/api/v1/fields/"+table+"/checked", (data, status) => {
-    	for (var i in data) {
+    	$.get("/api/v1/fields/"+table+"/checked", (data, status) => {
+    		if (data.length == 0) {
+    			$('#user-pref-msg').show();
+    		}
+	    	for (var i in data) {
     			$('input[name="'+data[i]+'"]').prop("checked",true);
-    	}
+	    	}
+	    });
     });
 });
 
@@ -53,6 +55,6 @@ function listControl() {
 	  data:JSON.stringify(list),
 	  contentType:"application/json",
 	}).done(function(data){
-	    alert("Loaded: "+ JSON.stringify(data));
+	    location.href = "/table/"+table+"_list.do";
   	});
 }
