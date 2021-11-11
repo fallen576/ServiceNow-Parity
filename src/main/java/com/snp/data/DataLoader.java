@@ -59,7 +59,7 @@ public class DataLoader implements ApplicationRunner {
 		this.modService.save(new Module("Roles", "sys_user_role", "name", "ben"));
 		this.modService.save(new Module("User Roles", "sys_user_has_role", "user", "ben"));
 		this.modService.save(new Module("System Logs", "sys_log", "ben", "ben"));
-		this.modService.save(new Module("List Layout", "sys_user_preference", "table", "ben"));
+		this.modService.save(new Module("User Preference", "sys_user_preference", "table", "ben"));
 		this.modService.save(new Module("Fields For List Layout", "sys_user_field", "field_name", "ben"));
 		
 		

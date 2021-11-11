@@ -7,26 +7,28 @@
 		<div th:if="${table}" class="col-10 button-row">
 
 			<form
-				th:action="@{/delete/{table_name}/{guid}(table_name=${table},guid=${record.getId()})}"
+				th:action="@{/delete/{table_name}/{guid}(table_name=${table},guid=${record.getValue()})}"
 				method="post" id="deleteRecord">
 				<div class="form-group">
 					<button class="btn btn-danger" type="submit">Delete</button>
 				</div>
 			</form>
 
-			<form th:action="@{/update/{table_name}(table_name=${table})}"
-				method="post" id="updateForm">
+			<!--<form th:action="@{/update/{table_name}(table_name=${table})}"-->
+			<form th:guid=${record.getValue()} th:table=${table} method="post" id="updateForm">
 				<div class="form-group" th:each="field,iter: ${record.getFields()}">
 					<label th:for="${field.getName()}" th:text="${field.getName()}"></label>
 					<input th:if="${field.isHasReference()}" class="form-control mb-2"
 						th:id="${field.getName()} + '_' + ${iter.index}"
-						th:name="${field.getName()}" th:value="${field.getValue()}"
+						th:name="${field.getName()}" th:value="${field.getValue()}" updateable="true"
 						readonly type="hidden" />
 					<div>
 						<input th:if="${field.isHasReference()}" class="form-control mb-2"
 							style="width: 75%"
 							th:id="${field.getName()} + '_' + ${iter.index} + '_dv'"
+							th:guid="${field.getReference().getValue()}"
 							th:name="${field.getName()}"
+							updateable="false"
 							th:value="${field.getReference().getDisplayValue()}" readonly />
 						<span th:if="${field.isHasReference()}"> <a
 							href="#exampleModal" data-toggle="modal"
@@ -40,10 +42,12 @@
 					</div>
 					<input th:unless="${field.isHasReference()}"
 						class="form-control mb-2" th:id="${field.getName()}"
+						th:updateable="${field.isUpdateable()}"
 						th:name="${field.getName()}" th:value="${field.getValue()}"
 						th:readonly="${field.isReadOnly()}" th:required="${field.isRequired()}" />
 				</div>
-				<button type="submit" class="btn btn-info" sec:authorize="hasAnyRole('ROLE_Admin', 'ROLE_Guest')">Update</button>
+				<button type="button" class="btn btn-info" sec:authorize="hasAnyRole('ROLE_Admin', 'ROLE_Guest')" onclick="sendUpdateRequest();">Update</button>
+				<!--<button type="submit" class="btn btn-info" sec:authorize="hasAnyRole('ROLE_Admin', 'ROLE_Guest')">Update</button>-->
 			</form>
 			<div class="alert alert-success collapse" id="alert-suc" style="margin-top:10px;">
 				<strong>Success! </strong> <span id="suc-message"></span>

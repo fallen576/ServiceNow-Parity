@@ -9,14 +9,15 @@ public class Field {
 	public boolean hasReference;
 	public Reference reference;
 	public boolean readOnly;
-	private String[] readOnlyFields = new String[] {"password", "sys_id", "sys_created_on", "sys_created_by", "sys_updated_by"};
-	//private boolean required;
+	public boolean updateable;
+	private String[] readOnlyFields = new String[] {"password", "sys_id", "sys_created_on", "sys_created_by", "sys_updated_by", "sys_updated_on"};
 	private String[] nonRequiredFields = new String[] {"sys_id", "sys_created_on", "sys_created_by", "sys_updated_by"};
 	
 	public Field (String name, String value) {
 		this.name = name;
 		this.value = value;
 		this.readOnly = (Arrays.stream(readOnlyFields).anyMatch(name.toLowerCase()::equals)) ? true : false;
+		this.updateable = (Arrays.stream(readOnlyFields).anyMatch(name.toLowerCase()::equals)) ? false : true;
 		this.hasReference = false;
 	}
 	
@@ -26,6 +27,7 @@ public class Field {
 		this.value = value;
 		this.hasReference = hasReference;
 		this.readOnly = (Arrays.stream(readOnlyFields).anyMatch(name.toLowerCase()::equals)) ? true : false;
+		this.updateable = this.hasReference ? true : (Arrays.stream(readOnlyFields).anyMatch(name.toLowerCase()::equals)) ? false : true;
 	}
 	
 	public Field(String name, String value, boolean hasReference, boolean readOnly) {
@@ -33,6 +35,7 @@ public class Field {
 		this.value = value;
 		this.hasReference = hasReference;
 		this.readOnly = readOnly;
+		this.updateable = this.hasReference ? true : (Arrays.stream(readOnlyFields).anyMatch(name.toLowerCase()::equals)) ? false : true;
 	}
 
 	public String getName() {
@@ -85,9 +88,19 @@ public class Field {
 	}
 	
 	public boolean isRequired() {
-		return (Arrays.stream(nonRequiredFields).anyMatch(this.name.toLowerCase()::equals)) ? false : true;
+		return (Arrays.stream(nonRequiredFields).anyMatch(this.name.toLowerCase()::equals) || !this.hasReference) ? false : true;
 	}
 	
+	public boolean isUpdateable() {
+		return updateable;
+	}
+
+
+	public void setUpdateable(boolean updateable) {
+		this.updateable = updateable;
+	}
+
+
 	@Override
 	public String toString() {
 		return "Field [name=" + name + ", value=" + value + ", hasReference=" + hasReference + ", reference="

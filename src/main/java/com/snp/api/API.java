@@ -58,6 +58,18 @@ public class API {
 		return modService.findAll();
 	}
 	
+	@PostMapping(path = "/api/v1/update/{table_name}/{sys_id}", 
+    consumes = MediaType.APPLICATION_JSON_VALUE, 
+    produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String, String> updateRecord(@PathVariable(value="table_name") String table,
+			@PathVariable(value="sys_id") String id,
+			@RequestBody HashMap<String, Object> fields) {
+		
+		Map<String, String> resp = new HashMap<String, String>();
+		resp.put("success", db.updateRecord(fields, table, id));
+		return resp;
+	}
+	
 	@PostMapping(path = "/api/v1/userpreference/{table_name}", 
     consumes = MediaType.APPLICATION_JSON_VALUE, 
     produces = MediaType.APPLICATION_JSON_VALUE)

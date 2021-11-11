@@ -177,6 +177,20 @@ public class JdbcRepo {
 		return display;
 	}
 	
+	public List<Map<String, Object>> getRow(String table, String id) {
+		//check if user has a preference for this list layout
+		String username = auth.getAuthentication().getName();
+		List<String> fields = this.getUserPrefFields(username, table);
+		
+		if (!fields.isEmpty()) {
+			if (!fields.contains("sys_id")) {
+				fields.add(0, "sys_id");
+			}
+			return this.jdbcTemplate.queryForList("select " + String.join(",", fields) + " from " + table + " WHERE sys_id = ?", id);
+		}
+		return this.jdbcTemplate.queryForList("select * from " + table + " WHERE sys_id = ?", id);
+	}
+	
 	public List<Map<String, Object>> getRows(String table) {
 		//check if user has a preference for this list layout
 		String username = auth.getAuthentication().getName();
@@ -220,9 +234,8 @@ public class JdbcRepo {
 		
 		//get a more normalized object structure to describe the table schema (i.e field types, display values etc...)	
 		List<Map<String, Object>> references = this.jdbcTemplate.queryForList(REFERENCES, table);		
-		List<Map<String, Object>> rows = (id == null) ? 
-				this.getRows(table) :
-				jdbcTemplate.queryForList("select * from " + table + " where sys_id = ?", id);
+		List<Map<String, Object>> rows = (id == null) ? this.getRows(table) : this.getRow(table, id);
+		
 		List<Record> records = new ArrayList<>();
 		
 		List<String> userPref = this.getUserPrefFields(auth.getAuthentication().getName(), table);
@@ -368,6 +381,32 @@ public class JdbcRepo {
 		return jdbcTemplate.queryForList("show columns from " + table);
 	}
 	
+	public String updateRecord(HashMap<String, Object> fields, String table, String id) {
+		
+		String query = "UPDATE " + table + " SET ";
+		
+	    for (Map.Entry<String, Object> entry : fields.entrySet()) {
+	    	String fieldName = entry.getKey();
+	    	Object fieldValue = entry.getValue();
+	    	
+	    	query += fieldName + " = '" + fieldValue + "', ";
+	    }
+	    
+	    query += "sys_updated_on = '" + new Timestamp(System.currentTimeMillis()) + "', "
+	    		+ "sys_updated_by = '" + auth.getAuthentication().getName() + "' ";
+	    
+	    //query = query.substring(0, query.length() - 2);
+	    
+	    query += "WHERE sys_id = '" + id + "'";
+	    
+	    LOG.info(query);
+	    
+	    jdbcTemplate.update(query);
+	    
+	    return id;
+	}
+	
+	@Deprecated
 	public String updateRecord(Map<?, ?> m, String table) {
 		Set<?> s = m.entrySet();
         Iterator<?> it = s.iterator();

@@ -3,6 +3,9 @@ package com.snp.entity;
 import java.util.List;
 import javax.persistence.*;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 @Entity
 @Table(name="sys_user_preference", uniqueConstraints = {@UniqueConstraint(columnNames = {"table", "user_ref"})})
 public class ListLayout extends BaseTable {
@@ -31,8 +34,10 @@ public class ListLayout extends BaseTable {
 	
 	@ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "sys_user_field", joinColumns = @JoinColumn(name = "name"))
+	@JoinColumn(name = "name") 
     @Column(name = "list")
 	@OrderColumn(name="list_order")
+	@OnDelete(action= OnDeleteAction.CASCADE)
     public String[] list;
 
 	public String getTable() {
