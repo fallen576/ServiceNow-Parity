@@ -9,7 +9,7 @@
 				
 				<div class="form-group">
 					<a class="btn btn-primary" th:href="@{/{table_name}.do(table_name=${table})}">New</a>
-					<a class="btn btn-success" href="#listcontrol" data-toggle="modal" data-target="#listcontrol">List Control</a>
+					<a class="btn btn-success" href="#listcontrol" data-toggle="modal" data-target="#listcontrol" onclick="loadListControl();">List Control</a>
 				</div>
 				
 				<h4 th:if="${message != null}" th:text="${message}"></h4>

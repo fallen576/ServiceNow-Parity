@@ -368,6 +368,32 @@ public class JdbcRepo {
 		return jdbcTemplate.queryForList("show columns from " + table);
 	}
 	
+	public String updateRecord(HashMap<String, Object> fields, String table, String id) {
+		
+		String query = "UPDATE " + table + " SET ";
+		
+	    for (Map.Entry<String, Object> entry : fields.entrySet()) {
+	    	String fieldName = entry.getKey();
+	    	Object fieldValue = entry.getValue();
+	    	
+	    	query += fieldName + " = '" + fieldValue + "', ";
+	    }
+	    
+	    query += "sys_updated_on = '" + new Timestamp(System.currentTimeMillis()) + "', "
+	    		+ "sys_updated_by = '" + auth.getAuthentication().getName() + "' ";
+	    
+	    //query = query.substring(0, query.length() - 2);
+	    
+	    query += "WHERE sys_id = '" + id + "'";
+	    
+	    LOG.info(query);
+	    
+	    jdbcTemplate.update(query);
+	    
+	    return id;
+	}
+	
+	@Deprecated
 	public String updateRecord(Map<?, ?> m, String table) {
 		Set<?> s = m.entrySet();
         Iterator<?> it = s.iterator();

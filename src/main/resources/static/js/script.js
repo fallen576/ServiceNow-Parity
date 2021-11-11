@@ -4,8 +4,24 @@ $(document).ready( function () {
     		{ "width": "10px", "targets": 0 }	
   		]
     });
-    
-    var table = location.href.split("table/")[1].split("_list.do")[0];
+});
+
+function sendUpdateRequest() {
+	var id = $('#updateForm').attr('guid');
+	var table = $('#updateForm').attr('table');
+    $.ajax({
+        url: "/api/v1/update/"+table+"/"+id,
+        type: "POST",
+       	data: JSON.stringify($("#updateForm :input[updateable='true']").serializeArray().reduce(function(m,o){  m[o.name] = o.value; return m;}, {})),
+  	   contentType:"application/json"
+     }).done(function(data) {
+     	$('#alert-suc').slideDown();
+     	setTimeout(() => {$('#alert-suc').slideUp();}, 2500);
+     });
+}
+
+function loadListControl() {
+	var table = location.href.split("table/")[1].split("_list.do")[0];
     $.get("/api/v1/fields/" + table, (data, status) => {
     	for (var i in data) {
     		$('#checkboxes').append('<input class="form-check-input field-selection" type="checkbox" name="'+data[i]+'" value="'+data[i]+'"/>'+ data[i] +'<br />');
@@ -19,7 +35,7 @@ $(document).ready( function () {
 	    	}
 	    });
     });
-});
+}
 
 function selectReference(sys_id, dv) {
     var url = window.location.href;
