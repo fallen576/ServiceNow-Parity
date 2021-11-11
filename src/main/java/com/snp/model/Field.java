@@ -88,7 +88,7 @@ public class Field {
 	}
 	
 	public boolean isRequired() {
-		return (Arrays.stream(nonRequiredFields).anyMatch(this.name.toLowerCase()::equals)) ? false : true;
+		return (Arrays.stream(nonRequiredFields).anyMatch(this.name.toLowerCase()::equals) || !this.hasReference) ? false : true;
 	}
 	
 	public boolean isUpdateable() {
