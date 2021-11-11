@@ -1,9 +1,13 @@
 package com.snp.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.UnexpectedRollbackException;
 
 import com.snp.entity.HasRole;
 import com.snp.entity.Module;
@@ -11,8 +15,12 @@ import com.snp.entity.Role;
 import com.snp.entity.TestReference;
 import com.snp.entity.User;
 import com.snp.service.*;
+
+import jdk.internal.org.jline.utils.Log;
+
 import com.snp.entity.SystemLog;
 import com.snp.entity.SystemLog.LogLevel;
+import com.snp.entity.ListLayout;
 
 @Component
 public class DataLoader implements ApplicationRunner {
@@ -22,17 +30,19 @@ public class DataLoader implements ApplicationRunner {
     private TestReferenceService tfService;
     private RoleService roleService;
     private HasRoleService hasRoleService;
-    private LogService logService;;
+    private LogService logService;
+    private UserPreferenceService listLayout;
 
     @Autowired
     public DataLoader(UserService userService, ModuleService modService, TestReferenceService tfService,
-    		RoleService roleService, HasRoleService hasRoleService, LogService logService) {
+    		RoleService roleService, HasRoleService hasRoleService, LogService logService, UserPreferenceService listLayout) {
         this.userService = userService;
         this.modService = modService;
         this.tfService = tfService;
         this.roleService = roleService;
         this.hasRoleService = hasRoleService;
         this.logService = logService;
+        this.listLayout = listLayout;
     }
 
 	@Override
@@ -49,6 +59,9 @@ public class DataLoader implements ApplicationRunner {
 		this.modService.save(new Module("Roles", "sys_user_role", "name", "ben"));
 		this.modService.save(new Module("User Roles", "sys_user_has_role", "user", "ben"));
 		this.modService.save(new Module("System Logs", "sys_log", "ben", "ben"));
+		this.modService.save(new Module("List Layout", "sys_user_preference", "table", "ben"));
+		this.modService.save(new Module("Fields For List Layout", "sys_user_field", "field_name", "ben"));
+		
 		
 		this.logService.save(new SystemLog(LogLevel.Info, "Inserting Roles", "Startup", "administrator"));
 		
@@ -65,6 +78,8 @@ public class DataLoader implements ApplicationRunner {
 		this.userService.save(adminUser);
 		this.hasRoleService.save(new HasRole(admin, adminUser, "ben"));
 		
+		String[] list = new String[] {"sys_id", "table"};
+		this.listLayout.save(new ListLayout("sys_user_preference", list, adminUser));
 		
 		this.logService.save(new SystemLog(LogLevel.Info, "Generating semi random user records. Password will always be username.", "Startup", "administrator"));
 		
@@ -95,7 +110,11 @@ public class DataLoader implements ApplicationRunner {
 			String lName = lastNames[_rand(lastNames)];
 			String uName = fName + " " + lName;
 			User tmp = new User(fName, lName, uName, "ben");
-			this.userService.save(tmp);
+			try {
+				this.userService.save(tmp);
+			} catch (UnexpectedRollbackException e) {
+				this.logService.save(new SystemLog(LogLevel.Error, "Found duplicate username of " + uName + ". " + e.toString() , "Startup", "administrator"));
+			}
 		}
 		
 		this.logService.save(new SystemLog(LogLevel.Info, "Assinging guest role to every user.", "Startup", "administrator"));

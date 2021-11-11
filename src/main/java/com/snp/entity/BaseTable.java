@@ -58,4 +58,7 @@ public class BaseTable {
 		this.updatedOn = new Date();
 	}
 
+	public UUID getId() {
+		return id;
+	}
 }

@@ -7,9 +7,15 @@ import java.util.stream.Collectors;
 public class Record {
 	
 	private List<Field> fields;
+	
+	private String id;
 
 	public Record(List<Field> fields) {
 		this.fields = fields;
+	}
+	
+	public Record() {
+		
 	}
 
 	public List<Field> getFields() {
@@ -31,6 +37,14 @@ public class Record {
 			}
 		}
 		return "-1";
+	}
+	
+	public String getValue() {
+		return this.id;
+	}
+	
+	public void setValue(String id) {
+		this.id = id;
 	}
 	
 	public String getId() {

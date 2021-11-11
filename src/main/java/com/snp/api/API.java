@@ -1,6 +1,7 @@
 package com.snp.api;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -28,6 +29,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snp.db.JdbcRepo;
 import com.snp.entity.Module;
+import com.snp.security.IAuthenticationFacade;
 import com.snp.service.ModuleService;
 import com.snp.service.UserService;
 
@@ -46,11 +48,61 @@ public class API {
 	@Autowired
 	private JdbcRepo db;
 	
+	@Autowired
+    private IAuthenticationFacade auth;
+	
 	@RequestMapping(value="/api/v1/modules", method = RequestMethod.GET)
 	@ResponseBody
 	public Iterable<Module> loadModules() {
 		
 		return modService.findAll();
+	}
+	
+	@PostMapping(path = "/api/v1/userpreference/{table_name}", 
+    consumes = MediaType.APPLICATION_JSON_VALUE, 
+    produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String, String> setFields(@PathVariable(value="table_name") String table, @RequestBody String[] fields) {
+		for (String i : fields) {
+			LOG.info("field " + i);
+		}
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("Success", "true");
+		map.put("User", auth.getAuthentication().getName());
+		map.put("table", table);
+		
+		db.setUserPrefFields(auth.getAuthentication().getName(), table, fields);
+		
+		List<String> results = db.getUserPrefFields(auth.getAuthentication().getName(), table);
+		map.put("ans", results.toString());
+		
+		return map;
+	}
+	
+	@GetMapping("/api/v1/fields/{table_name}/checked")
+	public ResponseEntity<List<String>> getCheckedFields(@PathVariable(value="table_name") String table) {
+		List<String> checked = db.getUserPrefFields(auth.getAuthentication().getName(), table);
+		return new ResponseEntity<List<String>>(checked, HttpStatus.OK);
+	}
+	
+	@GetMapping("/api/v1/fields/{table_name}")
+	public ResponseEntity<List<String>> getFields(@PathVariable(value="table_name") String table) {
+		List<Map<String, Object>> fieldQuery = db.getFields(table);
+		List<String> fields = new ArrayList<String>();
+		
+		for (Map<String, Object> map : fieldQuery) {
+		    for (Map.Entry<String, Object> entry : map.entrySet()) {
+		        String key = entry.getKey();
+		        
+		        if (key.toLowerCase().equals("field")) {
+		        	fields.add(entry.getValue().toString().toLowerCase());
+		        }
+		    }
+		}
+		//ArrayList<String> fields = new ArrayList<String>();
+		//fields.add("sys_id");
+		//fields.add("field2_goeS_HERE");
+		return new ResponseEntity<List<String>>(fields, HttpStatus.OK);
+		
 	}
 	
 	@GetMapping("/api/v1/table/{table_name}")

@@ -4,6 +4,21 @@ $(document).ready( function () {
     		{ "width": "10px", "targets": 0 }	
   		]
     });
+    
+    var table = location.href.split("table/")[1].split("_list.do")[0];
+    $.get("/api/v1/fields/" + table, (data, status) => {
+    	for (var i in data) {
+    		$('#checkboxes').append('<input class="form-check-input field-selection" type="checkbox" name="'+data[i]+'" value="'+data[i]+'"/>'+ data[i] +'<br />');
+    	}
+    	$.get("/api/v1/fields/"+table+"/checked", (data, status) => {
+    		if (data.length == 0) {
+    			$('#user-pref-msg').show();
+    		}
+	    	for (var i in data) {
+    			$('input[name="'+data[i]+'"]').prop("checked",true);
+	    	}
+	    });
+    });
 });
 
 function selectReference(sys_id, dv) {
@@ -26,4 +41,20 @@ function close() {
 
 function openModal(table, queryParam) {
 	$('.reference-frame').attr('src', '/reference/' + table.toLowerCase() + '?name=' + queryParam);
+}
+
+function listControl() {
+	var list = [];
+	$('.field-selection:checkbox:checked').each(function() {
+		list.push($(this).val());
+	});
+	var table = location.href.split("table/")[1].split("_list.do")[0];
+	$.ajax({
+	  url:"/api/v1/userpreference/"+table,
+	  type:"POST",
+	  data:JSON.stringify(list),
+	  contentType:"application/json",
+	}).done(function(data){
+	    location.href = "/table/"+table+"_list.do";
+  	});
 }

@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snp.controller.AMB;
 import com.snp.entity.HasRole;
+import com.snp.entity.ListLayout;
 import com.snp.entity.Module;
 import com.snp.entity.Role;
 import com.snp.entity.SystemLog;
@@ -53,6 +55,7 @@ import com.snp.security.IAuthenticationFacade;
 import com.snp.service.LogService;
 import com.snp.service.ModuleService;
 import com.snp.service.RoleService;
+import com.snp.service.UserPreferenceService;
 
 import ch.qos.logback.classic.pattern.LineOfCallerConverter;
 
@@ -77,6 +80,9 @@ public class JdbcRepo {
 	
 	@Autowired
 	private LogService logService;
+	
+	@Autowired
+	private UserPreferenceService listControl;
 	
 	private static final Logger LOG =
 	        Logger.getLogger(JdbcRepo.class.getPackage().getName());
@@ -172,7 +178,17 @@ public class JdbcRepo {
 	}
 	
 	public List<Map<String, Object>> getRows(String table) {
-		//normalGet(this.jdbcTemplate.queryForList("select * from " + table + ";"), table);
+		//check if user has a preference for this list layout
+		String username = auth.getAuthentication().getName();
+		List<String> fields = this.getUserPrefFields(username, table);
+		
+		if (!fields.isEmpty()) {
+			if (!fields.contains("sys_id")) {
+				fields.add(0, "sys_id");
+			}
+			return this.jdbcTemplate.queryForList("select " + String.join(",", fields) + " from " + table + ";");
+		}
+		
 		return this.jdbcTemplate.queryForList("select * from " + table + ";");
 	}
 	
@@ -209,13 +225,26 @@ public class JdbcRepo {
 				jdbcTemplate.queryForList("select * from " + table + " where sys_id = ?", id);
 		List<Record> records = new ArrayList<>();
 		
+		List<String> userPref = this.getUserPrefFields(auth.getAuthentication().getName(), table);
+		
 		for (Map<String, Object> row : rows) {
 			
 			List<Field> fields = new ArrayList<>();
+			Record tmp = new Record();
 			
 		    for (Map.Entry<String, Object> i : row.entrySet()) {
 		        String fieldLabel = i.getKey();
 		        String fieldValue = (i.getValue() == null) ? "" : i.getValue().toString();
+		        
+		        if (fieldLabel.toLowerCase().equals("sys_id")) {
+		        	tmp.setValue(fieldValue);
+		        	
+		        	if (!userPref.isEmpty() && !userPref.contains("sys_id")) {
+		        		//skip displaying sys_id in list view, user has a preference and does not specify it. but we still need the id.
+		        		continue;
+		        	}
+		        	
+		        }
 		       
 		        Field tmpF = new Field(fieldLabel, fieldValue);
 		        tmpF.setReference(null);
@@ -233,7 +262,8 @@ public class JdbcRepo {
     		    }
     		    
 		    }
-		    records.add(new Record(fields));
+		    tmp.setFields(fields);
+		    records.add(tmp);
 		}
 		
 		return records;
@@ -334,6 +364,10 @@ public class JdbcRepo {
 		return jdbcTemplate.queryForList("select * from " + table + " where sys_id = ?", sys_id).get(0);
 	}
 	
+	public List<Map<String, Object>> getFields(String table) {
+		return jdbcTemplate.queryForList("show columns from " + table);
+	}
+	
 	public String updateRecord(Map<?, ?> m, String table) {
 		Set<?> s = m.entrySet();
         Iterator<?> it = s.iterator();
@@ -425,6 +459,39 @@ public class JdbcRepo {
 		String key = (String) keyHolder.getKeys().get("SCOPE_IDENTITY()");
         return key;
         
+	}
+	
+	public void setUserPrefFields(String user_name, String table, String[] fields) {
+		User user = findUserByUserName(user_name);		
+		ListLayout existingList = listControl.findByTableAndUser(table, user);
+		if (existingList != null ) {
+			LOG.info(existingList.getId() + " " + existingList.table + " " + existingList.getList() + " " + existingList.getUser());
+			LOG.info(fields.toString());
+			existingList.setList(fields);
+			listControl.save(existingList);
+		}
+		else {
+			listControl.save(new ListLayout(table, fields, user));
+		}
+	}
+	
+	public List<String> getUserPrefFields(String user_name, String table) {
+		//SELECT a.table, a.user_ref, b.list from sys_user_preference AS a JOIN sys_user_field as b ON a.sys_id = b.name WHERE a.sys_id = 'd29b13fb-ef66-476f-b0c5-232679cd179a'
+		List<String> fields = new ArrayList<String>();
+		User user = findUserByUserName(user_name);
+		//LOG.info("SELECT a.table, a.user_ref, b.list from sys_user_preference AS a JOIN sys_user_field as b ON a.sys_id = b.name WHERE a.sys_id = " + user.getValue().toString());
+		List<Map<String, Object>> map = jdbcTemplate.queryForList("SELECT b.list from sys_user_preference AS a JOIN"
+				+ " sys_user_field as b ON a.sys_id = b.name WHERE a.user_ref = ? AND a.table = ?",
+				user.getValue().toString(),
+				table);
+		
+		for (Map<String, Object> rs : map) {
+		    for (Map.Entry<String, Object> entry : rs.entrySet()) {
+		        String value = entry.getValue().toString();
+		        fields.add(value);
+		    }
+		}
+		return fields;
 	}
 	
 	public User findUserByUserName(String user_name) {

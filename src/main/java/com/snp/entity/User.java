@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
@@ -19,11 +20,8 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import com.snp.security.IAuthenticationFacade;
 
 @Entity
-@Table(name="users")
+@Table(name="users", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_name"})})
 public class User {
-	
-	//@Autowired
-    //private IAuthenticationFacade auth;
 
 	@Id
 	@GeneratedValue(generator = "UUID")
