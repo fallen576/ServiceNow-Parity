@@ -18,7 +18,6 @@ public class UserRowMapper implements RowMapper<User> {
 	
 	@Override
 	public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-		LOG.info("in mapper?");
 		User user = new User();
 		String first_name = rs.getString("FIRST_NAME");
 		String last_name = rs.getString("LAST_NAME");

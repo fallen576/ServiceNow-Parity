@@ -1,10 +1,14 @@
 package com.snp.api;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -74,15 +78,20 @@ public class API {
     consumes = MediaType.APPLICATION_JSON_VALUE, 
     produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String, String> setFields(@PathVariable(value="table_name") String table, @RequestBody String[] fields) {
-		for (String i : fields) {
-			LOG.info("field " + i);
-		}
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("Success", "true");
 		map.put("User", auth.getAuthentication().getName());
 		map.put("table", table);
 		
-		db.setUserPrefFields(auth.getAuthentication().getName(), table, fields);
+		String username = auth.getAuthentication().getName();
+		
+		//ensure fields are accurate. Otherwise would be able to manipulate sql statement
+		Collection<String> realFields = db.getColumns(table, false).stream().map(String::toLowerCase).collect(Collectors.toList());
+		LinkedList<String> newFields = new LinkedList<String>(Arrays.asList(fields));
+		
+		newFields.removeIf(x -> (!realFields.contains(x)));
+
+		db.setUserPrefFields(username, table,  newFields.toArray(new String[newFields.size()]));
 		
 		List<String> results = db.getUserPrefFields(auth.getAuthentication().getName(), table);
 		map.put("ans", results.toString());

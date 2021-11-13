@@ -37,6 +37,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -463,6 +464,9 @@ public class JdbcRepo {
         	 else if (col.toLowerCase().equals("sys_created_by") || col.toLowerCase().equals("sys_updated_by")) {
         		 values.add(auth.getAuthentication().getName());
         	 }
+        	 else if (col.toLowerCase().equals("password") && table.toLowerCase().equals("users")) {
+        		 values.add(BCrypt.hashpw(m.get("USER_NAME").toString(), BCrypt.gensalt()));
+        	 }
          	 else {
         		 values.add(entry.getValue()[0]);
         	 }
@@ -534,7 +538,6 @@ public class JdbcRepo {
 	}
 	
 	public User findUserByUserName(String user_name) {
-		LOG.info("attempting to locat user... " + user_name);
 		User user = null;
 		try {
 			
@@ -543,7 +546,6 @@ public class JdbcRepo {
 		} catch (Exception e) {
 			LOG.info("in catch block of db.... something went wrong locating user " + e.getMessage() + e.getLocalizedMessage());
 		}
-		LOG.info("user has been located...");
 		return user;
 	}
 	

@@ -46,6 +46,8 @@ public class AuthProvider implements AuthenticationProvider {
 		logService.save(new SystemLog(LogLevel.Info, "Attempting to log in " + username, "Login"));
 		
 		User user = db.findUserByUserName(username);
+		
+		//LOG.info(user.getUser_name() + " pw " + password + " password is " + user.getPassword()+ " match? " + BCrypt.checkpw(password, user.getPassword()));
         
         if (user != null && BCrypt.checkpw(password, user.getPassword())) {
         	List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
@@ -53,11 +55,11 @@ public class AuthProvider implements AuthenticationProvider {
     		//Collection<HasRole> roles = hasRole.findUserRoles(user.getValue());
     		roles.stream()
     		.forEach(x -> {
-    			LOG.info("ROLES for " + username + " " + x.toString());
+    			//LOG.info("ROLES for " + username + " " + x.toString());
     			logService.save(new SystemLog(LogLevel.Info, username + " has role ROLE_" + x.getName(), "Login"));
     			authorities.add(new SimpleGrantedAuthority("ROLE_" + x.getName()));
     		});
-        	LOG.info("success returning " + authorities);
+        	//LOG.info("success returning " + authorities);
         	
     		return new UsernamePasswordAuthenticationToken(username, password, authorities);
         }
