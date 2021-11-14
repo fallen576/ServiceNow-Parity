@@ -120,6 +120,18 @@ public class Glide {
 		return "home";
 	}
 	
+	@GetMapping("/popover/{table_name}/{id}")
+	public ModelAndView popoverView(Model model, 
+			@PathVariable(value="table_name") String table,
+			@PathVariable(value="id") String id) {
+		
+		model.addAttribute("record", db.normalGet(table, id).get(0));
+		model.addAttribute("row", db.viewRecord(table, id));
+		model.addAttribute("table", table);
+		
+		return new ModelAndView("popover");
+	}
+	
 	@GetMapping("/reference/{table_name}")
 	public ModelAndView referenceView(Model model, @PathVariable(value="table_name") String table) {
 		

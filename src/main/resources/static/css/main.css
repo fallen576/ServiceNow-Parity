@@ -112,3 +112,6 @@ iframe {
 .m-top {
     margin-top: 10px;
 }
+.popover {
+	width: 100%;
+}

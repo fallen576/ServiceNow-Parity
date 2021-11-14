@@ -28,7 +28,8 @@
 								<tr th:each="record,i: ${records}">
 								<th:block th:each="field,i: ${record.getFields()}">		
 									<td th:if="${i.index == 0}" class="icon" scope="row">
-										<a th:href="@{/table/{table_name}/{guid}(table_name=${table},guid=${record.getValue()})}">
+									<!-- th:data-content='~{popover}' -->
+										<a th:id=${record.getValue()} class="icon-pop" data-placement="right" data-original-title="Hover View" th:href="@{/table/{table_name}/{guid}(table_name=${table},guid=${record.getValue()})}">
 											<img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25" />
 										</a>
 									</td>

@@ -1,0 +1,5 @@
+<div th:each="field,iter: ${record.getFields()}">
+	<p th:text=${field.getName()}></p>
+	<span>
+	<p th:name="${field.getName()}" th:text=${field.getValue()}></p>
+</div>

@@ -4,6 +4,33 @@ $(document).ready( function () {
     		{ "width": "10px", "targets": 0 }	
   		]
     });
+    
+    $('.icon-pop').popover({
+    	 trigger: "hover",
+    	  html: true,
+    	   delay: {
+    		show: 250
+  		   },
+  		  resize: true
+  	});
+    
+    
+    $(".icon-pop").hover(function () {
+		var id = $(this).attr('id');
+		var table = location.href.split("table/")[1].split("_list.do")[0];
+		console.log($(this).attr('id'));
+		$.ajax({
+		    url: "/popover/"+table+"/"+id,
+		    type: "GET",
+		 }).done(function(data) {
+		 	console.log(data);
+		 	$("#"+id).attr('data-content', data);
+		 	//$('#'+id).popover({ trigger: "hover", html: true });
+		 });
+	}, 
+	function () {
+	    //stuff to do on mouse leave
+	});
 });
 
 function sendUpdateRequest() {
