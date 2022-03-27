@@ -15,9 +15,6 @@ import com.snp.entity.Role;
 import com.snp.entity.TestReference;
 import com.snp.entity.User;
 import com.snp.service.*;
-
-import jdk.internal.org.jline.utils.Log;
-
 import com.snp.entity.SystemLog;
 import com.snp.entity.SystemLog.LogLevel;
 import com.snp.entity.ListLayout;

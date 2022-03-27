@@ -9,8 +9,6 @@ import org.springframework.jdbc.core.RowMapper;
 
 import com.snp.entity.User;
 
-import jdk.internal.org.jline.utils.Log;
-
 public class UserRowMapper implements RowMapper<User> {
 	
 	private static final Logger LOG =

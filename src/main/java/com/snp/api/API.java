@@ -86,11 +86,11 @@ public class API {
 		String username = auth.getAuthentication().getName();
 		
 		//ensure fields are accurate. Otherwise would be able to manipulate sql statement
-		Collection<String> realFields = db.getColumns(table, false).stream().map(String::toLowerCase).collect(Collectors.toList());
+		Collection<String> realFields = db.getColumns(table, true).stream().map(String::toLowerCase).collect(Collectors.toList());
 		LinkedList<String> newFields = new LinkedList<String>(Arrays.asList(fields));
 		
 		newFields.removeIf(x -> (!realFields.contains(x)));
-
+		
 		db.setUserPrefFields(username, table,  newFields.toArray(new String[newFields.size()]));
 		
 		List<String> results = db.getUserPrefFields(auth.getAuthentication().getName(), table);

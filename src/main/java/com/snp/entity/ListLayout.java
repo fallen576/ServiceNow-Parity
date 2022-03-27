@@ -33,8 +33,10 @@ public class ListLayout extends BaseTable {
 	private User user;
 	
 	@ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "sys_user_field", joinColumns = @JoinColumn(name = "name"))
-	@JoinColumn(name = "name") 
+    //@CollectionTable(name = "sys_user_field", joinColumns = @JoinColumn(name = "name"))
+	//@JoinColumn(name = "name") 
+	@CollectionTable(name = "sys_user_field", joinColumns = @JoinColumn(name = "SYS_ID"))
+	@JoinColumn(name = "SYS_ID") 
     @Column(name = "list")
 	@OrderColumn(name="list_order")
 	@OnDelete(action= OnDeleteAction.CASCADE)

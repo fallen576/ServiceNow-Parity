@@ -508,8 +508,6 @@ public class JdbcRepo {
 		User user = findUserByUserName(user_name);		
 		ListLayout existingList = listControl.findByTableAndUser(table, user);
 		if (existingList != null ) {
-			LOG.info(existingList.getId() + " " + existingList.table + " " + existingList.getList() + " " + existingList.getUser());
-			LOG.info(fields.toString());
 			existingList.setList(fields);
 			listControl.save(existingList);
 		}
@@ -523,11 +521,16 @@ public class JdbcRepo {
 		List<String> fields = new ArrayList<String>();
 		User user = findUserByUserName(user_name);
 		//LOG.info("SELECT a.table, a.user_ref, b.list from sys_user_preference AS a JOIN sys_user_field as b ON a.sys_id = b.name WHERE a.sys_id = " + user.getValue().toString());
+		/*
 		List<Map<String, Object>> map = jdbcTemplate.queryForList("SELECT b.list from sys_user_preference AS a JOIN"
 				+ " sys_user_field as b ON a.sys_id = b.name WHERE a.user_ref = ? AND a.table = ?",
 				user.getValue().toString(),
 				table);
-		
+		*/
+		List<Map<String, Object>> map = jdbcTemplate.queryForList("SELECT b.list from sys_user_preference AS a JOIN"
+				+ " sys_user_field as b ON a.sys_id = b.sys_id WHERE a.user_ref = ? AND a.table = ?",
+				user.getValue().toString(),
+				table);
 		for (Map<String, Object> rs : map) {
 		    for (Map.Entry<String, Object> entry : rs.entrySet()) {
 		        String value = entry.getValue().toString();
