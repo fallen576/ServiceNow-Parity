@@ -1,0 +1,26 @@
+    <script type="text/javascript">
+      function sendCode() {
+        var code = $("#code").val();
+        $("#output").load("/RhinoWebsite/RhinoServlet", {"code": code});
+      }
+    </script>
+	    <title>Server-side JavaScript demo</title>
+	    
+	    <div class="container">
+	      <h1>Server-side JavaScript demo</h1>
+	      <form method="post" action="/script">
+	        <div class="form-group">
+	          <label for="email">JavaScript:</label>
+	          <textarea class="form-control" rows="5" id="code" name="code" th:text="${code}"></textarea>
+	        </div>
+	        <button type="submit" class="btn btn-primary">Submit</button>
+	        <div class="form-group">
+	          <label for="email">Output:</label>
+	          <div class="well well-sm" id="output">
+	          	<h4 th:if="${result != null}" th:text="${result}"></h4>
+	          </div>
+	        </div>
+	      </form>
+	    </div>
+    </body>
+</html>

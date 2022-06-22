@@ -3,6 +3,8 @@ package com.snp.controller;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,6 +50,7 @@ import com.snp.entity.Module;
 import com.snp.entity.User;
 import com.snp.model.Field;
 import com.snp.model.Record;
+import com.snp.rhino.GlideRecord;
 import com.snp.service.ModuleService;
 import com.snp.service.UserService;
 
@@ -260,6 +263,25 @@ public class Glide {
 		
 	}
 	
+	@GetMapping("/script")
+	public String backgroundScript(Model model) {
+		model.addAttribute("modules", this._loadModules());
+		return "backgroundScript";
+	}
+	
+	@PostMapping(path = "/script")
+	public String Execute(Model model, HttpServletRequest req) {
+		String code = req.getParameter("code");
+		
+		GlideRecord gliderecord = new GlideRecord();
+		String ans = gliderecord.Print(code);
+
+		LOG.info("we in syscript.do with code " + code);
+		model.addAttribute("result", ans);
+		model.addAttribute("code", code);
+		return "backgroundScript";
+	}
+	
 	@PostMapping(path = "/insert/{table_name}", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<HashMap<String, String>> insert(Model model, HttpServletRequest req,
@@ -281,10 +303,7 @@ public class Glide {
 			return ResponseEntity
 		            .status(HttpStatus.INTERNAL_SERVER_ERROR)                 
 		            .body(resp);
-		}
-        
-        
-		
+		}		
 	}
 	
 	private List<Module> _loadModules() {
