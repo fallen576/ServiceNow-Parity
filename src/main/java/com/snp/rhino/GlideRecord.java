@@ -4,6 +4,8 @@ import com.snp.db.ConnectionManager;
 import java.util.logging.Logger;
 import com.snp.entity.User;
 import com.snp.service.UserService;
+import com.sun.xml.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -23,18 +25,20 @@ public class GlideRecord {
     private static final Logger LOG
             = Logger.getLogger(GlideRecord.class.getPackage().getName());
     private String table;
-    private Map<String, String> propertyMap;
     private ArrayList<String> queryString = new ArrayList<String>();
     private ArrayList<String> queryValues = new ArrayList<String>();
+    private ArrayList<String> whereString = new ArrayList<String>();
+    private ArrayList<String> whereValues = new ArrayList<String>();
+    private ArrayList<String> propertyString = new ArrayList<String>();
+    private ArrayList<String> propertyValues = new ArrayList<String>();
+    
 
     public GlideRecord(String table) {
-        LOG.info("in con");
         this.table = table;
-        LOG.info("after con " + this.table);
     }
 
     public GlideRecord() {
-        LOG.info("no con");
+    	
     }
 
     public void addQuery(String field, String operator, String value) {
@@ -46,12 +50,31 @@ public class GlideRecord {
         this.queryValues.add(value);
     }
 
-    public void addORQuery(String field, String operator, String value) {
+    public void addOrQuery(String field, String operator, String value) {
         this.queryString.add(" OR " + field + " " + operator + " ?");
         this.queryValues.add(value);
     }
+    
+    public void addWhere(String field, String operator, String value) {
+    	if (!this.whereString.isEmpty()) {
+            this.whereString.add(" AND " + field + " " + operator + " ?");
+        } else {
+            this.whereString.add(field + " " + operator + " ?");
+        }
+        this.whereValues.add(value);
+    }
+    
+    public void addOrWhere(String field, String operator, String value) {
+        this.whereString.add(" OR " + field + " " + operator + " ?");
+        this.whereValues.add(value);
+    }
+    
+    public void setValue(String field, String value) {
+        this.propertyString.add(field + " = ?");
+        this.propertyValues.add(value);
+    }
 
-    public String query() throws SQLException {
+    public JSONObject query() throws SQLException {
         JSONObject json = new JSONObject();
         Connection con = null;
         PreparedStatement stmt = null;
@@ -78,7 +101,7 @@ public class GlideRecord {
             con.close();
         }
         LOG.info(json.toString());
-        return json.toString();
+        return json;
     }
 
     public String getQuery() throws SQLException {
@@ -89,12 +112,61 @@ public class GlideRecord {
         return stmt.toString();
     }
 
-    public void setValue(String field, String value) {
-        this.propertyMap.put(field, value);
+    public int update() throws SQLException {
+    	
+    	Connection con = null;
+        PreparedStatement stmt = null;
+        int ans = -1;
+    	
+        try {
+        	con = ConnectionManager.getConnection();
+        	stmt = buildUpdateStatement(con);
+        	ans = stmt.executeUpdate();
+        } catch (Exception e) {
+        	LOG.log(Level.SEVERE, e.getMessage());
+        } finally {
+        	stmt.close();
+        	con.close();
+        }
+    	
+    	return ans;
     }
-
-    public void update() {
-
+    
+    private PreparedStatement buildUpdateStatement(Connection con) {
+    	PreparedStatement stmt = null;
+    	String cmd = "UPDATE " + this.table + " SET ";
+    	try {
+	    	for (int i = 0; i < this.propertyString.size(); i++) {
+	    		cmd += this.propertyString.get(i) + ",";
+	    	}
+	    	
+	    	cmd = cmd.substring(0, cmd.length() - 1) + " WHERE ";    	
+	    	LOG.info("cmd update section is " + cmd);
+	    	
+	    	
+	    	for (int i = 0; i < this.whereString.size(); i++) {
+	    		cmd += this.whereString.get(i);
+	    	}
+	    	LOG.info("cmd update and where section is " + cmd);
+	    	
+	    		stmt = con.prepareStatement(cmd);
+	    	
+	    	LOG.info("valid statement " + stmt.toString());
+	    	
+	    	for (int i = 0; i < this.propertyValues.size(); i++) {
+	    		stmt.setString(i+1, this.propertyValues.get(i));
+	    	}
+	    	
+	    	LOG.info("stmt update section is " + stmt.toString());
+	    	
+	    	for (int i = 0; i< this.whereValues.size(); i++) {
+	    		stmt.setString(i+1+this.propertyValues.size(), this.whereValues.get(i));
+	    	}
+    	} catch (Exception e) {
+    		LOG.log(Level.SEVERE, Arrays.toString(e.getStackTrace()));
+    	}
+    	LOG.info("returning from buildUpdateStatement: " + stmt.toString());
+    	return stmt;
     }
 
     private PreparedStatement buildQueryStatement(Connection con) throws SQLException {
