@@ -12,7 +12,17 @@
     <form method="post" action="/Script">
         <div class="form-group">
             <label for="email">JavaScript:</label>
-            <textarea class="form-control" style="width:-webkit-fill-available; height: 50%;" rows="5" id="code" name="code" th:text="${code}"></textarea>
+            <textarea class="form-control" style="width:-webkit-fill-available; height: 50%;" rows="5" id="code" name="code">
+var gr = new com.snp.rhino.GlideRecord('MODULES');
+gr.addQuery('MODULE_NAME', '=', 'Users');
+var x = gr.query();
+var id = x.get("SYS_ID");
+gs.print("module name is " + x.get("MODULE_NAME") + " id is " + id);
+
+
+gr.setValue("MODULE_NAME", "updated written in js executed in java");
+gr.addWhere("SYS_ID", "=", id);
+gr.update();</textarea>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
         <div class="form-group">
