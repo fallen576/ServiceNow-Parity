@@ -57,8 +57,7 @@ public class DataLoader implements ApplicationRunner {
 		this.modService.save(new Module("User Roles", "sys_user_has_role", "user", "ben"));
 		this.modService.save(new Module("System Logs", "sys_log", "ben", "ben"));
 		this.modService.save(new Module("User Preference", "sys_user_preference", "table", "ben"));
-		this.modService.save(new Module("Fields For List Layout", "sys_user_field", "field_name", "ben"));
-		
+		this.modService.save(new Module("Fields For List Layout", "sys_user_field", "field_name", "ben"));		
 		
 		this.logService.save(new SystemLog(LogLevel.Info, "Inserting Roles", "Startup", "administrator"));
 		
@@ -102,7 +101,8 @@ public class DataLoader implements ApplicationRunner {
 				"Schuster", "Tapia", "Thompson", "Tiernan", "Tisler" };
 		
 		//create random users
-		for (int i = 0; i < lastNames.length; i++) {
+		//for (int i = 0; i < lastNames.length; i++) {
+                for (int i = 0; i < 5; i++) {
 			String fName = firstNames[_rand(firstNames)];
 			String lName = lastNames[_rand(lastNames)];
 			String uName = fName + " " + lName;

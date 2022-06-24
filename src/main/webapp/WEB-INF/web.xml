@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<web-app xmlns="http://java.sun.com/xml/ns/javaee" 
-         version="2.5" 
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
   <display-name>Archetype Created Web Application</display-name>
-   	<servlet>
-      <servlet-name>Glide</servlet-name>
-      <servlet-class>
+  <servlet>
+    <servlet-name>Glide</servlet-name>
+    <servlet-class>
          org.springframework.web.servlet.DispatcherServlet
       </servlet-class>
-      <load-on-startup>1</load-on-startup>
-   </servlet>
-
-   <servlet-mapping>	
-      <servlet-name>Glide</servlet-name>
-      <url-pattern>/Glide</url-pattern>
-   </servlet-mapping>
-   
-   <servlet-mapping>	
-      <servlet-name>Glide</servlet-name>
-      <url-pattern>/Glide/table/*</url-pattern>
-   </servlet-mapping>
-   
-    
-
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Glide</servlet-name>
+    <url-pattern>/Glide</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Glide</servlet-name>
+    <url-pattern>/Glide/table/*</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>Script</display-name>
+    <servlet-name>Script</servlet-name>
+    <servlet-class>com.snp.controller.Script</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Script</servlet-name>
+    <url-pattern>/Script</url-pattern>
+  </servlet-mapping>
 </web-app>

@@ -23,6 +23,9 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.RhinoException;
+import org.mozilla.javascript.Scriptable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
@@ -56,260 +59,257 @@ import com.snp.service.UserService;
 
 @Controller
 public class Glide {
-	@Autowired
-	private ModuleService modService;
-	
-	@Autowired
-	private JdbcRepo db;
-	
-	@Autowired 
-	private AMB amb;
-	
-	//private static CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
-	private static final Logger LOG =
-	        Logger.getLogger(JdbcRepo.class.getPackage().getName());
-	
-	@RequestMapping(value="/Glide", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<String> loadModules() {
-		//this method retrieves modules
-		String json = "";
-		try {
-			json = new ObjectMapper().writeValueAsString(modService.findAll());
-		} catch (JsonProcessingException e) {
-			return new ResponseEntity<>(json,HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		return new ResponseEntity<>(json,HttpStatus.OK);
-	}	
-	
-	@GetMapping("/table/{table_name}_list.do")
-	public ModelAndView loadTable(Model model, @PathVariable(value="table_name") String table) {
-		
-		if (table.equals("createTable")) {
-			model.addAttribute("modules", (List<Module>) modService.findAll());
-			model.addAttribute("table", table);
-			return new ModelAndView("createTable");
-		}
-		
-		if (table.equals("h2-console")) {
-			return new ModelAndView("redirect:/h2-console");
-		}
-		
-		List<Record> records = db.normalGet(table, null);
 
-		if (records.size() == 0) {
-			model.addAttribute("message", "No data yet.");
-		}
-		else {
-			model.addAttribute("records", records);
-		}
-		
-		if (table.equals("modules")) {
-			model.addAttribute("display", "MODULE_NAME");
-		}
-		else {
-			model.addAttribute("display", db.getDisplay(table));
-		}
-		
-		model.addAttribute("modules", (List<Module>) modService.findAll());
-		model.addAttribute("table", table);
-		
-		return new ModelAndView("home");
-	}
-	
-	@GetMapping("/")
-	public String loadTable(Model model) {
-		model.addAttribute("modules", this._loadModules());
-		return "home";
-	}
-	
-	@GetMapping("/popover/{table_name}/{id}")
-	public ModelAndView popoverView(Model model, 
-			@PathVariable(value="table_name") String table,
-			@PathVariable(value="id") String id) {
-		
-		model.addAttribute("record", db.normalGet(table, id).get(0));
-		model.addAttribute("row", db.viewRecord(table, id));
-		model.addAttribute("table", table);
-		
-		return new ModelAndView("popover");
-	}
-	
-	@GetMapping("/reference/{table_name}")
-	public ModelAndView referenceView(Model model, @PathVariable(value="table_name") String table) {
-		
-		List<Record> records = db.normalGet(table, null);
+    @Autowired
+    private ModuleService modService;
 
-		if (records.size() == 0) {
-			model.addAttribute("message", "No data yet.");
-		}
-		else {
-			model.addAttribute("records", records);
-		}
-		
-		
-		if (table.equals("modules")) {
-			model.addAttribute("display", "MODULE_NAME");
-		}
-		else {
-			model.addAttribute("display", db.getDisplay(table));
-		}
+    @Autowired
+    private JdbcRepo db;
 
-		model.addAttribute("table", table);
-		model.addAttribute("reference", true);
-		
-		return new ModelAndView("reference");
-	}
-	
-	@GetMapping("/{table_name}.do")	
-	public ModelAndView newRecord(Model model, @PathVariable(value="table_name") String table) {
-		Map<String, Object> params = new HashMap<>();
-		model.addAttribute("modules", this._loadModules());
-		model.addAttribute("columns", db.getColumns(table, false));
-		model.addAttribute("record",db.normalGetNewRecord(table));
-		
-		params.put("table", table);
-		
-		return new ModelAndView("newrecord", params);
-	}
-	
-	@GetMapping("/table/{table_name}/{id}")
-	public ModelAndView viewRecord(Model model, 
-			@PathVariable(value="table_name") String table,
-			@PathVariable(value="id") String id) {
-		
-		model.addAttribute("modules", this._loadModules());	
-		model.addAttribute("record", db.normalGet(table, id).get(0));
-		model.addAttribute("row", db.viewRecord(table, id));
-		model.addAttribute("table", table);
-		return new ModelAndView("record");
-		//return new ModelAndView("listview");
-	}
-	
-	@GetMapping("/table/{table_name}")
-	public ModelAndView loadView(Model model, 
-									@PathVariable(value="table_name") String table,
-									@RequestParam String sysparm_query) {
-		
-		boolean listView = true;
-		
-		List<NameValuePair> qParams = URLEncodedUtils.parse(sysparm_query, Charset.forName("UTF-8"));
-		
-		if (qParams.get(0).getName().equals("sys_id")) {
-			listView = false;
-		}
+    @Autowired
+    private AMB amb;
 
-		List<Record> records = db.lookup(table, qParams);
+    //private static CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
+    private static final Logger LOG
+            = Logger.getLogger(JdbcRepo.class.getPackage().getName());
 
-		if (records.size() == 0) {
-			model.addAttribute("message", "No data yet.");
-		}
-		else {
-			model.addAttribute("records", records);
-		}
-		
-		
-		if (table.equals("modules")) {
-			model.addAttribute("display", "MODULE_NAME");
-		}
-		else {
-			model.addAttribute("display", db.getDisplay(table));
-		}
+    @RequestMapping(value = "/Glide", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<String> loadModules() {
+        //this method retrieves modules
+        String json = "";
+        try {
+            json = new ObjectMapper().writeValueAsString(modService.findAll());
+        } catch (JsonProcessingException e) {
+            return new ResponseEntity<>(json, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(json, HttpStatus.OK);
+    }
 
-		model.addAttribute("table", table);
+    @GetMapping("/table/{table_name}_list.do")
+    public ModelAndView loadTable(Model model, @PathVariable(value = "table_name") String table) {
 
-		if (listView) 
-			return new ModelAndView("home");
-		
-		return new ModelAndView("listview");
-	}
-	
-	@PostMapping(path = "/delete/{table_name}/{sys_id}")
-	public ModelAndView delete(Model model, @PathVariable(value="table_name") String table, @PathVariable(value="sys_id") String id) {
-		LOG.warning("deleting " + id + " from " + table);
-		db.delete(table, id);
-		model.addAttribute("modules", this._loadModules());
-		model.addAttribute("table", table);
-		return new ModelAndView("redirect:/table/"+table+"_list.do");
-	}
-	
-	@PostMapping(path = "/update/{table_name}", produces=MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public HashMap<String, String> update(Model model, HttpServletRequest req,
-							  @PathVariable(value="table_name") String table) throws JsonProcessingException {
-		
-		HashMap<String, String> response = new HashMap<>();
-		Map<?, ?> m =req.getParameterMap();
-		LOG.info("data "  + m);
-		try {
-        String id = this.db.updateRecord(m, table);
-        response.put("sys_id", id);
-        response.put("action", "update");
-        
-        	amb.trigger(m, "update");
-        	
-        	if (table.equals("modules")) {
-        		amb.trigger(m, "updateModule");
-        	}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			response.put("message", e.getMessage());
-			return response;
-		}
-        
+        if (table.equals("createTable")) {
+            model.addAttribute("modules", (List<Module>) modService.findAll());
+            model.addAttribute("table", table);
+            return new ModelAndView("createTable");
+        }
+
+        if (table.equals("h2-console")) {
+            return new ModelAndView("redirect:/h2-console");
+        }
+
+        List<Record> records = db.normalGet(table, null);
+
+        if (records.size() == 0) {
+            model.addAttribute("message", "No data yet.");
+        } else {
+            model.addAttribute("records", records);
+        }
+
+        if (table.equals("modules")) {
+            model.addAttribute("display", "MODULE_NAME");
+        } else {
+            model.addAttribute("display", db.getDisplay(table));
+        }
+
+        model.addAttribute("modules", (List<Module>) modService.findAll());
+        model.addAttribute("table", table);
+
+        return new ModelAndView("home");
+    }
+
+    @GetMapping("/")
+    public String loadTable(Model model) {
+        model.addAttribute("modules", this._loadModules());
+        return "home";
+    }
+
+    @GetMapping("/popover/{table_name}/{id}")
+    public ModelAndView popoverView(Model model,
+            @PathVariable(value = "table_name") String table,
+            @PathVariable(value = "id") String id) {
+
+        model.addAttribute("record", db.normalGet(table, id).get(0));
+        model.addAttribute("row", db.viewRecord(table, id));
+        model.addAttribute("table", table);
+
+        return new ModelAndView("popover");
+    }
+
+    @GetMapping("/reference/{table_name}")
+    public ModelAndView referenceView(Model model, @PathVariable(value = "table_name") String table) {
+
+        List<Record> records = db.normalGet(table, null);
+
+        if (records.size() == 0) {
+            model.addAttribute("message", "No data yet.");
+        } else {
+            model.addAttribute("records", records);
+        }
+
+        if (table.equals("modules")) {
+            model.addAttribute("display", "MODULE_NAME");
+        } else {
+            model.addAttribute("display", db.getDisplay(table));
+        }
+
+        model.addAttribute("table", table);
+        model.addAttribute("reference", true);
+
+        return new ModelAndView("reference");
+    }
+
+    @GetMapping("/{table_name}.do")
+    public ModelAndView newRecord(Model model, @PathVariable(value = "table_name") String table) {
+        Map<String, Object> params = new HashMap<>();
+        model.addAttribute("modules", this._loadModules());
+        model.addAttribute("columns", db.getColumns(table, false));
+        model.addAttribute("record", db.normalGetNewRecord(table));
+
+        params.put("table", table);
+
+        return new ModelAndView("newrecord", params);
+    }
+
+    @GetMapping("/table/{table_name}/{id}")
+    public ModelAndView viewRecord(Model model,
+            @PathVariable(value = "table_name") String table,
+            @PathVariable(value = "id") String id) {
+
+        model.addAttribute("modules", this._loadModules());
+        model.addAttribute("record", db.normalGet(table, id).get(0));
+        model.addAttribute("row", db.viewRecord(table, id));
+        model.addAttribute("table", table);
+        return new ModelAndView("record");
+        //return new ModelAndView("listview");
+    }
+
+    @GetMapping("/table/{table_name}")
+    public ModelAndView loadView(Model model,
+            @PathVariable(value = "table_name") String table,
+            @RequestParam String sysparm_query) {
+
+        boolean listView = true;
+
+        List<NameValuePair> qParams = URLEncodedUtils.parse(sysparm_query, Charset.forName("UTF-8"));
+
+        if (qParams.get(0).getName().equals("sys_id")) {
+            listView = false;
+        }
+
+        List<Record> records = db.lookup(table, qParams);
+
+        if (records.size() == 0) {
+            model.addAttribute("message", "No data yet.");
+        } else {
+            model.addAttribute("records", records);
+        }
+
+        if (table.equals("modules")) {
+            model.addAttribute("display", "MODULE_NAME");
+        } else {
+            model.addAttribute("display", db.getDisplay(table));
+        }
+
+        model.addAttribute("table", table);
+
+        if (listView) {
+            return new ModelAndView("home");
+        }
+
+        return new ModelAndView("listview");
+    }
+
+    @PostMapping(path = "/delete/{table_name}/{sys_id}")
+    public ModelAndView delete(Model model, @PathVariable(value = "table_name") String table, @PathVariable(value = "sys_id") String id) {
+        LOG.warning("deleting " + id + " from " + table);
+        db.delete(table, id);
+        model.addAttribute("modules", this._loadModules());
+        model.addAttribute("table", table);
+        return new ModelAndView("redirect:/table/" + table + "_list.do");
+    }
+
+    @PostMapping(path = "/update/{table_name}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public HashMap<String, String> update(Model model, HttpServletRequest req,
+            @PathVariable(value = "table_name") String table) throws JsonProcessingException {
+
+        HashMap<String, String> response = new HashMap<>();
+        Map<?, ?> m = req.getParameterMap();
+        LOG.info("data " + m);
+        try {
+            String id = this.db.updateRecord(m, table);
+            response.put("sys_id", id);
+            response.put("action", "update");
+
+            amb.trigger(m, "update");
+
+            if (table.equals("modules")) {
+                amb.trigger(m, "updateModule");
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            response.put("message", e.getMessage());
+            return response;
+        }
+
         response.put("message", "Successfully updated record.");
         return response;
-		
-	}
-	
-	@GetMapping("/script")
-	public String backgroundScript(Model model) {
-		model.addAttribute("modules", this._loadModules());
-		return "backgroundScript";
-	}
-	
+
+    }
+
+    @GetMapping("/script")
+    public String backgroundScript(Model model) {
+        model.addAttribute("modules", this._loadModules());
+        return "backgroundScript";
+    }
+
+    /*
 	@PostMapping(path = "/script")
-	public String Execute(Model model, HttpServletRequest req) {
+	public String Execute(Model model, HttpServletRequest req, HttpServletResponse response) {
 		String code = req.getParameter("code");
 		
 		GlideRecord gliderecord = new GlideRecord();
-		String ans = gliderecord.Print(code);
+		String ans = gliderecord.print(code);
 
 		LOG.info("we in syscript.do with code " + code);
 		model.addAttribute("result", ans);
-		model.addAttribute("code", code);
+		model.addAttribute("code", code);	
+		
 		return "backgroundScript";
 	}
-	
-	@PostMapping(path = "/insert/{table_name}", produces = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
-	public ResponseEntity<HashMap<String, String>> insert(Model model, HttpServletRequest req,
-							  @PathVariable(value="table_name") String table) throws JsonProcessingException {
-		
-		Map<?, ?> m =req.getParameterMap();
-		HashMap<String, String> resp = new HashMap<>();
-		try {
-			String id = this.db.insertRecord(m, table);
-			resp.put("table", table);
-			resp.put("id", id);
-			resp.put("action", "insert");
-			return ResponseEntity
-		            .status(HttpStatus.OK)                 
-		            .body(resp);
-		} catch (Exception e) {
-			LOG.warning(e.getMessage());
-			resp.put("error", e.getMessage());
-			return ResponseEntity
-		            .status(HttpStatus.INTERNAL_SERVER_ERROR)                 
-		            .body(resp);
-		}		
-	}
-	
-	private List<Module> _loadModules() {
-		List<Module> modules = new ArrayList<>();
-		modService.findAll().forEach(modules::add);
-		return modules;
-	}
-	
+     */
+
+    @PostMapping(path = "/insert/{table_name}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<HashMap<String, String>> insert(Model model, HttpServletRequest req,
+            @PathVariable(value = "table_name") String table) throws JsonProcessingException {
+
+        Map<?, ?> m = req.getParameterMap();
+        HashMap<String, String> resp = new HashMap<>();
+        try {
+            String id = this.db.insertRecord(m, table);
+            resp.put("table", table);
+            resp.put("id", id);
+            resp.put("action", "insert");
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(resp);
+        } catch (Exception e) {
+            LOG.warning(e.getMessage());
+            resp.put("error", e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(resp);
+        }
+    }
+
+    private List<Module> _loadModules() {
+        List<Module> modules = new ArrayList<>();
+        modService.findAll().forEach(modules::add);
+        return modules;
+    }
+
 }
