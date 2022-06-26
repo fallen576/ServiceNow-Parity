@@ -1,6 +1,8 @@
 package com.snp.rhino;
 
 import com.snp.db.ConnectionManager;
+
+import java.util.*;
 import java.util.logging.Logger;
 import com.snp.entity.User;
 import com.snp.service.UserService;
@@ -10,14 +12,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Map;
 import java.util.logging.Level;
 import java.lang.StringBuilder;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.util.ArrayList;
-import java.util.Arrays;
+
 import org.json.JSONObject;
 
 public class GlideRecord {
@@ -25,20 +25,19 @@ public class GlideRecord {
     private static final Logger LOG
             = Logger.getLogger(GlideRecord.class.getPackage().getName());
     private String table;
-    private ArrayList<String> queryString = new ArrayList<String>();
-    private ArrayList<String> queryValues = new ArrayList<String>();
-    private ArrayList<String> whereString = new ArrayList<String>();
-    private ArrayList<String> whereValues = new ArrayList<String>();
-    private ArrayList<String> propertyString = new ArrayList<String>();
-    private ArrayList<String> propertyValues = new ArrayList<String>();
-    
+    private ArrayList<String> queryString = new ArrayList<>();
+    private ArrayList<String> queryValues = new ArrayList<>();
+    private ArrayList<String> whereString = new ArrayList<>();
+    private ArrayList<String> whereValues = new ArrayList<>();
+    private ArrayList<String> propertyString = new ArrayList<>();
+    private ArrayList<String> propertyValues = new ArrayList<>();
 
     public GlideRecord(String table) {
         this.table = table;
     }
 
     public GlideRecord() {
-    	
+
     }
 
     public void addQuery(String field, String operator, String value) {
@@ -108,7 +107,7 @@ public class GlideRecord {
         PreparedStatement stmt
                 = buildQueryStatement(ConnectionManager.getConnection());
 
-        LOG.info("in getquery " + stmt.toString());
+        LOG.info("in getQuery " + stmt.toString());
         return stmt.toString();
     }
 
@@ -140,7 +139,7 @@ public class GlideRecord {
 	    		cmd += this.propertyString.get(i) + ",";
 	    	}
 	    	
-	    	cmd = cmd.substring(0, cmd.length() - 1) + " WHERE ";    	
+	    	cmd = cmd.substring(0, cmd.length() - 1) + " WHERE ";
 	    	LOG.info("cmd update section is " + cmd);
 	    	
 	    	
@@ -172,15 +171,15 @@ public class GlideRecord {
     private PreparedStatement buildQueryStatement(Connection con) throws SQLException {
 
         PreparedStatement stmt = null;
-        String query = "SELECT * FROM " + this.table + " WHERE ";
+        StringBuilder query = new StringBuilder("SELECT * FROM " + this.table + " WHERE ");
 
         for (int i = 0; i < this.queryString.size(); i++) {
-            query += this.queryString.get(i);
+            query.append(this.queryString.get(i));
         }
         
         LOG.info("query is " + query);
         
-        stmt = con.prepareStatement(query);
+        stmt = con.prepareStatement(query.toString());
 
         LOG.info("stmt is " + stmt.toString());
         

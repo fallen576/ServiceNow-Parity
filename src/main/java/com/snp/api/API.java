@@ -58,7 +58,6 @@ public class API {
 	@RequestMapping(value="/api/v1/modules", method = RequestMethod.GET)
 	@ResponseBody
 	public Iterable<Module> loadModules() {
-		
 		return modService.findAll();
 	}
 	
@@ -145,11 +144,5 @@ public class API {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 		return new ResponseEntity<String>("good", HttpStatus.OK);
-	}
-	
-	private List<Module> _loadModules() {
-		List<Module> modules = new ArrayList<>();
-		modService.findAll().forEach(modules::add);
-		return modules;
 	}
 }
