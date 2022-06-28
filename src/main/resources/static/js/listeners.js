@@ -6,24 +6,27 @@
 		console.log("event " + event.data);
 		
 		var json = JSON.parse(event.data);
-		
-		if ($('#SYS_ID').val() == json.SYS_ID[0]) {
+
+		if ($('#SYS_ID').val() == json.SYS_ID) {
+		    var updatedFields = false;
 			for (var i in json) {
-				if ($('#'+i).val() != json[i][0]) {
-					$('#'+i).val(json[i][0]);
+				if (i !== "updatedBy" && $('#'+i).val() != json[i]) {
+				    updatedFields = true;
+					$('#'+i).val(json[i]);
 					$("#"+i).css({"background-color":"lightblue"})
 				}
 			}
+			if (updatedFields) {
+			    $('#alert-suc').text("Record updated by " + json.updatedBy + " just now.");
+    			$('#alert-suc').slideDown();
+                setTimeout(() => {
+                    $('#alert-suc').slideUp();
+                    $('#alert-suc').text("Success");
+                }, 2500);
+			}
 		}
 	});
-	/*
-	sse.addEventListener("updateModule", (event) => {
-		console.log("module updated " + event.data);
-		
-		var json = JSON.parse(event.data);
-		console.log(event.data);		
-	});
-	*/
+
 	sse.addEventListener("insertModule", (event) => {
 		console.log("module updated " + event.data);
 		

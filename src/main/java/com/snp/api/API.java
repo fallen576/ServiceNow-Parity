@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.snp.controller.AMB;
 import org.apache.commons.logging.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,6 +55,9 @@ public class API {
 	
 	@Autowired
     private IAuthenticationFacade auth;
+
+	@Autowired
+	private AMB amb;
 	
 	@RequestMapping(value="/api/v1/modules", method = RequestMethod.GET)
 	@ResponseBody
@@ -70,6 +74,16 @@ public class API {
 		
 		Map<String, String> resp = new HashMap<String, String>();
 		resp.put("success", db.updateRecord(fields, table, id));
+
+		//need sys_id for front end display
+		fields.put("SYS_ID", id);
+		fields.put("updatedBy", auth.getAuthentication().getName());
+
+		amb.trigger(fields, "update");
+		if (table.equals("modules")) {
+			amb.trigger(fields, "updateModule");
+		}
+
 		return resp;
 	}
 	
