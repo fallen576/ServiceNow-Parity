@@ -4,6 +4,16 @@ body {
     height: 100%;
 }
 
+.nav-link {
+    display: revert !important;
+    padding: .5rem 1rem !important;
+}
+
+.list-group-item {
+    background-color: inherit !important;
+    padding: inherit !important;
+}
+
 .content {
 	overflow: auto;
 }

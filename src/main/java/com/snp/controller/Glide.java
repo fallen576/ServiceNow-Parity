@@ -59,44 +59,26 @@ import com.snp.service.UserService;
 
 @Controller
 public class Glide {
-
-    @Autowired
-    private ModuleService modService;
-
     @Autowired
     private JdbcRepo db;
 
     @Autowired
     private AMB amb;
 
-    //private static CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
     private static final Logger LOG
             = Logger.getLogger(JdbcRepo.class.getPackage().getName());
-
-    @RequestMapping(value = "/Glide", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<String> loadModules() {
-        //this method retrieves modules
-        String json = "";
-        try {
-            json = new ObjectMapper().writeValueAsString(modService.findAll());
-        } catch (JsonProcessingException e) {
-            return new ResponseEntity<>(json, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(json, HttpStatus.OK);
-    }
 
     @GetMapping("/table/{table_name}_list.do")
     public ModelAndView loadTable(Model model, @PathVariable(value = "table_name") String table) {
 
-        if (table.equals("createTable")) {
-            model.addAttribute("modules", (List<Module>) modService.findAll());
-            model.addAttribute("table", table);
-            return new ModelAndView("createTable");
-        }
-
         if (table.equals("h2-console")) {
             return new ModelAndView("redirect:/h2-console");
+        }
+
+        model.addAttribute("table", table);
+
+        if (table.equals("createTable")) {
+            return new ModelAndView("createTable");
         }
 
         List<Record> records = db.normalGet(table, null);
@@ -113,15 +95,11 @@ public class Glide {
             model.addAttribute("display", db.getDisplay(table));
         }
 
-        model.addAttribute("modules", (List<Module>) modService.findAll());
-        model.addAttribute("table", table);
-
         return new ModelAndView("home");
     }
 
     @GetMapping("/")
     public String loadTable(Model model) {
-        model.addAttribute("modules", this._loadModules());
         return "home";
     }
 
@@ -163,7 +141,6 @@ public class Glide {
     @GetMapping("/{table_name}.do")
     public ModelAndView newRecord(Model model, @PathVariable(value = "table_name") String table) {
         Map<String, Object> params = new HashMap<>();
-        model.addAttribute("modules", this._loadModules());
         model.addAttribute("columns", db.getColumns(table, false));
         model.addAttribute("record", db.normalGetNewRecord(table));
 
@@ -177,12 +154,10 @@ public class Glide {
             @PathVariable(value = "table_name") String table,
             @PathVariable(value = "id") String id) {
 
-        model.addAttribute("modules", this._loadModules());
         model.addAttribute("record", db.normalGet(table, id).get(0));
         model.addAttribute("row", db.viewRecord(table, id));
         model.addAttribute("table", table);
         return new ModelAndView("record");
-        //return new ModelAndView("listview");
     }
 
     @GetMapping("/table/{table_name}")
@@ -225,7 +200,6 @@ public class Glide {
     public ModelAndView delete(Model model, @PathVariable(value = "table_name") String table, @PathVariable(value = "sys_id") String id) {
         LOG.warning("deleting " + id + " from " + table);
         db.delete(table, id);
-        model.addAttribute("modules", this._loadModules());
         model.addAttribute("table", table);
         return new ModelAndView("redirect:/table/" + table + "_list.do");
     }
@@ -262,25 +236,8 @@ public class Glide {
 
     @GetMapping("/script")
     public String backgroundScript(Model model) {
-        model.addAttribute("modules", this._loadModules());
         return "backgroundScript";
     }
-
-    /*
-	@PostMapping(path = "/script")
-	public String Execute(Model model, HttpServletRequest req, HttpServletResponse response) {
-		String code = req.getParameter("code");
-		
-		GlideRecord gliderecord = new GlideRecord();
-		String ans = gliderecord.print(code);
-
-		LOG.info("we in syscript.do with code " + code);
-		model.addAttribute("result", ans);
-		model.addAttribute("code", code);	
-		
-		return "backgroundScript";
-	}
-     */
 
     @PostMapping(path = "/insert/{table_name}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -305,11 +262,4 @@ public class Glide {
                     .body(resp);
         }
     }
-
-    private List<Module> _loadModules() {
-        List<Module> modules = new ArrayList<>();
-        modService.findAll().forEach(modules::add);
-        return modules;
-    }
-
 }

@@ -16,20 +16,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-
     	auth.authenticationProvider(aProv);
-    	/*
-        auth.inMemoryAuthentication()
-        		.passwordEncoder(NoOpPasswordEncoder.getInstance())
-                .withUser("user").password("password").roles("USER").and()
-                .withUser("admin").password("password").roles("USER","ADMIN");
-                */
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {    
         http.authorizeRequests()
         	.antMatchers("/h2-console/**").hasRole("Admin")
+			.antMatchers("/script").hasRole("Admin")
             .anyRequest().authenticated()
             .and()
 	        .formLogin().and() 
