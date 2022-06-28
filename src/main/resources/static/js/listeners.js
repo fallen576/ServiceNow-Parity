@@ -10,7 +10,9 @@
 		if ($('#SYS_ID').val() == json.SYS_ID) {
 		    var updatedFields = false;
 			for (var i in json) {
-				if (i !== "updatedBy" && $('#'+i).val() != json[i]) {
+			    var val = $('#'+i).val();
+				if (i !== "updatedBy" && val != json[i] && val != undefined) {
+				    console.log("i " + i + " val " + val + " json[i] " + json[i]);
 				    updatedFields = true;
 					$('#'+i).val(json[i]);
 					$("#"+i).css({"background-color":"lightblue"})

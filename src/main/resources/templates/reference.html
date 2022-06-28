@@ -25,11 +25,8 @@
 										th:raw_value="${field.getValue()}"
 										th:attrappend="table_name=${table == 'modules'} ? ${record.getDisplayValue('TABLE_NAME')}"
 										th:attr="ng-click='ref.trigger($event);'">
-										<img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25" />
+										<i class="fa fa-info-circle" alt="Open Record" style="font-size:25px"></i>
 									</a></td>
-									
-										<!--  <td th:each="entry: ${row}" th:text="${row.getValue()}"></td>-->
-										
 										
 										<td th:if="${field.isHasReference()}">
 										<a style="cursor: pointer;" th:text="${field.getReference().getDisplayValue()}" 
@@ -42,34 +39,6 @@
 						</table>
 					</div>
 				</div>
-<!-- 
-	<div th:if="${message == null}" 
-		style="background-color: #FFFFFF; height: 100%; width: 100%; overflow: auto;"
-		ng-controller="ReferenceController as ref">
-		<table class="table" id="table">
-			<thead>
-				<tr>
-					<th scope="col" />
-					<th scope="col" th:each="field: ${records[0].getFields()}" th:text="${field.getName()}"></th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="record,i: ${records}">
-					<th:block th:each="row,i: ${record.getFields()}">
-						<td th:if="${i.index == 0}" class="icon" scope="row"><a
-								th:display_value="${record.getDisplayValue(display)}"
-								th:raw_value="${row.getValue()}"
-								th:attr="ng-click='ref.trigger($event);'">
-								<img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25" />
-							</a></td>
-
-						<td th:each="entry: ${row}" th:text="${row.getValue()}"></td>
-					</th:block>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-	-->
 </body>
 
 </html>

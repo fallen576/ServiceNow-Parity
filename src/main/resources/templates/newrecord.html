@@ -26,10 +26,8 @@
 							th:if="${field.isHasReference()}"> <a href="#exampleModal"
 							data-toggle="modal" data-target="#exampleModal"
 							th:onclick="openModal([[${field.getReference().getTable()}]], [[${field.getName()} + '_' + ${iter.index}]]);">
-								<img th:src="@{/css/icon.png}" alt="Open Record" height="40"
-								width="40" style="display: block" />
-						</a> <!--<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#exampleModal"
-								th:onclick="openModal([[${field.getReference().getTable()}]], [[${field.getName()} + '_' + ${iter.index}]]);">Edit</button> -->
+							<i class="fa fa-info-circle" style="font-size:40px; display: block;"></i>
+						</a>
 						</span>
 					</div>
 					<input th:unless="${field.isHasReference()}"

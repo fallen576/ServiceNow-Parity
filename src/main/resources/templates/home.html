@@ -30,7 +30,7 @@
 									<td th:if="${i.index == 0}" class="icon" scope="row">
 									<!-- th:data-content='~{popover}' -->
 										<a th:id=${record.getValue()} class="icon-pop" data-placement="right" data-original-title="Hover View" th:href="@{/table/{table_name}/{guid}(table_name=${table},guid=${record.getValue()})}">
-											<img th:src="@{/css/icon.png}" alt="Open Record" height="25" width="25" />
+											<i class="fa fa-info-circle" style="font-size:25px"></i>
 										</a>
 									</td>
 									
