@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import com.sun.tools.sjavac.Log;
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -350,7 +351,8 @@ public class JdbcRepo {
 			
 		    for (Map.Entry<String, Object> i : row.entrySet()) {
 		        String fieldLabel = i.getKey();
-		        String fieldValue = (String) i.getValue();
+				String fieldValue = i.getValue().toString();
+
 		        Field tmpF = new Field(fieldLabel, fieldValue);
 		        if (fieldLabel.toLowerCase().equals("sys_created_on") || fieldLabel.toLowerCase().equals("sys_updated_on")) tmpF.setReadOnly(true);
 		        tmpF.setReference(null);

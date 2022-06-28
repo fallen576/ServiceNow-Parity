@@ -2,11 +2,11 @@
 	<div class="container-fluid">
 		<!--left nav bar-->
 		<div class="row h-100">
-			 <!-- modules -->
-			<head th:replace="modules"></head>
+			<!-- modules -->
+			<div th:replace="modules"></div>
 			<!--main content area-->			 
 			<div th:if="${table}" class="col-10 button-row">
-				
+				<h4 th:text="${#strings.capitalize(table)}"></h4>
 				<div class="form-group">
 					<a class="btn btn-primary" th:href="@{/{table_name}.do(table_name=${table})}">New</a>
 					<a class="btn btn-success" href="#listcontrol" data-toggle="modal" data-target="#listcontrol" onclick="loadListControl();">Customize View</a>

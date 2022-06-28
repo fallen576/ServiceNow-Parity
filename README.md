@@ -32,6 +32,9 @@ http://localhost:8080/
 ### Table View
 ![Alt text](https://github.com/fallen576/ServiceNow-Parity/blob/master/src/main/resources/static/css/example_modules.PNG "Table View")
 
+### Customize ListLayout
+![Alt text](https://github.com/fallen576/ServiceNow-Parity/blob/master/src/main/resources/static/css/CustomizeListLayoutPNG.PNG "DB View")
+
 ### Record View
 ![Alt text](https://github.com/fallen576/ServiceNow-Parity/blob/master/src/main/resources/static/css/record_view.PNG "Record View")
 
@@ -42,3 +45,6 @@ http://localhost:8080/
 The database is an in memory H2 DB and can be accesses by clicking the module H2 Console. Once there you can click connect without providing a password and you will be taken to the following screen:
 ![Alt text](https://github.com/fallen576/ServiceNow-Parity/blob/master/src/main/resources/static/css/db.PNG "DB View")
 
+### Background Scripting
+Similar to ServiceNow, I have used Rhino to execute JavaScript on the serverside, which is a terrifying thought. I even put together a very basic GlideRecord class.
+![Alt text](https://github.com/fallen576/ServiceNow-Parity/blob/master/src/main/resources/static/css/BackgroundScriptPNG.PNG "DB View")
