@@ -29,11 +29,19 @@
         <script type="text/javascript" th:src="@{/js/snp.service.js}"></script>
         <script type="text/javascript" th:src="@{/js/snp.modulecontroller.js}"></script>
 	</head>
-	<nav class="navbar navbar-dark bg-dark" th:if="!${reference}">
-		<a class="navbar-brand" href="/">Hi, [[${#httpServletRequest.remoteUser}]]!</a>
-		<form th:action="@{/logout}" method="post">
-			<button class="btn btn-primary" type="submit">Logout</button>
-		</form>
+	<nav class="navbar navbar-dark bg-dark" style="background-color: #37424F !important;" th:if="!${reference}">
+        <a class="navbar-brand text-color" href="/">ServiceNow Parity</a>
+        <li class="nav-item dropdown" style="list-style-type:none">
+            <a class="navbar-brand nav-link dropdown-toggle text-color" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Hi, [[${#httpServletRequest.remoteUser}]]!
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <form th:action="@{/logout}" method="post">
+                    <button class="dropdown-item" type="submit">Logout</button>
+                </form>
+            </div>
+        </li>
+
 	</nav>
 	<!--
 	<h1 sec:authorize="hasAuthority('ROLE_Admin')">You are seeing this cause youre admin</h1>

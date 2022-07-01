@@ -53,6 +53,10 @@ a:hover {
     vertical-align: top;
 }
 
+.text-color {
+    color: #D9D8D5 !important;
+}
+
 ul li:after {
     content: "";
     display: block;
@@ -62,6 +66,11 @@ ul li:after {
 .icon {
     text-align: center;
 }
+
+.icon-pop:hover {
+    text-decoration: none
+}
+
 .button-row {
 	background-color: #FFFFFF;
 	padding-top: 10px;
