@@ -1,61 +1,29 @@
 package com.snp.controller;
 
-import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.Charset;
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Logger;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
+import com.snp.service.LogService;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.RhinoException;
-import org.mozilla.javascript.Scriptable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snp.db.JdbcRepo;
-import com.snp.entity.Module;
-import com.snp.entity.User;
-import com.snp.model.Field;
 import com.snp.model.Record;
-import com.snp.rhino.GlideRecord;
-import com.snp.service.ModuleService;
-import com.snp.service.UserService;
 
 @Controller
 public class Glide {
@@ -65,12 +33,11 @@ public class Glide {
     @Autowired
     private AMB amb;
 
-    private static final Logger LOG
-            = Logger.getLogger(JdbcRepo.class.getPackage().getName());
+    @Autowired
+    private LogService LOG;
 
     @GetMapping("/table/{table_name}_list.do")
     public ModelAndView loadTable(Model model, @PathVariable(value = "table_name") String table) {
-
         if (table.equals("h2-console")) {
             return new ModelAndView("redirect:/h2-console");
         }
@@ -198,7 +165,7 @@ public class Glide {
 
     @PostMapping(path = "/delete/{table_name}/{sys_id}")
     public ModelAndView delete(Model model, @PathVariable(value = "table_name") String table, @PathVariable(value = "sys_id") String id) {
-        LOG.warning("deleting " + id + " from " + table);
+        LOG.info("deleting " + id + " from " + table, Glide.class.getName());
         db.delete(table, id);
         model.addAttribute("table", table);
         return new ModelAndView("redirect:/table/" + table + "_list.do");
@@ -211,7 +178,7 @@ public class Glide {
 
         HashMap<String, String> response = new HashMap<>();
         Map<?, ?> m = req.getParameterMap();
-        LOG.info("data " + m);
+        LOG.info("data " + m, Glide.class.getName());
         try {
             String id = this.db.updateRecord(m, table);
             response.put("sys_id", id);
@@ -255,7 +222,7 @@ public class Glide {
                     .status(HttpStatus.OK)
                     .body(resp);
         } catch (Exception e) {
-            LOG.warning(e.getMessage());
+            LOG.error(e.getMessage(), Glide.class.getName());
             resp.put("error", e.getMessage());
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)

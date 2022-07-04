@@ -8,11 +8,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.snp.service.LogService;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.tools.shell.Global;
 import com.snp.db.JdbcRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,8 +27,6 @@ import java.util.regex.Pattern;
 public class Script extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(Script.class.getPackage().getName());
-
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -53,10 +55,10 @@ public class Script extends HttpServlet {
         }
         String[] arr = prints.toArray(new String[0]);
         
-        LOG.info("arr length " + arr.length + " " + String.join("\n", arr));
+        //LOG.info("arr length " + arr.length + " " + String.join("\n", arr), Script.class.getName());
 
         for (String i : arr) {
-            LOG.info("i " + i);
+            //LOG.info("i " + i, Script.class.getName());
         }
         
         code = code.replaceAll("gs.print", "java.util.logging.Logger.getLogger(\"script: \").info");

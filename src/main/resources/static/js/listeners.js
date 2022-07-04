@@ -1,6 +1,6 @@
 (function () {
-//Listen for updates
-    var sse = new EventSource('http://localhost:8080/sse');
+    //Listen for updates
+    var sse = new EventSource('/sse');
     
 	sse.addEventListener("update", (event) => {
 		console.log("event " + event.data);

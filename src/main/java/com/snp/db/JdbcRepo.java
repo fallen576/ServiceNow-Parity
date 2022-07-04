@@ -1,17 +1,13 @@
 package com.snp.db;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,31 +15,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
-
-import com.sun.tools.sjavac.Log;
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snp.controller.AMB;
-import com.snp.entity.HasRole;
 import com.snp.entity.ListLayout;
 import com.snp.entity.Module;
 import com.snp.entity.Role;
@@ -58,9 +42,6 @@ import com.snp.service.LogService;
 import com.snp.service.ModuleService;
 import com.snp.service.RoleService;
 import com.snp.service.UserPreferenceService;
-
-import ch.qos.logback.classic.pattern.LineOfCallerConverter;
-
 
 @Component
 public class JdbcRepo {
@@ -81,13 +62,10 @@ public class JdbcRepo {
 	private RoleService roleService;
 	
 	@Autowired
-	private LogService logService;
+	private LogService LOG;
 	
 	@Autowired
 	private UserPreferenceService listControl;
-	
-	private static final Logger LOG =
-	        Logger.getLogger(JdbcRepo.class.getPackage().getName());
 	
 	private String SELECT_ALL = "SELECT * FROM ";
 	private String LIMIT = " LIMIT ?";
@@ -101,7 +79,7 @@ public class JdbcRepo {
 
 	public String createTable(JSONObject data) throws Exception {
 		LOG.info("Current user " + auth.getAuthentication().getName() + " " + auth.getAuthentication().getCredentials() + " new way? " 
-				+ SecurityContextHolder.getContext().getAuthentication().getName());
+				+ SecurityContextHolder.getContext().getAuthentication().getName(), JdbcRepo.class.getName());
 		//does table exist?
 		String table = data.getString("tableName").replaceAll(" ", "_").toLowerCase();
 		String sql = "CREATE TABLE " + table + "( sys_id VARCHAR(255) default random_uuid(), "
@@ -144,8 +122,8 @@ public class JdbcRepo {
 		
 		sql = sql.substring(0, sql.length() - 1) + ");";
 		
-		LOG.info("SAFE SQL " + safeSql);
-		logService.save(new SystemLog(LogLevel.Info, "Generating custom table using sql: " + sql, "CreateTable", auth.getAuthentication().getName()));
+		LOG.info("SAFE SQL " + safeSql, JdbcRepo.class.getName());
+		LOG.save(new SystemLog(LogLevel.Info, "Generating custom table using sql: " + sql, "CreateTable", auth.getAuthentication().getName()));
 		
 		jdbcTemplate.execute(sql);
 		
@@ -154,7 +132,7 @@ public class JdbcRepo {
     	amb.trigger(Collections.singletonMap(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_").toLowerCase()), "insertModule");
     	roleService.save(new Role(table, "CRUD access on " + table , auth.getAuthentication().getName()));
 		
-		LOG.info(sql);
+		LOG.info(sql, JdbcRepo.class.getName());
 		return sql;
 	}
 	
@@ -337,7 +315,7 @@ public class JdbcRepo {
 				  sys_id = param.getValue();
 			}	
 		}
-		LOG.info(query);
+		LOG.info(query, JdbcRepo.class.getName());
 		
 		//New type of lookup
 		//get a more normalized object structure to describe the table schema (i.e field types, display values etc...)	
@@ -402,7 +380,7 @@ public class JdbcRepo {
 	    
 	    query += "WHERE sys_id = '" + id + "'";
 	    
-	    LOG.info(query);
+	    LOG.info(query, JdbcRepo.class.getName());
 	    
 	    jdbcTemplate.update(query);
 	    
@@ -478,7 +456,7 @@ public class JdbcRepo {
         
         query = query.substring(0, query.length() - 1) + ") VALUES (";
         
-        LOG.info("query after cols " + query);
+        LOG.info("query after cols " + query, JdbcRepo.class.getName());
         
         
         for (String i : values) {
@@ -487,7 +465,7 @@ public class JdbcRepo {
         
         query = query.substring(0, query.length() - 1) + ");";
         
-        LOG.info("Final " + query);
+        LOG.info("Final " + query, JdbcRepo.class.getName());
         
         KeyHolder keyHolder = new GeneratedKeyHolder();
         
@@ -549,7 +527,8 @@ public class JdbcRepo {
 			user = jdbcTemplate.queryForObject("select * from users where user_name = ?", new UserRowMapper(), new Object[] {user_name});
 			
 		} catch (Exception e) {
-			LOG.info("in catch block of db.... something went wrong locating user " + e.getMessage() + e.getLocalizedMessage());
+			LOG.error("in catch block of db.... something went wrong locating user "
+					+ e.getMessage() + e.getLocalizedMessage(), JdbcRepo.class.getName());
 		}
 		return user;
 	}

@@ -18,7 +18,7 @@ $(document).ready( function () {
     $(".icon-pop").hover(function () {
 		var id = $(this).attr('id');
 		var table = location.href.split("table/")[1].split("_list.do")[0];
-		console.log($(this).attr('id'));
+		//console.log($(this).attr('id'));
 		$.ajax({
 		    url: "/popover/"+table+"/"+id,
 		    type: "GET",

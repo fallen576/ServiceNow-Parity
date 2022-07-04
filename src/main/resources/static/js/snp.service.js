@@ -12,7 +12,7 @@
         service.getAllModules = function () {
             var promise = $http({
                 method: "GET",
-                url: "http://localhost:8080/api/v1/modules"
+                url: "/api/v1/modules"
             });
             return promise;
         };
@@ -20,7 +20,7 @@
         service.loadListView = function(table) {
             var promise = $http({
                 method: "GET",
-                url: ("http://localhost:8080/api/v1/table/" + table)
+                url: ("/api/v1/table/" + table)
             });
             return promise;
         };

@@ -5,26 +5,25 @@
  */
 package com.snp.db;
 
+import com.snp.service.LogService;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Ben
  */
 public class ConnectionManager {
-    
+
+    @Autowired
+    private static LogService LOG;
     static final String JDBC_DRIVER = "org.h2.Driver";   
     static final String DB_URL = "jdbc:h2:mem:snp_db;";  
     static final String USER = "sa"; 
     static final String PASS = ""; 
     private static Connection conn;
-    private static final Logger LOG = 
-			Logger.getLogger(ConnectionManager.class.
-                                getPackage().getName());
     
     public static Connection getConnection() throws SQLException {
         
@@ -33,10 +32,10 @@ public class ConnectionManager {
             try {
                 conn = DriverManager.getConnection(DB_URL, USER, PASS);
             } catch(SQLException e) {
-                LOG.log(Level.SEVERE, e.toString());
+                LOG.error(e.toString(), ConnectionManager.class.getName());
             }
         } catch (ClassNotFoundException e) {
-            LOG.log(Level.SEVERE, e.toString());
+            LOG.error(e.toString(), ConnectionManager.class.getName());
         }
         return conn;
     }

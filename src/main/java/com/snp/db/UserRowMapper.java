@@ -3,17 +3,11 @@ package com.snp.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
-import java.util.logging.Logger;
-
 import org.springframework.jdbc.core.RowMapper;
-
 import com.snp.entity.User;
 
 public class UserRowMapper implements RowMapper<User> {
-	
-	private static final Logger LOG =
-	        Logger.getLogger(UserRowMapper.class.getPackage().getName());
-	
+
 	@Override
 	public User mapRow(ResultSet rs, int rowNum) throws SQLException {
 		User user = new User();

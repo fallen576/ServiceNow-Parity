@@ -1,29 +1,18 @@
 package com.snp.rhino;
 
 import com.snp.db.ConnectionManager;
-
 import java.util.*;
-import java.util.logging.Logger;
-import com.snp.entity.User;
-import com.snp.service.UserService;
-import com.sun.xml.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
-
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.logging.Level;
 import java.lang.StringBuilder;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-
+import com.snp.service.LogService;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class GlideRecord {
-
-    private static final Logger LOG
-            = Logger.getLogger(GlideRecord.class.getPackage().getName());
     private String table;
     private ArrayList<String> queryString = new ArrayList<>();
     private ArrayList<String> queryValues = new ArrayList<>();
@@ -87,19 +76,17 @@ public class GlideRecord {
                 ResultSetMetaData md = rs.getMetaData();
 
                 for (int m = 1; m <= md.getColumnCount(); m++) {
-                    LOG.log(Level.INFO, "{0} - {1}",
-                            new Object[]{md.getColumnName(m), rs.getString(m)});
                     json.put(md.getColumnName(m), rs.getString(m));
                 }
             }
 
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, Arrays.toString(e.getStackTrace()));
+            ////LOG.error(Arrays.toString(e.getStackTrace()), GlideRecord.class.getName());
         } finally {
             stmt.close();
             con.close();
         }
-        LOG.info(json.toString());
+        ////LOG.info(json.toString(), GlideRecord.class.getName());
         return json;
     }
 
@@ -107,7 +94,7 @@ public class GlideRecord {
         PreparedStatement stmt
                 = buildQueryStatement(ConnectionManager.getConnection());
 
-        LOG.info("in getQuery " + stmt.toString());
+        //LOG.info("in getQuery " + stmt.toString(), GlideRecord.class.getName());
         return stmt.toString();
     }
 
@@ -122,7 +109,7 @@ public class GlideRecord {
         	stmt = buildUpdateStatement(con);
         	ans = stmt.executeUpdate();
         } catch (Exception e) {
-        	LOG.log(Level.SEVERE, e.getMessage());
+        	//LOG.error(e.getMessage(), GlideRecord.class.getName());
         } finally {
         	stmt.close();
         	con.close();
@@ -140,31 +127,31 @@ public class GlideRecord {
 	    	}
 	    	
 	    	cmd = cmd.substring(0, cmd.length() - 1) + " WHERE ";
-	    	LOG.info("cmd update section is " + cmd);
+	    	//LOG.info("cmd update section is " + cmd, GlideRecord.class.getName());
 	    	
 	    	
 	    	for (int i = 0; i < this.whereString.size(); i++) {
 	    		cmd += this.whereString.get(i);
 	    	}
-	    	LOG.info("cmd update and where section is " + cmd);
+	    	//LOG.info("cmd update and where section is " + cmd, GlideRecord.class.getName());
 	    	
 	    		stmt = con.prepareStatement(cmd);
 	    	
-	    	LOG.info("valid statement " + stmt.toString());
+	    	//LOG.info("valid statement " + stmt.toString(), GlideRecord.class.getName());
 	    	
 	    	for (int i = 0; i < this.propertyValues.size(); i++) {
 	    		stmt.setString(i+1, this.propertyValues.get(i));
 	    	}
 	    	
-	    	LOG.info("stmt update section is " + stmt.toString());
+	    	//LOG.info("stmt update section is " + stmt.toString(), GlideRecord.class.getName());
 	    	
 	    	for (int i = 0; i< this.whereValues.size(); i++) {
 	    		stmt.setString(i+1+this.propertyValues.size(), this.whereValues.get(i));
 	    	}
     	} catch (Exception e) {
-    		LOG.log(Level.SEVERE, Arrays.toString(e.getStackTrace()));
+    		//LOG.info(Arrays.toString(e.getStackTrace()), GlideRecord.class.getName());
     	}
-    	LOG.info("returning from buildUpdateStatement: " + stmt.toString());
+    	//LOG.info("returning from buildUpdateStatement: " + stmt.toString(), GlideRecord.class.getName());
     	return stmt;
     }
 
@@ -177,66 +164,18 @@ public class GlideRecord {
             query.append(this.queryString.get(i));
         }
         
-        LOG.info("query is " + query);
+        //LOG.info("query is " + query, GlideRecord.class.getName());
         
         stmt = con.prepareStatement(query.toString());
 
-        LOG.info("stmt is " + stmt.toString());
+        //LOG.info("stmt is " + stmt.toString(), GlideRecord.class.getName());
         
         for (int i = 0; i < this.queryValues.size(); i++) {
-            LOG.info("setString " + i + " - " + this.queryValues.get(i));
+            //LOG.info("setString " + i + " - " + this.queryValues.get(i), GlideRecord.class.getName());
             stmt.setString(i+1, this.queryValues.get(i));
         }
         
-        LOG.info("returning from buildQueryStatement " + stmt.toString());
+        //LOG.info("returning from buildQueryStatement " + stmt.toString(), GlideRecord.class.getName());
         return stmt;
     }
-    /*
-	public void createUser(String fName, String lName, String uName) {
-		Connection conn = null; 
-	      Statement stmt = null; 
-	      try { 
-	         // STEP 1: Register JDBC driver 
-	         Class.forName(JDBC_DRIVER); 
-	             
-	         //STEP 2: Open a connection 
-	         LOG.info("Connecting to database..."); 
-	         conn = DriverManager.getConnection(DB_URL,USER,PASS);  
-	         
-	         //STEP 3: Execute a query 
-	         LOG.info("Creating table in given database..."); 
-	         stmt = conn.createStatement(); 
-	         String sql =  "CREATE TABLE   REGISTRATION " + 
-	            "(id INTEGER not NULL, " + 
-	            " first VARCHAR(255), " +  
-	            " last VARCHAR(255), " +  
-	            " age INTEGER, " +  
-	            " PRIMARY KEY ( id ))";  
-	         stmt.executeUpdate(sql);
-	         LOG.info("Created table in given database..."); 
-	         
-	         // STEP 4: Clean-up environment 
-	         stmt.close(); 
-	         conn.close(); 
-	      } catch(SQLException se) { 
-	         //Handle errors for JDBC 
-	         se.printStackTrace(); 
-	      } catch(Exception e) { 
-	         //Handle errors for Class.forName 
-	         e.printStackTrace(); 
-	      } finally { 
-	         //finally block used to close resources 
-	         try{ 
-	            if(stmt!=null) stmt.close(); 
-	         } catch(SQLException se2) { 
-	         } // nothing we can do 
-	         try { 
-	            if(conn!=null) conn.close(); 
-	         } catch(SQLException se){ 
-	            se.printStackTrace(); 
-	         } //end finally try 
-	      } //end try 
-	      LOG.info("Goodbye!");
-	   }
-     */
 }

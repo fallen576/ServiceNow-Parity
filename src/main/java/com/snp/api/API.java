@@ -7,17 +7,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.snp.controller.AMB;
-import org.apache.commons.logging.Log;
+import com.snp.service.LogService;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.logging.log4j2.Log4J2LoggingSystem;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snp.db.JdbcRepo;
 import com.snp.entity.Module;
 import com.snp.security.IAuthenticationFacade;
@@ -40,10 +32,10 @@ import com.snp.service.UserService;
 
 @RestController
 public class API {
-	
-	private static final Logger LOG =
-	        Logger.getLogger(JdbcRepo.class.getPackage().getName());
-	
+
+	@Autowired
+	private LogService LOG;
+
 	@Autowired
 	private ModuleService modService;
 	
@@ -155,6 +147,7 @@ public class API {
 			db.createTable(new JSONObject(body));
 		}
 		catch (Exception e) {
+			LOG.error(e.toString(), API.class.getName());
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 		return new ResponseEntity<String>("good", HttpStatus.OK);

@@ -14,7 +14,7 @@
         c.table = [];
         c.headers = [];
 		
-		var sse = new EventSource('http://localhost:8080/sse');
+		var sse = new EventSource('/sse');
     	sse.addEventListener("updateModule", (event) => {
 			c.modules = [];
 			c.fetchModules();
