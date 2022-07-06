@@ -3,7 +3,7 @@
     var sse = new EventSource('/sse');
     
 	sse.addEventListener("update", (event) => {
-		console.log("event " + event.data);
+		//console.log("event " + event.data);
 		
 		var json = JSON.parse(event.data);
 
