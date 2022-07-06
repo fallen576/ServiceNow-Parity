@@ -38,4 +38,9 @@ public class LogService {
 		SystemLog log = new SystemLog(SystemLog.LogLevel.Error, message, source, auth.getAuthentication().getName());
 		logRepo.save(log);
 	}
+	
+	public void warn(String message, String source) {
+		SystemLog log = new SystemLog(SystemLog.LogLevel.Warning, message, source, auth.getAuthentication().getName());
+		logRepo.save(log);
+	}
 }
