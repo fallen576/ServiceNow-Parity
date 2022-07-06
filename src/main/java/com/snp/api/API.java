@@ -51,7 +51,7 @@ public class API {
 	@Autowired
 	private AMB amb;
 	
-	@RequestMapping(value="/api/v1/modules", method = RequestMethod.GET)
+	@GetMapping(value="/api/v1/modules")
 	@ResponseBody
 	public Iterable<Module> loadModules() {
 		return modService.findAll();
@@ -64,7 +64,7 @@ public class API {
 			@PathVariable(value="sys_id") String id,
 			@RequestBody HashMap<String, Object> fields) {
 		
-		Map<String, String> resp = new HashMap<String, String>();
+		Map<String, String> resp = new HashMap<>();
 		resp.put("success", db.updateRecord(fields, table, id));
 
 		//need sys_id for front end display
@@ -83,16 +83,16 @@ public class API {
     consumes = MediaType.APPLICATION_JSON_VALUE, 
     produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String, String> setFields(@PathVariable(value="table_name") String table, @RequestBody String[] fields) {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		map.put("Success", "true");
 		map.put("User", auth.getAuthentication().getName());
 		map.put("table", table);
 		
 		String username = auth.getAuthentication().getName();
 		
-		//ensure fields are accurate. Otherwise would be able to manipulate sql statement
+		//ensure fields are accurate, otherwise would be able to manipulate sql statement
 		Collection<String> realFields = db.getColumns(table, true).stream().map(String::toLowerCase).collect(Collectors.toList());
-		LinkedList<String> newFields = new LinkedList<String>(Arrays.asList(fields));
+		LinkedList<String> newFields = new LinkedList<>(Arrays.asList(fields));
 		
 		newFields.removeIf(x -> (!realFields.contains(x)));
 		
@@ -113,20 +113,17 @@ public class API {
 	@GetMapping("/api/v1/fields/{table_name}")
 	public ResponseEntity<List<String>> getFields(@PathVariable(value="table_name") String table) {
 		List<Map<String, Object>> fieldQuery = db.getFields(table);
-		List<String> fields = new ArrayList<String>();
+		List<String> fields = new ArrayList<>();
 		
 		for (Map<String, Object> map : fieldQuery) {
 		    for (Map.Entry<String, Object> entry : map.entrySet()) {
 		        String key = entry.getKey();
 		        
-		        if (key.toLowerCase().equals("field")) {
+		        if (key.equalsIgnoreCase("field")) {
 		        	fields.add(entry.getValue().toString().toLowerCase());
 		        }
 		    }
 		}
-		//ArrayList<String> fields = new ArrayList<String>();
-		//fields.add("sys_id");
-		//fields.add("field2_goeS_HERE");
 		return new ResponseEntity<List<String>>(fields, HttpStatus.OK);
 		
 	}

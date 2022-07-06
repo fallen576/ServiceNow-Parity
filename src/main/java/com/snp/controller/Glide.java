@@ -87,7 +87,7 @@ public class Glide {
 
         List<Record> records = db.normalGet(table, null);
 
-        if (records.size() == 0) {
+        if (records.isEmpty()) {
             model.addAttribute("message", "No data yet.");
         } else {
             model.addAttribute("records", records);
@@ -142,7 +142,7 @@ public class Glide {
 
         List<Record> records = db.lookup(table, qParams);
 
-        if (records.size() == 0) {
+        if (records.isEmpty()) {
             model.addAttribute("message", "No data yet.");
         } else {
             model.addAttribute("records", records);
@@ -190,7 +190,6 @@ public class Glide {
                 amb.trigger(m, "updateModule");
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             response.put("message", e.getMessage());
             return response;
