@@ -151,7 +151,6 @@ public class GlideRecord {
     	} catch (Exception e) {
     		//LOG.info(Arrays.toString(e.getStackTrace()), GlideRecord.class.getName());
     	}
-    	//LOG.info("returning from buildUpdateStatement: " + stmt.toString(), GlideRecord.class.getName());
     	return stmt;
     }
 
@@ -163,19 +162,13 @@ public class GlideRecord {
         for (int i = 0; i < this.queryString.size(); i++) {
             query.append(this.queryString.get(i));
         }
-        
-        //LOG.info("query is " + query, GlideRecord.class.getName());
-        
+
         stmt = con.prepareStatement(query.toString());
 
-        //LOG.info("stmt is " + stmt.toString(), GlideRecord.class.getName());
-        
         for (int i = 0; i < this.queryValues.size(); i++) {
-            //LOG.info("setString " + i + " - " + this.queryValues.get(i), GlideRecord.class.getName());
             stmt.setString(i+1, this.queryValues.get(i));
         }
-        
-        //LOG.info("returning from buildQueryStatement " + stmt.toString(), GlideRecord.class.getName());
+
         return stmt;
     }
 }

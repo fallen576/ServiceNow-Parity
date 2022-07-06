@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Logger;
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -67,21 +66,16 @@ public class JdbcRepo {
 	@Autowired
 	private UserPreferenceService listControl;
 	
-	private String SELECT_ALL = "SELECT * FROM ";
+	private final String SELECT_ALL = "SELECT * FROM ";
 	private String LIMIT = " LIMIT ?";
-	private String COLUMNS = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE lower(TABLE_NAME)= ? "
-			+ "AND TABLE_SCHEMA='PUBLIC' AND COLUMN_NAME != 'SYS_ID';";
-	private String COLUMNS_WITH_SYS_ID = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE lower(TABLE_NAME)= ? "
-			+ "AND TABLE_SCHEMA='PUBLIC';";
-	private String DELETE_RECORD = "DELETE FROM table WHERE SYS_ID = 'pid'";
-	private String SINGLE_RECORD = "SELECT * FROM (?) WHERE sys_id = (?)";
-	private String REFERENCES = "SELECT FKCOLUMN_NAME, PKTABLE_NAME FROM INFORMATION_SCHEMA.CROSS_REFERENCES WHERE lower(FKTABLE_NAME) = lower(?)";
+	private final String REFERENCES = "SELECT FKCOLUMN_NAME, PKTABLE_NAME FROM INFORMATION_SCHEMA.CROSS_REFERENCES WHERE lower(FKTABLE_NAME) = lower(?)";
 
 	public String createTable(JSONObject data) throws Exception {
 		LOG.info("Current user " + auth.getAuthentication().getName() + " " + auth.getAuthentication().getCredentials() + " new way? " 
 				+ SecurityContextHolder.getContext().getAuthentication().getName(), JdbcRepo.class.getName());
 		//does table exist?
-		String table = data.getString("tableName").replaceAll(" ", "_").toLowerCase();
+		String tableName = "tableName";
+		String table = data.getString(tableName).replaceAll(" ", "_").toLowerCase();
 		String sql = "CREATE TABLE " + table + "( sys_id VARCHAR(255) default random_uuid(), "
 				+ "sys_created_on TIMESTAMP(23), "
 				+ "sys_updated_on TIMESTAMP(23), "
@@ -101,7 +95,6 @@ public class JdbcRepo {
 			String refTable = "";
 			if (type.equals("reference")) {
 				JSONObject refObject = tmp.getJSONObject("referenceField");
-				//refTable = refObject.getString("display_value");
 				refTable = refObject.getString("value");
 				map.put(name, refTable);
 			}
@@ -128,8 +121,8 @@ public class JdbcRepo {
 		jdbcTemplate.execute(sql);
 		
 		//create module for table, notify front end to update modules list and create a role for the table
-		modService.save(new Module(data.getString("tableName"), table, "SYS_ID", auth.getAuthentication().getName()));		
-    	amb.trigger(Collections.singletonMap(data.getString("tableName"), data.getString("tableName").replaceAll(" ", "_").toLowerCase()), "insertModule");
+		modService.save(new Module(data.getString(tableName), table, "SYS_ID", auth.getAuthentication().getName()));
+    	amb.trigger(Collections.singletonMap(data.getString(tableName), data.getString(tableName).replaceAll(" ", "_").toLowerCase()), "insertModule");
     	roleService.save(new Role(table, "CRUD access on " + table , auth.getAuthentication().getName()));
 		
 		LOG.info(sql, JdbcRepo.class.getName());
@@ -148,7 +141,11 @@ public class JdbcRepo {
 		return sql;
 	}
 	
-	public List<String> getColumns(String table, boolean withSysId) {		
+	public List<String> getColumns(String table, boolean withSysId) {
+		String COLUMNS = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE lower(TABLE_NAME)= ? "
+				+ "AND TABLE_SCHEMA='PUBLIC' AND COLUMN_NAME != 'SYS_ID';";
+		String COLUMNS_WITH_SYS_ID = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE lower(TABLE_NAME)= ? "
+				+ "AND TABLE_SCHEMA='PUBLIC';";
 		return (List<String>) this.jdbcTemplate.query((withSysId) ? COLUMNS_WITH_SYS_ID : COLUMNS, new Object[] {table}, (rs, rowNum) -> rs.getString("COLUMN_NAME"));
 	}
 	
@@ -193,7 +190,8 @@ public class JdbcRepo {
 		
 		for (String col : columns) {
 			Field field = new Field(col, null);
-			if (col.toLowerCase().equals("sys_created_on") || col.toLowerCase().equals("sys_updated_on")) field.setReadOnly(true);
+			if (col.equalsIgnoreCase("sys_created_on") ||
+					col.equalsIgnoreCase("sys_updated_on")) field.setReadOnly(true);
 			field.setReference(null);
 			fields.add(field);
 		
@@ -229,7 +227,7 @@ public class JdbcRepo {
 		        String fieldLabel = i.getKey();
 		        String fieldValue = (i.getValue() == null) ? "" : i.getValue().toString();
 		        
-		        if (fieldLabel.toLowerCase().equals("sys_id")) {
+		        if (fieldLabel.equalsIgnoreCase("sys_id")) {
 		        	tmp.setValue(fieldValue);
 		        	
 		        	if (!userPref.isEmpty() && !userPref.contains("sys_id")) {
@@ -274,7 +272,8 @@ public class JdbcRepo {
 	
 	public void delete(String table, String id) {		
 		try {
-		this.jdbcTemplate.update(DELETE_RECORD.replace("table",  table).replace("pid",  id));
+			String DELETE_RECORD = "DELETE FROM table WHERE SYS_ID = 'pid'";
+			this.jdbcTemplate.update(DELETE_RECORD.replace("table",  table).replace("pid",  id));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -296,12 +295,10 @@ public class JdbcRepo {
 					}
 					jsonArray.put(json);
 				}
-				//System.out.println("JSON: " + jsonArray);
 				return jsonArray.toString();
 			}
 		}); 
-		
-		//System.out.println("Ben's answer is " + answer);
+
 		return answer;
 	}
 	
@@ -398,7 +395,7 @@ public class JdbcRepo {
         while(it.hasNext()){
         	Map.Entry<String,String[]> entry = (Map.Entry<String,String[]>)it.next();
         	 String key = entry.getKey();
-        	 if (key.toLowerCase().equals("sys_created_on")) {
+        	 if (key.equalsIgnoreCase("sys_created_on")) {
         		 continue;
         	 }
 
@@ -497,16 +494,8 @@ public class JdbcRepo {
 	}
 	
 	public List<String> getUserPrefFields(String user_name, String table) {
-		//SELECT a.table, a.user_ref, b.list from sys_user_preference AS a JOIN sys_user_field as b ON a.sys_id = b.name WHERE a.sys_id = 'd29b13fb-ef66-476f-b0c5-232679cd179a'
 		List<String> fields = new ArrayList<String>();
 		User user = findUserByUserName(user_name);
-		//LOG.info("SELECT a.table, a.user_ref, b.list from sys_user_preference AS a JOIN sys_user_field as b ON a.sys_id = b.name WHERE a.sys_id = " + user.getValue().toString());
-		/*
-		List<Map<String, Object>> map = jdbcTemplate.queryForList("SELECT b.list from sys_user_preference AS a JOIN"
-				+ " sys_user_field as b ON a.sys_id = b.name WHERE a.user_ref = ? AND a.table = ?",
-				user.getValue().toString(),
-				table);
-		*/
 		List<Map<String, Object>> map = jdbcTemplate.queryForList("SELECT b.list from sys_user_preference AS a JOIN"
 				+ " sys_user_field as b ON a.sys_id = b.sys_id WHERE a.user_ref = ? AND a.table = ?",
 				user.getValue().toString(),
@@ -532,21 +521,6 @@ public class JdbcRepo {
 		}
 		return user;
 	}
-	
-	private String _process(ResultSet rs) throws SQLException {
-		ResultSetMetaData md = rs.getMetaData();
-		
-		JSONArray jsonArray = new JSONArray();
-		while (rs.next()) {
-			JSONObject json = new JSONObject();
-			for (int i = 1; i <= md.getColumnCount(); i++) {
-				json.put(md.getColumnName(i), rs.getObject(i));
-			}
-			jsonArray.put(json);
-		}
-		return jsonArray.toString();
-	}
-
 	public List<Role> findRoleForUser(UUID value) {
 		
 		@SuppressWarnings("deprecation")
