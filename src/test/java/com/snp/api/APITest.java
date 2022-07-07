@@ -28,7 +28,7 @@ class APITest {
     @Test
     void loadModules() {
         List<Module> moduleList = (List<Module>)modService.findAll();
-        assertFalse(!moduleList.isEmpty());
+        assertFalse(!moduleList.isEmpty());//
     }
 
     @Test
