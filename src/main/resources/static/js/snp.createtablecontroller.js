@@ -15,7 +15,7 @@
             "reference": false,
             "referenceField": {
                 "value": "",
-                "display_value": ""
+                "displayValue": ""
             }
         }];
 
@@ -38,7 +38,7 @@
                     "reference": false,
                     "referenceField": {
                         "value": "",
-                        "display_value": ""
+                        "displayValue": ""
                     }
                 });
                 return;
@@ -57,7 +57,7 @@
                 "reference": false,
                 "referenceField": {
                     "value": "",
-                    "display_value": ""
+                    "displayValue": ""
                 }
             });
         };
@@ -101,7 +101,7 @@
 
             $scope.$apply(function() {
                 c.fields[reference.index].referenceField.value = reference.value;
-                c.fields[reference.index].referenceField.display_value = reference.display_value;
+                c.fields[reference.index].referenceField.displayValue = reference.displayValue;
             });
 
         });

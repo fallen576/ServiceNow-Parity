@@ -49,7 +49,7 @@
 								</span>
 							</span></td>
 						<td><button class="btn btn-primary" ng-click="table.addField()">Add Field</button></td>
-						<td><button class="btn btn-danger" ng-click="table.removeField($index);">Remove Field</button>
+						<td><button class="btn btn-danger" ng-click="table.removeField($index);" ng-disabled="table.fields.length === 1">Remove Field</button>
 						</td>
 					</tr>
 				</tbody>
