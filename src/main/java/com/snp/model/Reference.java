@@ -5,6 +5,10 @@ public class Reference {
 	public String value;
 	public String displayValue;
 	public String table;
+
+	public Reference() {
+
+	}
 	
 	public Reference(String value, String displayValue) {
 		this.value = value;

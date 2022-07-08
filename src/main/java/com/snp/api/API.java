@@ -1,34 +1,24 @@
 package com.snp.api;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import com.snp.controller.AMB;
+import com.snp.db.JdbcRepo;
+import com.snp.entity.Module;
+import com.snp.model.CreateTable;
+import com.snp.model.CreateTableField;
+import com.snp.security.IAuthenticationFacade;
 import com.snp.service.LogService;
+import com.snp.service.ModuleService;
+import com.snp.service.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import com.snp.db.JdbcRepo;
-import com.snp.entity.Module;
-import com.snp.security.IAuthenticationFacade;
-import com.snp.service.ModuleService;
-import com.snp.service.UserService;
+import org.springframework.web.bind.annotation.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 public class API {
@@ -50,6 +40,8 @@ public class API {
 
 	@Autowired
 	private AMB amb;
+
+	private static final Logger LOGGER = LogManager.getLogger(API.class);
 	
 	@GetMapping(value="/api/v1/modules")
 	@ResponseBody
@@ -139,9 +131,11 @@ public class API {
 	}
 	
 	@RequestMapping(value = "/api/v1/table/create", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
-	public ResponseEntity<String> createTable(@RequestBody String body) throws JSONException, Exception {
+	public ResponseEntity<String> createTable(@RequestBody CreateTable table) throws JSONException, Exception {
+		LOGGER.error("WE HERE MY MAN");
 		try {
-			db.createTable(new JSONObject(body));
+			//db.createTable(new JSONObject(table));
+			db.createTable(table);
 		}
 		catch (Exception e) {
 			LOG.error(e.toString(), API.class.getName());
