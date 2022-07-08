@@ -134,12 +134,8 @@ public class API {
 	public ResponseEntity<String> createTable(@RequestBody CreateTable table) throws JSONException, Exception {
 		LOGGER.error("WE HERE MY MAN");
 		try {
-			//db.createTable(new JSONObject(body));
-			for (CreateTableField field : table.getTableFields()) {
-				LOG.error(field.getFieldName() + " _ " + field.getFieldType(), "API");
-				LOGGER.error(field.getFieldName() + " _ " + field.getFieldType());
-			}
-
+			//db.createTable(new JSONObject(table));
+			db.createTable(table);
 		}
 		catch (Exception e) {
 			LOG.error(e.toString(), API.class.getName());

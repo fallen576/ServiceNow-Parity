@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import com.snp.model.*;
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -33,14 +35,12 @@ import com.snp.entity.Role;
 import com.snp.entity.SystemLog;
 import com.snp.entity.SystemLog.LogLevel;
 import com.snp.entity.User;
-import com.snp.model.Field;
-import com.snp.model.Record;
-import com.snp.model.Reference;
 import com.snp.security.IAuthenticationFacade;
 import com.snp.service.LogService;
 import com.snp.service.ModuleService;
 import com.snp.service.RoleService;
 import com.snp.service.UserPreferenceService;
+import org.springframework.util.StringUtils;
 
 @Component
 public class JdbcRepo {
@@ -70,6 +70,50 @@ public class JdbcRepo {
 	private String LIMIT = " LIMIT ?";
 	private final String REFERENCES = "SELECT FKCOLUMN_NAME, PKTABLE_NAME FROM INFORMATION_SCHEMA.CROSS_REFERENCES WHERE lower(FKTABLE_NAME) = lower(?)";
 
+	public String createTable(CreateTable tableData) {
+		String table = tableData.getTableName();
+		String sql = "CREATE TABLE " + table + "( sys_id VARCHAR(255) default random_uuid(), "
+				+ "sys_created_on TIMESTAMP(23), "
+				+ "sys_updated_on TIMESTAMP(23), "
+				+ "sys_created_by VARCHAR(255), "
+				+ "sys_updated_by VARCHAR(255), "
+				+ " primary key (sys_id), ";
+		ArrayList<Object> params = new ArrayList();
+
+		for (CreateTableField field : tableData.getTableFields()) {
+			String name = field.getFieldName();
+			String type = field.getFieldType();
+
+			switch (type) {
+				case "integer":
+					sql += " " + name  + " INT  ,";
+					params.add(name);
+					break;
+				case "reference":
+					sql += " " + name  + " varchar(255)  ,";
+					sql += "foreign key (" + name + ") references " + field.getReferenceField().getValue() + "(sys_id) ON DELETE CASCADE ,";
+					params.add(name);
+					params.add(field.getReferenceField().getTable());
+					break;
+				default:
+					sql += " " + name  + " varchar(255)  ,";
+					params.add(name);
+			}
+		}
+
+		sql = sql.substring(0, sql.length() - 1) + ");";
+		jdbcTemplate.execute(sql);
+
+		//create module for table, notify front end to update modules list and create a role for the table
+		modService.save(new Module(StringUtils.capitalize(table.replaceAll("_", " ")), table, "SYS_ID", auth.getAuthentication().getName()));
+		amb.trigger(Collections.singletonMap(StringUtils.capitalize(table.replaceAll("_", " ")), table), "insertModule");
+		roleService.save(new Role(table, "CRUD access on " + table , auth.getAuthentication().getName()));
+
+		LOG.info(sql, JdbcRepo.class.getName());
+		return sql;
+	}
+
+	@Deprecated
 	public String createTable(JSONObject data) throws Exception {
 		LOG.info("Current user " + auth.getAuthentication().getName() + " " + auth.getAuthentication().getCredentials() + " new way? " 
 				+ SecurityContextHolder.getContext().getAuthentication().getName(), JdbcRepo.class.getName());

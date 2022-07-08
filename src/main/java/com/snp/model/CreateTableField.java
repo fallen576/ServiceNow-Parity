@@ -15,7 +15,7 @@ public class CreateTableField {
     }
 
     public void setFieldName(String fieldName) {
-        this.fieldName = fieldName;
+        this.fieldName = fieldName.replaceAll(" ", "_").toLowerCase();
     }
 
     public String getFieldType() {

@@ -16,7 +16,7 @@ public class CreateTable {
     }
 
     public void setTableName(String tableName) {
-        this.tableName = tableName;
+        this.tableName = tableName.replaceAll(" ", "_").toLowerCase();
     }
 
     public List<CreateTableField> getTableFields() {
