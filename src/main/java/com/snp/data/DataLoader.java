@@ -1,8 +1,11 @@
 package com.snp.data;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+
 import java.util.List;
 
+import org.elasticsearch.search.DocValueFormat.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -18,6 +21,8 @@ import com.snp.service.*;
 import com.snp.entity.SystemLog;
 import com.snp.entity.SystemLog.LogLevel;
 import com.snp.entity.ListLayout;
+import com.snp.data.es.model.ESLog;
+import com.snp.data.es.repository.ESLogRepository;
 
 @Component
 public class DataLoader implements ApplicationRunner {
@@ -29,10 +34,12 @@ public class DataLoader implements ApplicationRunner {
     private HasRoleService hasRoleService;
     private LogService logService;
     private UserPreferenceService listLayout;
+    private ESLogRepository esLogRepo;
 
     @Autowired
     public DataLoader(UserService userService, ModuleService modService, TestReferenceService tfService,
-    		RoleService roleService, HasRoleService hasRoleService, LogService logService, UserPreferenceService listLayout) {
+    		RoleService roleService, HasRoleService hasRoleService, LogService logService, UserPreferenceService listLayout,
+    		ESLogRepository esLogRepo) {
         this.userService = userService;
         this.modService = modService;
         this.tfService = tfService;
@@ -40,6 +47,7 @@ public class DataLoader implements ApplicationRunner {
         this.hasRoleService = hasRoleService;
         this.logService = logService;
         this.listLayout = listLayout;
+        this.esLogRepo = esLogRepo;
     }
 
 	@Override
@@ -123,6 +131,11 @@ public class DataLoader implements ApplicationRunner {
 			this.tfService.save(new TestReference(u, "ben"));
 			this.hasRoleService.save(new HasRole(guest, u, "ben"));
 		});
+		
+		//es
+		ESLog log = new ESLog();
+		log.setText("Started applicaiton on " + new Timestamp(System.currentTimeMillis()));
+		esLogRepo.save(log);
 		
 	}
 	
