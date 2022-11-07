@@ -133,8 +133,7 @@ public class DataLoader implements ApplicationRunner {
 		});
 		
 		//es
-		ESLog log = new ESLog();
-		log.setText("Started applicaiton on " + new Timestamp(System.currentTimeMillis()));
+		ESLog log = new ESLog("Started applicaiton on " + new Timestamp(System.currentTimeMillis()), "Warning", "DataLoader", "ben");
 		esLogRepo.save(log);
 		
 	}

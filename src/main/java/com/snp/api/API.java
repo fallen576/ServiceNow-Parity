@@ -1,6 +1,8 @@
 package com.snp.api;
 
 import com.snp.controller.AMB;
+import com.snp.data.es.model.ESLog;
+import com.snp.data.es.repository.ESLogRepository;
 import com.snp.db.JdbcRepo;
 import com.snp.entity.Module;
 import com.snp.model.CreateTable;
@@ -30,6 +32,9 @@ public class API {
 	private ModuleService modService;
 	
 	@Autowired
+	private ESLogRepository esLogRepo;
+	
+	@Autowired
 	private UserService userService;
 	
 	@Autowired
@@ -47,6 +52,11 @@ public class API {
 	@ResponseBody
 	public Iterable<Module> loadModules() {
 		return modService.findAll();
+	}
+	
+	@GetMapping(value="api/v1/eslogs")
+	public Iterable<ESLog> loadESLogs() {		
+		return esLogRepo.findAll();
 	}
 	
 	@PostMapping(path = "/api/v1/update/{table_name}/{sys_id}", 
