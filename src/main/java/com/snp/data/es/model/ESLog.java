@@ -14,13 +14,13 @@ public class ESLog {
 	@Field(type = Text)
     private String text;
 	
-	@Field(type = Text)
+	@Field(type = Text, index = true)
 	private String type;
 	
-	@Field(type = Text)
+	@Field(type = Text, index = true)
 	private String source;
 	
-	@Field(type = Text)
+	@Field(type = Text, index = true)
 	private String user;
 
     public ESLog() {

@@ -6,13 +6,19 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import com.snp.model.*;
@@ -29,6 +35,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 import com.snp.controller.AMB;
+import com.snp.data.es.model.ESModel;
+import com.snp.data.es.repository.ESModelRepository;
 import com.snp.entity.ListLayout;
 import com.snp.entity.Module;
 import com.snp.entity.Role;
@@ -65,6 +73,9 @@ public class JdbcRepo {
 	
 	@Autowired
 	private UserPreferenceService listControl;
+	
+	@Autowired
+	private ESModelRepository modelRepo;
 	
 	private final String SELECT_ALL = "SELECT * FROM ";
 	private String LIMIT = " LIMIT ?";
@@ -109,7 +120,7 @@ public class JdbcRepo {
 		amb.trigger(Collections.singletonMap(StringUtils.capitalize(table.replaceAll("_", " ")), table), "insertModule");
 		roleService.save(new Role(table, "CRUD access on " + table , auth.getAuthentication().getName()));
 
-		LOG.info(sql, JdbcRepo.class.getName());
+		LOG.info(sql, JdbcRepo.class.getName());		
 		return sql;
 	}
 
@@ -469,27 +480,54 @@ public class JdbcRepo {
         
 	}
 	
+	private String getDateTimeStamp() {
+		TimeZone tz = TimeZone.getTimeZone("UTC");
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+		df.setTimeZone(tz);
+		return df.format(new Date());
+	}
+	
 	public String insertRecord(Map<?, ?> m, String table) {
 		Set<?> s = m.entrySet();
         Iterator<?> it = s.iterator();
         String query = "INSERT INTO " + table + " (";
         ArrayList<String> values = new ArrayList<>();
+        JSONObject json = new JSONObject();
+        ESModel model = new ESModel();
         //insert into users(FIRST_NAME,LAST_NAME,USER_NAME) VALUES ('a','b','c')
         
         while(it.hasNext()){
         	 Map.Entry<String,String[]> entry = (Map.Entry<String,String[]>)it.next();
         	 String col = entry.getKey();
-        	 if (col.toLowerCase().equals("sys_created_on") || col.toLowerCase().equals("sys_updated_on")) {
-        		 values.add((new Timestamp(System.currentTimeMillis()).toString()));
+        	 if (col.toLowerCase().equals("sys_created_on")) {
+        		 String date = (new Timestamp(System.currentTimeMillis()).toString());
+        		 values.add(date);
+        		 model.setSys_created_on(getDateTimeStamp());
         	 }
-        	 else if (col.toLowerCase().equals("sys_created_by") || col.toLowerCase().equals("sys_updated_by")) {
-        		 values.add(auth.getAuthentication().getName());
+        	 else if (col.toLowerCase().equals("sys_updated_on")) {
+        		 String date = (new Timestamp(System.currentTimeMillis()).toString());
+        		 values.add(date);
+        		 model.setSys_updated_on(getDateTimeStamp());
+        	 }
+        	 else if (col.toLowerCase().equals("sys_created_by")) {
+        		 String who = auth.getAuthentication().getName();
+        		 values.add(who);
+        		 model.setSys_created_by(who);
+        	 }
+        	 else if (col.toLowerCase().equals("sys_updated_by")) {
+        		 String who = auth.getAuthentication().getName();
+        		 values.add(who);
+        		 model.setSys_updated_by(who);
         	 }
         	 else if (col.toLowerCase().equals("password") && table.toLowerCase().equals("users")) {
-        		 values.add(BCrypt.hashpw(m.get("USER_NAME").toString(), BCrypt.gensalt()));
+        		 String pass = BCrypt.hashpw(m.get("USER_NAME").toString(), BCrypt.gensalt());
+        		 values.add(pass);
+        		 json.append(col, pass);
         	 }
          	 else {
-        		 values.add(entry.getValue()[0]);
+         		 String data = entry.getValue()[0];
+        		 values.add(data);
+        		 json.append(col, data);
         	 }
              
              query += col + ",";
@@ -521,6 +559,16 @@ public class JdbcRepo {
         }, keyHolder);
         
 		String key = (String) keyHolder.getKeys().get("SCOPE_IDENTITY()");
+		
+		try {
+			model.setId(key);
+			model.setData(json);
+			model.setTable(table);
+			modelRepo.save(model);
+		} catch (Exception e) {
+			LOG.error("Unable to create elastic search index for " + table + ". Error is " + e, JdbcRepo.class.getName());
+		}
+		
         return key;
         
 	}

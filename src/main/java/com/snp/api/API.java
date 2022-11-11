@@ -2,7 +2,9 @@ package com.snp.api;
 
 import com.snp.controller.AMB;
 import com.snp.data.es.model.ESLog;
+import com.snp.data.es.model.ESModel;
 import com.snp.data.es.repository.ESLogRepository;
+import com.snp.data.es.repository.ESModelRepository;
 import com.snp.db.JdbcRepo;
 import com.snp.entity.Module;
 import com.snp.model.CreateTable;
@@ -15,10 +17,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.awt.print.Pageable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,6 +38,9 @@ public class API {
 	
 	@Autowired
 	private ESLogRepository esLogRepo;
+
+	@Autowired
+	private ESModelRepository modelRepo;
 	
 	@Autowired
 	private UserService userService;
@@ -57,6 +65,16 @@ public class API {
 	@GetMapping(value="api/v1/eslogs")
 	public Iterable<ESLog> loadESLogs() {		
 		return esLogRepo.findAll();
+	}
+
+	@GetMapping(value="api/v1/esmodels")
+	public Iterable<ESModel> loadESModels() {	
+		return modelRepo.findAll();
+	}
+	
+	@GetMapping(value="api/v1/esmodels/{sys_id}")
+	public Iterable<ESModel> loadESModels(@PathVariable(value="sys_id") String id) {	
+		return modelRepo.findById(id, PageRequest.of(0, 1));
 	}
 	
 	@PostMapping(path = "/api/v1/update/{table_name}/{sys_id}", 

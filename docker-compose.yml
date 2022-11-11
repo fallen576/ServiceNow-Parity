@@ -9,8 +9,18 @@ services:
       - 9200:9200
     volumes:
       - esdata1:/usr/share/elasticsearch/data
-  snpWeb:
-    image: fallen576/snp:latest
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.7
+    depends_on:
+      - es
+    container_name: kb
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es:9200
+    ports:
+      - 5601:5601
+  snpweb:
+    build: .
+    #image: fallen576/snp:latest
     depends_on:
       - es
     ports:

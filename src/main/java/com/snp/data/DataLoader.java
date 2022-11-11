@@ -109,8 +109,7 @@ public class DataLoader implements ApplicationRunner {
 				"Schuster", "Tapia", "Thompson", "Tiernan", "Tisler" };
 		
 		//create random users
-		//for (int i = 0; i < lastNames.length; i++) {
-                for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
 			String fName = firstNames[_rand(firstNames)];
 			String lName = lastNames[_rand(lastNames)];
 			String uName = fName + " " + lName;
