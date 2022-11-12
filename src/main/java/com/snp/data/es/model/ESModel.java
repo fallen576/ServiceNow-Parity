@@ -2,6 +2,9 @@ package com.snp.data.es.model;
 
 import static org.springframework.data.elasticsearch.annotations.FieldType.Keyword;
 import static org.springframework.data.elasticsearch.annotations.FieldType.Text;
+
+import java.util.Map;
+
 import org.json.JSONObject;
 import static org.springframework.data.elasticsearch.annotations.FieldType.Date;
 import static org.springframework.data.elasticsearch.annotations.FieldType.Object;
@@ -20,7 +23,7 @@ public class ESModel {
     private String table;
 	
 	@Field(type = Object)
-	private JSONObject data;
+	private Map<String, Object> data;
 	
 	//yyyy-MM-dd'T'HH:mm'Z'
 	@Field(type = Date, format = DateFormat.custom, pattern = "yyyy-MM-dd'T'HH:mm'Z'")
@@ -51,11 +54,11 @@ public class ESModel {
 		this.table = table;
 	}
 
-	public JSONObject getData() {
+	public Map<String, Object> getData() {
 		return data;
 	}
 
-	public void setData(JSONObject data) {
+	public void setData(Map<String, Object> data) {
 		this.data = data;
 	}
 

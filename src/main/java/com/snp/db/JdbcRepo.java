@@ -1,5 +1,6 @@
 package com.snp.db;
 
+import com.snp.model.Record;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -8,8 +9,6 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -20,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
-
 import com.snp.model.*;
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
@@ -241,7 +239,7 @@ public class JdbcRepo {
 	public Record normalGetNewRecord(String table) {
 		List<String> columns = this.getColumns(table, false);
 		List<Map<String, Object>> references = this.jdbcTemplate.queryForList(REFERENCES, table);
-		List<Field> fields = new ArrayList();
+		List<Field> fields = new ArrayList<Field>();
 		
 		for (String col : columns) {
 			Field field = new Field(col, null);
@@ -493,6 +491,7 @@ public class JdbcRepo {
         String query = "INSERT INTO " + table + " (";
         ArrayList<String> values = new ArrayList<>();
         JSONObject json = new JSONObject();
+        Map<String, Object> esData = new HashMap<String, Object>();
         ESModel model = new ESModel();
         //insert into users(FIRST_NAME,LAST_NAME,USER_NAME) VALUES ('a','b','c')
         
@@ -522,12 +521,12 @@ public class JdbcRepo {
         	 else if (col.toLowerCase().equals("password") && table.toLowerCase().equals("users")) {
         		 String pass = BCrypt.hashpw(m.get("USER_NAME").toString(), BCrypt.gensalt());
         		 values.add(pass);
-        		 json.append(col, pass);
+        		 esData.put(col, pass);
         	 }
          	 else {
          		 String data = entry.getValue()[0];
         		 values.add(data);
-        		 json.append(col, data);
+        		 esData.put(col, data);
         	 }
              
              query += col + ",";
@@ -562,7 +561,7 @@ public class JdbcRepo {
 		
 		try {
 			model.setId(key);
-			model.setData(json);
+			model.setData(esData);
 			model.setTable(table);
 			modelRepo.save(model);
 		} catch (Exception e) {

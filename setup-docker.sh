@@ -1,6 +1,6 @@
 #!/bin/bash
 
 #build app
-mvn clean package -DskipTests
+#mvn clean package -DskipTests
 
 docker compose up

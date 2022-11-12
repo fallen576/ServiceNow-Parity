@@ -1,3 +1,9 @@
+FROM maven
+RUN mkdir -p /app/snp
+COPY . /app/snp
+WORKDIR /app/snp
+RUN mvn clean package -DskipTests
+
 # Use latest jboss/base-jdk:11 image as the base
 FROM jboss/base-jdk:11
 
@@ -28,25 +34,9 @@ USER jboss
 EXPOSE 8080
 EXPOSE 9990
 RUN /opt/jboss/wildfly/bin/add-user.sh admin Admin#70365 --silent
+
 # Set the default command to run on boot
 CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]
 
-#USER root
-
-#RUN mkdir -p /app/snp/
-
-#COPY . /app/snp/
-
-#RUN chown -R jboss /app/snp/
-
-#USER jboss
-
-#CMD ["jar", "-cf", "SNP.war", "/app/snp/src/*"]
-#RUN jar -cf SNP.war /app/snp/src/*
-#CMD ["cp", "SNP.war", "/opt/jboss/wildfly/standalone/deployments/"]
-
 # Copy war to deployments folder
-COPY target/SNP.war $JBOSS_HOME/standalone/deployments/
-
-# Modify owners war
-#RUN chown jboss:jboss $JBOSS_HOME/standalone/deployments/SNP.war
+COPY  --from=0 /app/snp/target/SNP.war $JBOSS_HOME/standalone/deployments/

@@ -16,6 +16,7 @@ import com.snp.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -73,8 +74,14 @@ public class API {
 	}
 	
 	@GetMapping(value="api/v1/esmodels/{sys_id}")
-	public Iterable<ESModel> loadESModels(@PathVariable(value="sys_id") String id) {	
-		return modelRepo.findById(id, PageRequest.of(0, 1));
+	public ESModel loadESModels(@PathVariable(value="sys_id") String id) {	
+		
+		try {
+			Optional<ESModel> tmp = modelRepo.findById(id);
+			return modelRepo.findById(id).get();
+		} catch (NoSuchElementException e) {
+			return null;	
+		}
 	}
 	
 	@PostMapping(path = "/api/v1/update/{table_name}/{sys_id}", 
