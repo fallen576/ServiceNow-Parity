@@ -1,7 +1,11 @@
+# image layer
 FROM maven
 RUN mkdir -p /app/snp
 COPY . /app/snp
 WORKDIR /app/snp
+#RUN mvn verify clean --fail-never
+
+#build war
 RUN mvn clean package -DskipTests
 
 # Use latest jboss/base-jdk:11 image as the base

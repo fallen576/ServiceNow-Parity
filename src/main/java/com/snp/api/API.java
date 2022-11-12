@@ -15,6 +15,8 @@ import com.snp.service.ModuleService;
 import com.snp.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +64,11 @@ public class API {
 	public Iterable<Module> loadModules() {
 		return modService.findAll();
 	}
+	
+	@GetMapping(value="api/v1/eslogs/autocomplete")
+    public Iterable<ESLog> autocomplete(@RequestParam String search) {
+		return esLogRepo.findByText("*" + search + "*");
+    }
 	
 	@GetMapping(value="api/v1/eslogs")
 	public Iterable<ESLog> loadESLogs() {		

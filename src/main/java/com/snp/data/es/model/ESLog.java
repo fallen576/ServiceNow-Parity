@@ -11,7 +11,7 @@ public class ESLog {
 	@Id
 	private String id;
 	
-	@Field(type = Text)
+	@Field(type = Text, analyzer = "autocomplete_index", searchAnalyzer = "autocomplete_search")
     private String text;
 	
 	@Field(type = Text, index = true)
