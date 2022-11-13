@@ -31,6 +31,20 @@ $(document).ready( function () {
 	function () {
 	    //stuff to do on mouse leave
 	});
+	
+	$("#global-search").on('input', function() {
+		let text = $(this).val();
+		$.get("/api/v1/esmodels/autocomplete?search=" + text, (data, status) => {
+    		if (data.length == 0) {
+    			console.log("could not find any results matching " + text);
+    		}
+    		else {
+    			console.table(data);
+    			console.log(JSON.stringify(data));
+    			console.log(JSON.stringify(status));
+    		}
+	    });
+    });
 });
 
 function sendUpdateRequest() {

@@ -8,25 +8,17 @@ import com.snp.data.es.repository.ESModelRepository;
 import com.snp.db.JdbcRepo;
 import com.snp.entity.Module;
 import com.snp.model.CreateTable;
-import com.snp.model.CreateTableField;
 import com.snp.security.IAuthenticationFacade;
 import com.snp.service.LogService;
 import com.snp.service.ModuleService;
-import com.snp.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.awt.print.Pageable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,9 +36,6 @@ public class API {
 
 	@Autowired
 	private ESModelRepository modelRepo;
-	
-	@Autowired
-	private UserService userService;
 	
 	@Autowired
 	private JdbcRepo db;
@@ -68,6 +57,11 @@ public class API {
 	@GetMapping(value="api/v1/eslogs/autocomplete")
     public Iterable<ESLog> autocomplete(@RequestParam String search) {
 		return esLogRepo.findByText("*" + search + "*");
+    }
+	
+	@GetMapping(value="api/v1/esmodels/autocomplete")
+    public Iterable<ESModel> autoCompleteModel(@RequestParam String search) {
+		return modelRepo.findByCustomQuery("*" + search + "*");
     }
 	
 	@GetMapping(value="api/v1/eslogs")
