@@ -165,7 +165,7 @@ public class DataLoader implements ApplicationRunner {
 		
 		//elastic search models for global search
 		//commented out for now since using a volume.
-		//esModelRepo.saveAll(models);
+		esModelRepo.saveAll(models);
 		
 	}
 	

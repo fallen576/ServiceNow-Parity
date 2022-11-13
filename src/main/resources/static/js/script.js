@@ -32,6 +32,36 @@ $(document).ready( function () {
 	    //stuff to do on mouse leave
 	});
 	
+	$.typeahead({
+		input: ".js-typeahead",
+		order: "asc",
+	    dynamic: true,
+	    filter: false,
+	    delay: 300,
+	    template: function (query, item) {
+	    	if (item.data) {
+	    		let s = "<ul>";
+	    		var obj = item.data;
+	    		for (var i in obj){
+	    			s+= `<li>${i} - ${obj[i]}</li>`
+	    		}
+	    		s += "</ul>"
+	    		return s;
+	    	}
+	    	return '<p>{{table}}</p><br /><p>{{id}}</p><br /><p>{{data}}</p>'
+	    },
+	    href: "/table/{{table}}/{{id}}",
+	    source: {
+	        models: {
+	            ajax: function(query) {
+	                return {
+	                    url: "/api/v1/esmodels/autocomplete?search=" + query
+	                }
+	            }
+	        }
+	    }
+	});
+	/*
 	$("#global-search").on('input', function() {
 		let text = $(this).val();
 		$.get("/api/v1/esmodels/autocomplete?search=" + text, (data, status) => {
@@ -45,6 +75,7 @@ $(document).ready( function () {
     		}
 	    });
     });
+    */
 });
 
 function sendUpdateRequest() {

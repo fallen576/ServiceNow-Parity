@@ -13,27 +13,24 @@
         <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <link th:src="@{/css/all.css}" rel="stylesheet">
-
         <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
-        
-        <script type="text/javascript" th:src="@{/js/listeners.js}"></script>
-        <script type="text/javascript" th:src="@{/js/formAjax.js}"></script>
-        <script type="text/javascript" th:src="@{/js/script.js}"></script>
-        
-        <!-- Modules -->
-        <script type="text/javascript" th:src="@{/js/snp.module.js}"></script>
-        
-        <!-- 'data' module artifacts -->
-        <script type="text/javascript" th:src="@{/js/snp.createtablecontroller.js}"></script>
-        <script type="text/javascript" th:src="@{/js/snp.referencecontroller.js}"></script>
-        <script type="text/javascript" th:src="@{/js/snp.service.js}"></script>
-        <script type="text/javascript" th:src="@{/js/snp.modulecontroller.js}"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-typeahead/2.10.6/jquery.typeahead.css">
 	</head>
 	<nav class="navbar navbar-dark bg-dark" style="background-color: #37424F !important;" th:if="!${reference}">
         <a class="navbar-brand text-color" href="/">ServiceNow Parity</a>
         <form class="ml-auto form-inline my-2 my-lg-0">
-	      <input id="global-search" class="form-control mr-sm-2 typeahead" type="search" placeholder="Search" aria-label="Search">
-	      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        	<div class="typeahead__container">
+        		<div class="typeahead__field">
+        			<div class="typeahead__query">
+		      			<input id="global-search" class="form-control mr-sm-2 js-typeahead" type="search" name="q" autocomplete="off" placeholder="Search" aria-label="Search">
+      				</div>
+      				<div class="typeahead__button">
+                        <button type="submit">
+                            <span class="typeahead__search-icon"></span>
+                        </button>
+                    </div>
+   				</div>
+      		</div>
 	    </form>
         <li class="nav-item dropdown" style="list-style-type:none">
             <a class="navbar-brand nav-link dropdown-toggle text-color" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -52,3 +49,17 @@
 	<h1 sec:authorize="hasAuthority('ROLE_Guest')">You are seeing this cause youre guest</h1>
 	-->
 	<body id="angularApp" ng-app='ServiceNowParity'>
+	
+	<script type="text/javascript" th:src="@{/js/listeners.js}"></script>
+    <script type="text/javascript" th:src="@{/js/formAjax.js}"></script>
+    <script type="text/javascript" th:src="@{/js/script.js}"></script>
+    
+    <!-- Modules -->
+    <script type="text/javascript" th:src="@{/js/snp.module.js}"></script>
+    
+    <!-- 'data' module artifacts -->
+    <script type="text/javascript" th:src="@{/js/snp.createtablecontroller.js}"></script>
+    <script type="text/javascript" th:src="@{/js/snp.referencecontroller.js}"></script>
+    <script type="text/javascript" th:src="@{/js/snp.service.js}"></script>
+    <script type="text/javascript" th:src="@{/js/snp.modulecontroller.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-typeahead/2.10.6/jquery.typeahead.js"></script>
