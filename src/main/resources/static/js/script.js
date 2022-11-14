@@ -35,18 +35,24 @@ $(document).ready( function () {
 	$.typeahead({
 		input: ".js-typeahead",
 		order: "asc",
+		highlight: true,
+		accent: true,
 	    dynamic: true,
 	    filter: false,
 	    delay: 300,
 	    template: function (query, item) {
 	    	if (item.data) {
-	    		let s = "<ul>";
+				let s = "<ul>";
+				let cardBody = '<div class="card"><ul class="list-group list-group-flush">';
 	    		var obj = item.data;
 	    		for (var i in obj){
-	    			s+= `<li>${i} - ${obj[i]}</li>`
+					s+= `<li>${i} - ${obj[i]}</li>`
+					cardBody += '<li class="list-group-item"> ' + i + ' - ' + obj[i]  + '</li>'
 	    		}
-	    		s += "</ul>"
-	    		return s;
+				s += "</ul>"
+				cardBody += "</ul></div>";
+				return cardBody;
+	    		//return s;
 	    	}
 	    	return '<p>{{table}}</p><br /><p>{{id}}</p><br /><p>{{data}}</p>'
 	    },

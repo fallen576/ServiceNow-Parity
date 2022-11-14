@@ -11,6 +11,10 @@ body {
 
 .list-group-item {
     background-color: inherit !important;
+    /*padding: inherit !important;*/
+}
+
+.nav-module {
     padding: inherit !important;
 }
 
