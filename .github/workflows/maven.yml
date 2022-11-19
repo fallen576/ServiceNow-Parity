@@ -24,6 +24,7 @@ jobs:
       run: mvn -B package --file pom.xml -DskipTests
 
   test:
+    container: node:10.18-jessie
     services:
       es1:
         image: docker.elastic.co/elasticsearch/elasticsearch:7.17.7
