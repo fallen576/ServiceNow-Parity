@@ -28,7 +28,7 @@ public class Config {
         		 * docker compose up
         		 * 
         		 */
-            .connectedTo("es:9200")
+            .connectedTo("es1:9200")
             .build();
 
         return RestClients.create(clientConfiguration)
