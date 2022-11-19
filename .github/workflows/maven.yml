@@ -31,7 +31,7 @@ jobs:
         env:
           discovery.type: single-node
     # Containers must run in Linux based operating systems
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     # Docker Hub image that this job executes in, pick any image that works for you
     container: node:10.18-jessie
     steps:
