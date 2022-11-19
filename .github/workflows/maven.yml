@@ -1,7 +1,5 @@
 # This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
-name: Java CI with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-mavenname: Java CI with Maven
 
 on:
   push:
@@ -37,8 +35,9 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Setup ElasticSearch
-    - uses: getong/elasticsearch-action@v1.2
+      uses: getong/elasticsearch-action@v1.2
       with:
         elasticsearch version: 7.17.7
+        elasticsearch host: es
     - name: Test with Maven
       run: mvn test
