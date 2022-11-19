@@ -24,25 +24,35 @@ jobs:
       run: mvn -B package --file pom.xml -DskipTests
 
   test:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
     services:
       es1:
         image: docker.elastic.co/elasticsearch/elasticsearch:7.17.7
         env:
           discovery.type: single-node
-
+    # Containers must run in Linux based operating systems
+    runs-on: [self-hosted, linux]
+    # Docker Hub image that this job executes in, pick any image that works for you
+    container: node:10.18-jessie
     steps:
-    - uses: actions/checkout@v3
-    - name: Check ElasticSearch Connection
-      run: |
+      - uses: actions/checkout@v2
+      - name: running tests
+        run: |
           sleep 60
           curl -X GET http://es1:9200/
-    - uses: actions/checkout@v3
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-        cache: maven
-    - name: Test with Maven
-      run: mvn test
+
+#    steps:
+#    - uses: actions/checkout@v3
+#    - name: Check ElasticSearch Connection
+#      run: |
+#          sleep 60
+#          curl -X GET http://es1:9200/
+#    - uses: actions/checkout@v3
+#    - name: Set up JDK 11
+#      uses: actions/setup-java@v3
+#      with:
+#        java-version: '11'
+#        distribution: 'temurin'
+#        cache: maven
+#    - name: Test with Maven
+#      run: mvn test
