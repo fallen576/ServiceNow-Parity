@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -109,7 +110,7 @@ public class JdbcRepo {
 					params.add(name);
 			}
 		}
-
+		
 		sql = sql.substring(0, sql.length() - 1) + ");";
 		jdbcTemplate.execute(sql);
 
@@ -327,7 +328,9 @@ public class JdbcRepo {
 		try {
 			String DELETE_RECORD = "DELETE FROM table WHERE SYS_ID = 'pid'";
 			this.jdbcTemplate.update(DELETE_RECORD.replace("table",  table).replace("pid",  id));
+			modelRepo.deleteById(id);
 		} catch (Exception e) {
+			LOG.error("Unable to delete record by id of " + id  + " from table " + table, this.getClass().getName());
 			e.printStackTrace();
 		}
 	}
@@ -413,26 +416,40 @@ public class JdbcRepo {
 	}
 	
 	public String updateRecord(HashMap<String, Object> fields, String table, String id) {
+
+		Optional<ESModel> modelO = modelRepo.findById(id);
+		ESModel model = new ESModel();
+		if (modelO.isPresent()) {
+			model = modelO.get();
+		}
+		
+        model.setId(id);
+		Map<String, Object> esData = new HashMap<String, Object>();
 		
 		String query = "UPDATE " + table + " SET ";
-		
 	    for (Map.Entry<String, Object> entry : fields.entrySet()) {
 	    	String fieldName = entry.getKey();
 	    	Object fieldValue = entry.getValue();
-	    	
 	    	query += fieldName + " = '" + fieldValue + "', ";
+	    	
+	    	esData.put(fieldName, fieldValue);
 	    }
-	    
+	    String updatedBy = auth.getAuthentication().getName();
+
 	    query += "sys_updated_on = '" + new Timestamp(System.currentTimeMillis()) + "', "
-	    		+ "sys_updated_by = '" + auth.getAuthentication().getName() + "' ";
+	    		+ "sys_updated_by = '" + updatedBy + "' ";
 	    
-	    //query = query.substring(0, query.length() - 2);
+	    model.setSys_updated_by(updatedBy);
+	    model.setSys_updated_on(getDateTimeStamp());
+	    //model.setSys_created_by(fields.get("sys_created_by").toString());
+	    //model.setSys_created_on(fields.get("sys_created_on").toString());
+	    model.setData(esData);
 	    
 	    query += "WHERE sys_id = '" + id + "'";
 	    
 	    LOG.info(query, JdbcRepo.class.getName());
-	    
 	    jdbcTemplate.update(query);
+	    modelRepo.save(model);
 	    
 	    return id;
 	}
@@ -490,7 +507,6 @@ public class JdbcRepo {
         Iterator<?> it = s.iterator();
         String query = "INSERT INTO " + table + " (";
         ArrayList<String> values = new ArrayList<>();
-        JSONObject json = new JSONObject();
         Map<String, Object> esData = new HashMap<String, Object>();
         ESModel model = new ESModel();
         //insert into users(FIRST_NAME,LAST_NAME,USER_NAME) VALUES ('a','b','c')

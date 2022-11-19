@@ -89,7 +89,7 @@
                 data: ({ "tableName": c.name, "tableFields": c.fields })
             }).then(function (data) {
                 //alert(JSON.stringify(data));
-                location.href = "/" + c.name + ".do";
+                location.href = "/" + c.name.replaceAll(" ", "_") + ".do";
             }, function (data) {
                 alert(data.data);
                 console.log(data);

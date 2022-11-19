@@ -44,6 +44,7 @@ $(document).ready( function () {
 	    	if (item.data) {
 				let s = "<ul>";
 				let cardBody = '<div class="card"><ul class="list-group list-group-flush">';
+				cardBody += '<li class="list-group-item"> table - ' + item.table + '</li>'
 	    		var obj = item.data;
 	    		for (var i in obj){
 					s+= `<li>${i} - ${obj[i]}</li>`
