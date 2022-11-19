@@ -26,7 +26,6 @@ jobs:
       run: mvn -B package --file pom.xml -DskipTests
 
   test:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -37,5 +36,9 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+    - name: Setup ElasticSearch
+      uses: getong/elasticsearch-action@v1.2
+      with:
+        elasticsearch version: 7.17.7
     - name: Test with Maven
       run: mvn test
