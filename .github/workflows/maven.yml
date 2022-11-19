@@ -38,6 +38,10 @@ jobs:
       uses: getong/elasticsearch-action@v1.2
       with:
         elasticsearch version: 7.17.7
-        elasticsearch host: es
+        host port: 9200
+        container port: 9200
+        host node port: 9300
+        node port: 9300
+        discovery type: 'single-node'
     - name: Test with Maven
       run: mvn test
