@@ -24,6 +24,11 @@ jobs:
       run: mvn -B package --file pom.xml -DskipTests
 
   test:
+    services:
+      es1:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.17.7
+        env:
+          discovery.type: single-node
     runs-on: ubuntu-latest
 
     steps:
@@ -34,14 +39,5 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
-    - name: Setup ElasticSearch
-      uses: getong/elasticsearch-action@v1.2
-      with:
-        elasticsearch version: 7.17.7
-        host port: 9200
-        container port: 9200
-        host node port: 9300
-        node port: 9300
-        discovery type: 'single-node'
     - name: Test with Maven
       run: mvn test
