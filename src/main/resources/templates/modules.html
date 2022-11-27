@@ -9,7 +9,7 @@
 				<li class="nav-item">
 					<input name="filter" class="nav-link filter rounded" placeholder="Search for Tables" ng-model="search"></input>
 				</li>
-				<li class="list-group-item">
+				<li class="list-group-item nav-module">
 					<a class="w-100 pull-left text-left nav-link rounded" href="/">
 						<span class="badge">
 							<i class="fa fa-lock" style="font-size:24px"></i>
@@ -17,7 +17,7 @@
 						Home
 					</a>
 				</li>
-				<li sec:authorize="hasAuthority('ROLE_Admin')" class="list-group-item">
+				<li sec:authorize="hasAuthority('ROLE_Admin')" class="list-group-item nav-module">
 					<a class="w-100 pull-left text-left nav-link rounded" href="/h2-console">
 						<span class="badge">
 							<i class="fa fa-lock" style="font-size:24px"></i>
@@ -25,7 +25,7 @@
 						H2-Console
 					</a>
 				</li>
-				<li sec:authorize="hasAuthority('ROLE_Admin')" class="list-group-item">
+				<li sec:authorize="hasAuthority('ROLE_Admin')" class="list-group-item nav-module">
 					<a class="w-100 pull-left text-left nav-link rounded" href="/script">
 						<span class="badge">
 							<i class="fa fa-lock" style="font-size:24px"></i>
@@ -33,7 +33,7 @@
 						Background Scripts
 					</a>
 				</li>
-				<li class="list-group-item" ng-repeat="module in mc.modules | filter : search">
+				<li class="list-group-item nav-module" ng-repeat="module in mc.modules | filter : search">
 					<a class="w-100 pull-left text-left nav-link rounded" href="/table/{{module.tableName}}_list.do">{{module.moduleName}}</a>
 				</li>
 			</ul>

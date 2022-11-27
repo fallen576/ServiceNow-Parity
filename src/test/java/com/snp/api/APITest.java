@@ -1,5 +1,7 @@
 package com.snp.api;
 
+import com.snp.data.es.model.ESLog;
+import com.snp.data.es.repository.ESLogRepository;
 import com.snp.db.JdbcRepo;
 import com.snp.entity.Module;
 import com.snp.service.ModuleService;
@@ -7,12 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,6 +25,8 @@ class APITest {
     private JdbcRepo db;
     @Autowired
     private ModuleService modService;
+    @Autowired
+    private ESLogRepository modelRepo;
 
     @Test
     void loadModules() {
@@ -58,6 +61,20 @@ class APITest {
     @Test
     public void loadTable() {
         assertTrue(!db.findAll("users").isEmpty());
-
+    }
+    
+    @Test
+    public void elasticSearchTest() {
+    	//create new model
+    	ESLog model = new ESLog();
+    	model.setSource("test");
+    	model.setText("Elastic search test");
+    	model.setUser("ben");
+    	model.setId("123456");
+    	model = modelRepo.save(model);
+    	
+    	//read new model
+    	Optional<ESLog> model2 = modelRepo.findById("123456");
+    	assertTrue(model2.isPresent());
     }
 }

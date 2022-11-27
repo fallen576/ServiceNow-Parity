@@ -35,7 +35,7 @@ public class User {
 	private UUID id;
 	
 	@Column(name="user_name")
-	private String user_name;
+	private String userName;
 	
 	@Column(name="first_name")
 	private String firstName;
@@ -65,14 +65,14 @@ public class User {
 	public User(String first_name, String last_name, String user_name) {
 		this.firstName = first_name;
 		this.lastName = last_name;
-		this.user_name = user_name;
+		this.userName = user_name;
 		this.password = BCrypt.hashpw(user_name, BCrypt.gensalt());
 	}
 	
 	public User(String first_name, String last_name, String user_name, String name) {
 		this.firstName = first_name;
 		this.lastName = last_name;
-		this.user_name = user_name;
+		this.userName = user_name;
 		this.password = BCrypt.hashpw(user_name, BCrypt.gensalt());
 		this.sys_created_by = name;
 		this.sys_updated_by = name;
@@ -83,11 +83,11 @@ public class User {
 	}
 
 	public String getUser_name() {
-		return user_name;
+		return userName;
 	}
 
 	public void setUser_name(String user_name) {
-		this.user_name = user_name;
+		this.userName = user_name;
 	}
 
 	public String getFirstName() {

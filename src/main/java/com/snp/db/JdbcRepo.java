@@ -1,20 +1,25 @@
 package com.snp.db;
 
+import com.snp.model.Record;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
-
 import com.snp.model.*;
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
@@ -29,6 +34,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 import com.snp.controller.AMB;
+import com.snp.data.es.model.ESModel;
+import com.snp.data.es.repository.ESModelRepository;
 import com.snp.entity.ListLayout;
 import com.snp.entity.Module;
 import com.snp.entity.Role;
@@ -66,6 +73,9 @@ public class JdbcRepo {
 	@Autowired
 	private UserPreferenceService listControl;
 	
+	@Autowired
+	private ESModelRepository modelRepo;
+	
 	private final String SELECT_ALL = "SELECT * FROM ";
 	private String LIMIT = " LIMIT ?";
 	private final String REFERENCES = "SELECT FKCOLUMN_NAME, PKTABLE_NAME FROM INFORMATION_SCHEMA.CROSS_REFERENCES WHERE lower(FKTABLE_NAME) = lower(?)";
@@ -100,7 +110,7 @@ public class JdbcRepo {
 					params.add(name);
 			}
 		}
-
+		
 		sql = sql.substring(0, sql.length() - 1) + ");";
 		jdbcTemplate.execute(sql);
 
@@ -109,7 +119,7 @@ public class JdbcRepo {
 		amb.trigger(Collections.singletonMap(StringUtils.capitalize(table.replaceAll("_", " ")), table), "insertModule");
 		roleService.save(new Role(table, "CRUD access on " + table , auth.getAuthentication().getName()));
 
-		LOG.info(sql, JdbcRepo.class.getName());
+		LOG.info(sql, JdbcRepo.class.getName());		
 		return sql;
 	}
 
@@ -230,7 +240,7 @@ public class JdbcRepo {
 	public Record normalGetNewRecord(String table) {
 		List<String> columns = this.getColumns(table, false);
 		List<Map<String, Object>> references = this.jdbcTemplate.queryForList(REFERENCES, table);
-		List<Field> fields = new ArrayList();
+		List<Field> fields = new ArrayList<Field>();
 		
 		for (String col : columns) {
 			Field field = new Field(col, null);
@@ -318,7 +328,9 @@ public class JdbcRepo {
 		try {
 			String DELETE_RECORD = "DELETE FROM table WHERE SYS_ID = 'pid'";
 			this.jdbcTemplate.update(DELETE_RECORD.replace("table",  table).replace("pid",  id));
+			modelRepo.deleteById(id);
 		} catch (Exception e) {
+			LOG.error("Unable to delete record by id of " + id  + " from table " + table, this.getClass().getName());
 			e.printStackTrace();
 		}
 	}
@@ -403,70 +415,46 @@ public class JdbcRepo {
 		return jdbcTemplate.queryForList("show columns from " + table);
 	}
 	
-	public String updateRecord(HashMap<String, Object> fields, String table, String id) {
+	public String updateRecord(Map<String, Object> fields, String table, String id) {
+
+		Optional<ESModel> modelO = modelRepo.findById(id);
+		ESModel model = new ESModel();
+		if (modelO.isPresent()) {
+			model = modelO.get();
+		}
 		
-		String query = "UPDATE " + table + " SET ";
-		
+        model.setId(id);
+		Map<String, Object> esData = new HashMap<>();
+		StringBuilder query = new StringBuilder("UPDATE " + table + " SET ");
+
 	    for (Map.Entry<String, Object> entry : fields.entrySet()) {
 	    	String fieldName = entry.getKey();
 	    	Object fieldValue = entry.getValue();
-	    	
-	    	query += fieldName + " = '" + fieldValue + "', ";
+	    	query.append(fieldName + " = '" + fieldValue + "', ");
+	    	esData.put(fieldName, fieldValue);
 	    }
+	    String updatedBy = auth.getAuthentication().getName();
+
+	    query.append("sys_updated_on = '" + new Timestamp(System.currentTimeMillis()) + "', "
+	    		+ "sys_updated_by = '" + updatedBy + "' ");
 	    
-	    query += "sys_updated_on = '" + new Timestamp(System.currentTimeMillis()) + "', "
-	    		+ "sys_updated_by = '" + auth.getAuthentication().getName() + "' ";
+	    model.setSys_updated_by(updatedBy);
+	    model.setSys_updated_on(getDateTimeStamp());
+	    model.setData(esData);
 	    
-	    //query = query.substring(0, query.length() - 2);
+	    query.append("WHERE sys_id = '" + id + "'");
 	    
-	    query += "WHERE sys_id = '" + id + "'";
-	    
-	    LOG.info(query, JdbcRepo.class.getName());
-	    
-	    jdbcTemplate.update(query);
-	    
+	    LOG.info(query.toString(), JdbcRepo.class.getName());
+	    jdbcTemplate.update(query.toString());
+	    modelRepo.save(model);
 	    return id;
 	}
 	
-	@Deprecated
-	public String updateRecord(Map<?, ?> m, String table) {
-		Set<?> s = m.entrySet();
-        Iterator<?> it = s.iterator();
-        String query = "UPDATE " + table + " SET ";
-        String where = " WHERE SYS_ID = '" ;
-        String id = "";
-        
-        while(it.hasNext()){
-        	Map.Entry<String,String[]> entry = (Map.Entry<String,String[]>)it.next();
-        	 String key = entry.getKey();
-        	 if (key.equalsIgnoreCase("sys_created_on")) {
-        		 continue;
-        	 }
-
-             String[] value = entry.getValue();
-             
-             if (key.equals("SYS_ID")) {
-            	 where += value[0] + "'";
-            	 id = value[0];
-             }
-             else if (key.toLowerCase().equals("sys_updated_on")) {
-            	 query += key + "='" + new Timestamp(System.currentTimeMillis()) + "', ";
-             }
-             else if (key.toLowerCase().equals("sys_updated_by")) {
-            	 query += key + "='" + auth.getAuthentication().getName() + "', ";
-             }
-             else {
-            	 query += key + "='" + value[0].trim() + "', ";
-             }
-		}
-        query = query.substring(0, query.length() - 2);
-        query += where;
-        
-        //System.out.println("FINAL QUERY!!! " + query);
-        
-        jdbcTemplate.update(query);
-        return id;
-        
+	private String getDateTimeStamp() {
+		TimeZone tz = TimeZone.getTimeZone("UTC");
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+		df.setTimeZone(tz);
+		return df.format(new Date());
 	}
 	
 	public String insertRecord(Map<?, ?> m, String table) {
@@ -474,22 +462,42 @@ public class JdbcRepo {
         Iterator<?> it = s.iterator();
         String query = "INSERT INTO " + table + " (";
         ArrayList<String> values = new ArrayList<>();
+        Map<String, Object> esData = new HashMap<String, Object>();
+        ESModel model = new ESModel();
         //insert into users(FIRST_NAME,LAST_NAME,USER_NAME) VALUES ('a','b','c')
         
         while(it.hasNext()){
         	 Map.Entry<String,String[]> entry = (Map.Entry<String,String[]>)it.next();
         	 String col = entry.getKey();
-        	 if (col.toLowerCase().equals("sys_created_on") || col.toLowerCase().equals("sys_updated_on")) {
-        		 values.add((new Timestamp(System.currentTimeMillis()).toString()));
+        	 if (col.equalsIgnoreCase("sys_created_on")) {
+        		 String date = (new Timestamp(System.currentTimeMillis()).toString());
+        		 values.add(date);
+        		 model.setSys_created_on(getDateTimeStamp());
         	 }
-        	 else if (col.toLowerCase().equals("sys_created_by") || col.toLowerCase().equals("sys_updated_by")) {
-        		 values.add(auth.getAuthentication().getName());
+        	 else if (col.equalsIgnoreCase("sys_updated_on")) {
+        		 String date = (new Timestamp(System.currentTimeMillis()).toString());
+        		 values.add(date);
+        		 model.setSys_updated_on(getDateTimeStamp());
         	 }
-        	 else if (col.toLowerCase().equals("password") && table.toLowerCase().equals("users")) {
-        		 values.add(BCrypt.hashpw(m.get("USER_NAME").toString(), BCrypt.gensalt()));
+        	 else if (col.equalsIgnoreCase("sys_created_by")) {
+        		 String who = auth.getAuthentication().getName();
+        		 values.add(who);
+        		 model.setSys_created_by(who);
+        	 }
+        	 else if (col.equalsIgnoreCase("sys_updated_by")) {
+        		 String who = auth.getAuthentication().getName();
+        		 values.add(who);
+        		 model.setSys_updated_by(who);
+        	 }
+        	 else if (col.equalsIgnoreCase("password") && table.equalsIgnoreCase("users")) {
+        		 String pass = BCrypt.hashpw(m.get("USER_NAME").toString(), BCrypt.gensalt());
+        		 values.add(pass);
+        		 esData.put(col, pass);
         	 }
          	 else {
-        		 values.add(entry.getValue()[0]);
+         		 String data = entry.getValue()[0];
+        		 values.add(data);
+        		 esData.put(col, data);
         	 }
              
              query += col + ",";
@@ -521,6 +529,16 @@ public class JdbcRepo {
         }, keyHolder);
         
 		String key = (String) keyHolder.getKeys().get("SCOPE_IDENTITY()");
+		
+		try {
+			model.setId(key);
+			model.setData(esData);
+			model.setTable(table);
+			modelRepo.save(model);
+		} catch (Exception e) {
+			LOG.error("Unable to create elastic search index for " + table + ". Error is " + e, JdbcRepo.class.getName());
+		}
+		
         return key;
         
 	}

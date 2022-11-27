@@ -23,4 +23,12 @@ public class UserService {
 	public void save(User user) {
 		userRepo.save(user);
 	}
+	
+	public String findByUserName(String uName) {
+		User user = userRepo.findByUserName(uName);
+		if (user != null) {
+			return user.getValue().toString();
+		}
+		return null;
+	}
 }

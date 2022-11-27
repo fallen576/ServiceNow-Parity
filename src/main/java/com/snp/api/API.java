@@ -1,14 +1,16 @@
 package com.snp.api;
 
 import com.snp.controller.AMB;
+import com.snp.data.es.model.ESLog;
+import com.snp.data.es.model.ESModel;
+import com.snp.data.es.repository.ESLogRepository;
+import com.snp.data.es.repository.ESModelRepository;
 import com.snp.db.JdbcRepo;
 import com.snp.entity.Module;
 import com.snp.model.CreateTable;
-import com.snp.model.CreateTableField;
 import com.snp.security.IAuthenticationFacade;
 import com.snp.service.LogService;
 import com.snp.service.ModuleService;
-import com.snp.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
@@ -30,7 +32,10 @@ public class API {
 	private ModuleService modService;
 	
 	@Autowired
-	private UserService userService;
+	private ESLogRepository esLogRepo;
+
+	@Autowired
+	private ESModelRepository modelRepo;
 	
 	@Autowired
 	private JdbcRepo db;
@@ -47,6 +52,37 @@ public class API {
 	@ResponseBody
 	public Iterable<Module> loadModules() {
 		return modService.findAll();
+	}
+	
+	@GetMapping(value="api/v1/eslogs/autocomplete")
+    public Iterable<ESLog> autocomplete(@RequestParam String search) {
+		return esLogRepo.findByText("*" + search + "*");
+    }
+	
+	@GetMapping(value="api/v1/esmodels/autocomplete")
+    public Iterable<ESModel> autoCompleteModel(@RequestParam String search) {
+		return modelRepo.findByCustomQuery("*" + search + "*");
+    }
+	
+	@GetMapping(value="api/v1/eslogs")
+	public Iterable<ESLog> loadESLogs() {		
+		return esLogRepo.findAll();
+	}
+
+	@GetMapping(value="api/v1/esmodels")
+	public Iterable<ESModel> loadESModels() {	
+		return modelRepo.findAll();
+	}
+	
+	@GetMapping(value="api/v1/esmodels/{sys_id}")
+	public ESModel loadESModels(@PathVariable(value="sys_id") String id) {	
+		
+		try {
+			Optional<ESModel> tmp = modelRepo.findById(id);
+			return modelRepo.findById(id).get();
+		} catch (NoSuchElementException e) {
+			return null;	
+		}
 	}
 	
 	@PostMapping(path = "/api/v1/update/{table_name}/{sys_id}", 

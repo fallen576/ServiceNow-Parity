@@ -31,6 +31,58 @@ $(document).ready( function () {
 	function () {
 	    //stuff to do on mouse leave
 	});
+	
+	$.typeahead({
+		input: ".js-typeahead",
+		order: "asc",
+		highlight: true,
+		accent: true,
+	    dynamic: true,
+	    filter: false,
+	    delay: 300,
+	    template: function (query, item) {
+	    	if (item.data) {
+				let s = "<ul>";
+				let cardBody = '<div class="card"><ul class="list-group list-group-flush">';
+				cardBody += '<li class="list-group-item"> table - ' + item.table + '</li>'
+	    		var obj = item.data;
+	    		for (var i in obj){
+					s+= `<li>${i} - ${obj[i]}</li>`
+					cardBody += '<li class="list-group-item"> ' + i + ' - ' + obj[i]  + '</li>'
+	    		}
+				s += "</ul>"
+				cardBody += "</ul></div>";
+				return cardBody;
+	    		//return s;
+	    	}
+	    	return '<p>{{table}}</p><br /><p>{{id}}</p><br /><p>{{data}}</p>'
+	    },
+	    href: "/table/{{table}}/{{id}}",
+	    source: {
+	        models: {
+	            ajax: function(query) {
+	                return {
+	                    url: "/api/v1/esmodels/autocomplete?search=" + query
+	                }
+	            }
+	        }
+	    }
+	});
+	/*
+	$("#global-search").on('input', function() {
+		let text = $(this).val();
+		$.get("/api/v1/esmodels/autocomplete?search=" + text, (data, status) => {
+    		if (data.length == 0) {
+    			console.log("could not find any results matching " + text);
+    		}
+    		else {
+    			console.table(data);
+    			console.log(JSON.stringify(data));
+    			console.log(JSON.stringify(status));
+    		}
+	    });
+    });
+    */
 });
 
 function sendUpdateRequest() {

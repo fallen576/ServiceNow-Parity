@@ -1,14 +1,19 @@
 package com.snp.data;
 
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
+import java.util.TimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.UnexpectedRollbackException;
-
 import com.snp.entity.HasRole;
 import com.snp.entity.Module;
 import com.snp.entity.Role;
@@ -18,6 +23,10 @@ import com.snp.service.*;
 import com.snp.entity.SystemLog;
 import com.snp.entity.SystemLog.LogLevel;
 import com.snp.entity.ListLayout;
+import com.snp.data.es.model.ESLog;
+import com.snp.data.es.model.ESModel;
+import com.snp.data.es.repository.ESLogRepository;
+import com.snp.data.es.repository.ESModelRepository;
 
 @Component
 public class DataLoader implements ApplicationRunner {
@@ -29,10 +38,14 @@ public class DataLoader implements ApplicationRunner {
     private HasRoleService hasRoleService;
     private LogService logService;
     private UserPreferenceService listLayout;
+    private ESLogRepository esLogRepo;
+    private ESModelRepository esModelRepo;
+    private List<ESModel> models = new ArrayList<>();
 
     @Autowired
     public DataLoader(UserService userService, ModuleService modService, TestReferenceService tfService,
-    		RoleService roleService, HasRoleService hasRoleService, LogService logService, UserPreferenceService listLayout) {
+    		RoleService roleService, HasRoleService hasRoleService, LogService logService, UserPreferenceService listLayout,
+    		ESLogRepository esLogRepo, ESModelRepository esModelRepo) {
         this.userService = userService;
         this.modService = modService;
         this.tfService = tfService;
@@ -40,6 +53,8 @@ public class DataLoader implements ApplicationRunner {
         this.hasRoleService = hasRoleService;
         this.logService = logService;
         this.listLayout = listLayout;
+        this.esLogRepo = esLogRepo;
+        this.esModelRepo = esModelRepo;
     }
 
 	@Override
@@ -48,7 +63,7 @@ public class DataLoader implements ApplicationRunner {
 		this.logService.save(new SystemLog(LogLevel.Info, "Inserting modules", "Startup", "administrator"));
 		
 		//create modules
-		this.modService.save(new Module("Modules", "modules", "MODULE_NAME", "ben"));
+		this.modService.save(new Module("Modules", "modules", "MODULE_NAME", "ben"));		
 		this.modService.save(new Module("Users", "users", "USER_NAME", "ben"));
 		this.modService.save(new Module("Create Table", "createTable", "", "ben"));
 		//this.modService.save(new Module("H2 Console", "h2-console", "", "ben"));
@@ -101,14 +116,31 @@ public class DataLoader implements ApplicationRunner {
 				"Schuster", "Tapia", "Thompson", "Tiernan", "Tisler" };
 		
 		//create random users
-		//for (int i = 0; i < lastNames.length; i++) {
-                for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 50; i++) {
 			String fName = firstNames[_rand(firstNames)];
 			String lName = lastNames[_rand(lastNames)];
 			String uName = fName + " " + lName;
 			User tmp = new User(fName, lName, uName, "ben");
+			
 			try {
 				this.userService.save(tmp);
+				String id = this.userService.findByUserName(uName);
+				ESModel tmpModel = new ESModel();
+				Map<String, Object> tmpData = new HashMap<String, Object>();
+				tmpData.put("first_name", fName);
+				tmpData.put("last_name", lName);
+				tmpData.put("user_name", uName);
+				tmpModel.setData(tmpData);
+				tmpModel.setTable("users");
+				tmpModel.setId(id);
+				tmpModel.setSys_created_by(tmp.sys_created_by);
+				tmpModel.setSys_updated_by(tmp.sys_updated_by);
+				tmpModel.setSys_updated_on(getDateTimeStamp(tmp.updatedOn));
+				tmpModel.setSys_created_on(getDateTimeStamp(tmp.createdOn));
+				
+				models.add(tmpModel);
+				
+				
 			} catch (UnexpectedRollbackException e) {
 				this.logService.save(new SystemLog(LogLevel.Error, "Found duplicate username of " + uName + ". " + e.toString() , "Startup", "administrator"));
 			}
@@ -124,6 +156,21 @@ public class DataLoader implements ApplicationRunner {
 			this.hasRoleService.save(new HasRole(guest, u, "ben"));
 		});
 		
+		//elastic search log
+		ESLog log = new ESLog("Started applicaiton on " + new Timestamp(System.currentTimeMillis()), "Warning", "DataLoader", "ben");
+		esLogRepo.save(log);
+		
+		//elastic search models for global search
+		//commented out for now since using a volume.
+		esModelRepo.saveAll(models);
+		
+	}
+	
+	private String getDateTimeStamp(Date date) {
+		TimeZone tz = TimeZone.getTimeZone("UTC");
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+		df.setTimeZone(tz);
+		return df.format(date);
 	}
 	
 	private static int _rand(String[] arr) {
