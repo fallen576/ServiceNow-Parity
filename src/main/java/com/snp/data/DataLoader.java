@@ -9,14 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-
-import org.elasticsearch.search.DocValueFormat.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.UnexpectedRollbackException;
-
 import com.snp.entity.HasRole;
 import com.snp.entity.Module;
 import com.snp.entity.Role;
@@ -34,7 +31,9 @@ import com.snp.data.es.repository.ESModelRepository;
 @Component
 public class DataLoader implements ApplicationRunner {
 
-    private UserService userService;
+
+	private static final double RANDOM = Math.random();
+	private UserService userService;
     private ModuleService modService;
     private TestReferenceService tfService;
     private RoleService roleService;
@@ -69,7 +68,6 @@ public class DataLoader implements ApplicationRunner {
 		this.modService.save(new Module("Modules", "modules", "MODULE_NAME", "ben"));		
 		this.modService.save(new Module("Users", "users", "USER_NAME", "ben"));
 		this.modService.save(new Module("Create Table", "createTable", "", "ben"));
-		//this.modService.save(new Module("H2 Console", "h2-console", "", "ben"));
 		this.modService.save(new Module("Test Reference", "example_reference", "", "ben"));
 		this.modService.save(new Module("Roles", "sys_user_role", "name", "ben"));
 		this.modService.save(new Module("User Roles", "sys_user_has_role", "user", "ben"));
@@ -120,8 +118,8 @@ public class DataLoader implements ApplicationRunner {
 		
 		//create random users
         for (int i = 0; i < 50; i++) {
-			String fName = firstNames[_rand(firstNames)];
-			String lName = lastNames[_rand(lastNames)];
+			String fName = firstNames[(int) (RANDOM * firstNames.length - 1)];
+			String lName = lastNames[(int) (RANDOM * lastNames.length - 1)];
 			String uName = fName + " " + lName;
 			User tmp = new User(fName, lName, uName, "ben");
 			
@@ -174,9 +172,5 @@ public class DataLoader implements ApplicationRunner {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
 		df.setTimeZone(tz);
 		return df.format(date);
-	}
-	
-	private static int _rand(String[] arr) {
-		return (int) (Math.random() * arr.length - 1);
 	}
 }

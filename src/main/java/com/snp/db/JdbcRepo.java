@@ -415,7 +415,7 @@ public class JdbcRepo {
 		return jdbcTemplate.queryForList("show columns from " + table);
 	}
 	
-	public String updateRecord(HashMap<String, Object> fields, String table, String id) {
+	public String updateRecord(Map<String, Object> fields, String table, String id) {
 
 		Optional<ESModel> modelO = modelRepo.findById(id);
 		ESModel model = new ESModel();
@@ -424,75 +424,30 @@ public class JdbcRepo {
 		}
 		
         model.setId(id);
-		Map<String, Object> esData = new HashMap<String, Object>();
-		
-		String query = "UPDATE " + table + " SET ";
+		Map<String, Object> esData = new HashMap<>();
+		StringBuilder query = new StringBuilder("UPDATE " + table + " SET ");
+
 	    for (Map.Entry<String, Object> entry : fields.entrySet()) {
 	    	String fieldName = entry.getKey();
 	    	Object fieldValue = entry.getValue();
-	    	query += fieldName + " = '" + fieldValue + "', ";
-	    	
+	    	query.append(fieldName + " = '" + fieldValue + "', ");
 	    	esData.put(fieldName, fieldValue);
 	    }
 	    String updatedBy = auth.getAuthentication().getName();
 
-	    query += "sys_updated_on = '" + new Timestamp(System.currentTimeMillis()) + "', "
-	    		+ "sys_updated_by = '" + updatedBy + "' ";
+	    query.append("sys_updated_on = '" + new Timestamp(System.currentTimeMillis()) + "', "
+	    		+ "sys_updated_by = '" + updatedBy + "' ");
 	    
 	    model.setSys_updated_by(updatedBy);
 	    model.setSys_updated_on(getDateTimeStamp());
-	    //model.setSys_created_by(fields.get("sys_created_by").toString());
-	    //model.setSys_created_on(fields.get("sys_created_on").toString());
 	    model.setData(esData);
 	    
-	    query += "WHERE sys_id = '" + id + "'";
+	    query.append("WHERE sys_id = '" + id + "'");
 	    
-	    LOG.info(query, JdbcRepo.class.getName());
-	    jdbcTemplate.update(query);
+	    LOG.info(query.toString(), JdbcRepo.class.getName());
+	    jdbcTemplate.update(query.toString());
 	    modelRepo.save(model);
-	    
 	    return id;
-	}
-	
-	@Deprecated
-	public String updateRecord(Map<?, ?> m, String table) {
-		Set<?> s = m.entrySet();
-        Iterator<?> it = s.iterator();
-        String query = "UPDATE " + table + " SET ";
-        String where = " WHERE SYS_ID = '" ;
-        String id = "";
-        
-        while(it.hasNext()){
-        	Map.Entry<String,String[]> entry = (Map.Entry<String,String[]>)it.next();
-        	 String key = entry.getKey();
-        	 if (key.equalsIgnoreCase("sys_created_on")) {
-        		 continue;
-        	 }
-
-             String[] value = entry.getValue();
-             
-             if (key.equals("SYS_ID")) {
-            	 where += value[0] + "'";
-            	 id = value[0];
-             }
-             else if (key.toLowerCase().equals("sys_updated_on")) {
-            	 query += key + "='" + new Timestamp(System.currentTimeMillis()) + "', ";
-             }
-             else if (key.toLowerCase().equals("sys_updated_by")) {
-            	 query += key + "='" + auth.getAuthentication().getName() + "', ";
-             }
-             else {
-            	 query += key + "='" + value[0].trim() + "', ";
-             }
-		}
-        query = query.substring(0, query.length() - 2);
-        query += where;
-        
-        //System.out.println("FINAL QUERY!!! " + query);
-        
-        jdbcTemplate.update(query);
-        return id;
-        
 	}
 	
 	private String getDateTimeStamp() {
@@ -514,27 +469,27 @@ public class JdbcRepo {
         while(it.hasNext()){
         	 Map.Entry<String,String[]> entry = (Map.Entry<String,String[]>)it.next();
         	 String col = entry.getKey();
-        	 if (col.toLowerCase().equals("sys_created_on")) {
+        	 if (col.equalsIgnoreCase("sys_created_on")) {
         		 String date = (new Timestamp(System.currentTimeMillis()).toString());
         		 values.add(date);
         		 model.setSys_created_on(getDateTimeStamp());
         	 }
-        	 else if (col.toLowerCase().equals("sys_updated_on")) {
+        	 else if (col.equalsIgnoreCase("sys_updated_on")) {
         		 String date = (new Timestamp(System.currentTimeMillis()).toString());
         		 values.add(date);
         		 model.setSys_updated_on(getDateTimeStamp());
         	 }
-        	 else if (col.toLowerCase().equals("sys_created_by")) {
+        	 else if (col.equalsIgnoreCase("sys_created_by")) {
         		 String who = auth.getAuthentication().getName();
         		 values.add(who);
         		 model.setSys_created_by(who);
         	 }
-        	 else if (col.toLowerCase().equals("sys_updated_by")) {
+        	 else if (col.equalsIgnoreCase("sys_updated_by")) {
         		 String who = auth.getAuthentication().getName();
         		 values.add(who);
         		 model.setSys_updated_by(who);
         	 }
-        	 else if (col.toLowerCase().equals("password") && table.toLowerCase().equals("users")) {
+        	 else if (col.equalsIgnoreCase("password") && table.equalsIgnoreCase("users")) {
         		 String pass = BCrypt.hashpw(m.get("USER_NAME").toString(), BCrypt.gensalt());
         		 values.add(pass);
         		 esData.put(col, pass);

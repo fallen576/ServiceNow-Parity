@@ -171,35 +171,6 @@ public class Glide {
         return new ModelAndView("redirect:/table/" + table + "_list.do");
     }
 
-    @PostMapping(path = "/update/{table_name}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public HashMap<String, String> update(Model model, HttpServletRequest req,
-            @PathVariable(value = "table_name") String table) throws JsonProcessingException {
-
-        HashMap<String, String> response = new HashMap<>();
-        Map<?, ?> m = req.getParameterMap();
-        LOG.info("data " + m, Glide.class.getName());
-        try {
-            String id = this.db.updateRecord(m, table);
-            response.put("sys_id", id);
-            response.put("action", "update");
-
-            amb.trigger(m, "update");
-
-            if (table.equals("modules")) {
-                amb.trigger(m, "updateModule");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.put("message", e.getMessage());
-            return response;
-        }
-
-        response.put("message", "Successfully updated record.");
-        return response;
-
-    }
-
     @GetMapping("/script")
     public String backgroundScript(Model model) {
         return "backgroundScript";
